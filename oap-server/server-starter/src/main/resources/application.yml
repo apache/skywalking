@@ -841,14 +841,14 @@ ai-pipeline:
 # *****************************************************************************
 
 # admin-server is the shared HTTP host for admin / on-demand write APIs. Feature
-# modules (receiver-runtime-rule, dsl-debugging, inspect, status, ui-management)
-# register their REST routes onto this single port. Enabled by default so the
+# modules (receiver-runtime-rule, dsl-debugging, trace-pairing-debugging, inspect, status,
+# ui-management) register their REST routes onto this single port. Enabled by default so the
 # status feature module is reachable out-of-the-box; the host binds to 0.0.0.0:17128 by
 # default and has NO built-in authentication — operators MUST gateway-protect
 # it with an IP allow-list and authenticating reverse proxy, or bind it to a
 # private interface only. To disable it, set SW_ADMIN_SERVER=- together with
-# SW_RECEIVER_RUNTIME_RULE, SW_DSL_DEBUGGING, SW_INSPECT, SW_STATUS and
-# SW_UI_MANAGEMENT set to -. An empty value stops OAP from starting.
+# SW_RECEIVER_RUNTIME_RULE, SW_DSL_DEBUGGING, SW_TRACE_PAIRING_DEBUGGING, SW_INSPECT,
+# SW_STATUS and SW_UI_MANAGEMENT set to -. An empty value stops OAP from starting.
 admin-server:
   selector: ${SW_ADMIN_SERVER:default}
   default:
@@ -863,7 +863,8 @@ admin-server:
     restSSLKeyPath: ${SW_ADMIN_SERVER_REST_SSL_KEY_PATH:""}
     restSSLCertChainPath: ${SW_ADMIN_SERVER_REST_SSL_CERT_CHAIN_PATH:""}
     # Admin-internal gRPC bus — peer-to-peer RPCs for runtime-rule
-    # (Suspend/Resume/Forward) and dsl-debugging (install/collect/stop).
+    # (Suspend/Resume/Forward), dsl-debugging (install/collect/stop) and
+    # trace-pairing-debugging (start/stop/collect).
     # MUST be a private interface reachable between OAP nodes ONLY.
     # MUST NEVER be exposed to operators or to the agent network. The bus
     # is intentionally separate from the public agent / cluster gRPC port
@@ -899,12 +900,12 @@ receiver-runtime-rule:
     # short 2s constant.
     deferredFenceTimeoutSeconds: ${SW_RECEIVER_RUNTIME_RULE_DEFERRED_FENCE_TIMEOUT_SECONDS:180}
 
-# DSL Debug API — sampling debugger for MAL / LAL / OAL rules. Read-only OAL
-# listing under /runtime/oal/*; session control plane under /dsl-debugging/*.
+# DSL Debug API — sampling debugger for MAL / LAL / OAL / TAL rules. Read-only OAL
+# and TAL listings under /runtime/oal/* and /runtime/tal/*; session control plane under /dsl-debugging/*.
 # Enabled by default; mounts onto admin-server. Set SW_DSL_DEBUGGING=- to disable.
 #
 # injectionEnabled is a BOOT-TIME codegen switch. Default is true — MAL / LAL /
-# OAL classes are generated WITH probe call sites + the GateHolder field, so debug
+# OAL / TAL classes are generated WITH probe call sites + the GateHolder field, so debug
 # sessions actually capture samples. Setting this to false makes the DSL generators
 # emit bytecode byte-identical to a build without SWIP-13 — the REST surface still
 # serves /dsl-debugging/status (read-only), but POST /dsl-debugging/session returns
@@ -915,6 +916,15 @@ dsl-debugging:
   selector: ${SW_DSL_DEBUGGING:default}
   default:
     injectionEnabled: ${SW_DSL_DEBUGGING_INJECTION_ENABLED:true}
+
+# Trace pairing debugging — an on-demand capture of the network-alias pairing of OTLP calls: the peers the node that
+# owns a trace matched to a server, and the peers and servers whose halves went unmatched. One capture per node, no
+# sessions; it runs while it is read. Not a rule's run, so apart from dsl-debugging. Mounts onto admin-server (default
+# :17128) at /trace-pairing-debugging/. Requires the trace-analyzer module: set SW_TRACE_PAIRING_DEBUGGING=- when
+# trace-analyzer is removed.
+trace-pairing-debugging:
+  selector: ${SW_TRACE_PAIRING_DEBUGGING:default}
+  default:
 
 # Status feature module — cluster nodes / alarm runtime status / TTL config / debug
 # query trace endpoints. Mounts onto admin-server (default :17128). The single

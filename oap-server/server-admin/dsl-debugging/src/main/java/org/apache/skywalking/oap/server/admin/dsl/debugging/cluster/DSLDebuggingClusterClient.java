@@ -18,13 +18,17 @@
 
 package org.apache.skywalking.oap.server.admin.dsl.debugging.cluster;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterExecutionRecord;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterRuleKey;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterSessionLimits;
-import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugSamplesAck;
-import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugSamplesRequest;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugRecordsPart;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugRecordsRequest;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugRecordsSummary;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.DSLDebuggingClusterServiceGrpc;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.InstallDebugSessionAck;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.InstallDebugSessionRequest;
@@ -32,6 +36,7 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopByCli
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopByClientIdRequest;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopDebugSessionAck;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopDebugSessionRequest;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.session.CaptureTime;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.SessionLimits;
 import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
 
@@ -49,8 +54,9 @@ import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
  *     ▼
  *
  *   GET /dsl-debugging/session/{id}
- *     └─ collect(sessionId)                broadcast collect; receiving node concatenates
- *                                          per-node slices into the response nodes[] array.
+ *     └─ collect(sessionId, point, page)  each peer streams the records it captured at or after
+ *                                          the point, then a summary; the receiving node keeps every
+ *                                          node's records before the point all are complete before.
  *
  *   POST /dsl-debugging/session/{id}/stop
  *     └─ stop(sessionId)                   best-effort broadcast; missed peers fall out via
@@ -67,6 +73,10 @@ public final class DSLDebuggingClusterClient {
     private final ClusterPeerCaller peerCaller;
     private final long perCallDeadlineMs;
     private final long collectDeadlineMs;
+    /**
+     * The largest record this node's peer channels take in one message; a peer sends a larger one as a stub.
+     */
+    private final long maxRecordBytes;
 
     public List<PeerOutcome<InstallDebugSessionAck>> broadcastInstall(
             final String sessionId, final String clientId, final RuleKey ruleKey,
@@ -85,15 +95,62 @@ public final class DSLDebuggingClusterClient {
                 .installDebugSession(req));
     }
 
-    public List<PeerOutcome<CollectDebugSamplesAck>> broadcastCollect(final String sessionId) {
-        final CollectDebugSamplesRequest req = CollectDebugSamplesRequest.newBuilder()
+    /**
+     * @param responseBytes the bytes one response holds, from every node
+     * @return the bytes each node's page may hold: the response's shared by every node
+     */
+    public long nodePageBytes(final long responseBytes) {
+        return responseBytes / peerCaller.nodeCount();
+    }
+
+    /**
+     * Read a page of the session from every other node.
+     *
+     * @param capturedSince the point the client read from; {@link CaptureTime#EARLIEST} for the first page
+     * @param maxRecords    at most this many records from each node
+     * @param maxBytes      at most this many bytes from each node
+     */
+    public List<PeerOutcome<PeerPage>> broadcastCollect(final String sessionId,
+                                                        final CaptureTime capturedSince,
+                                                        final int maxRecords,
+                                                        final long maxBytes) {
+        final CollectDebugRecordsRequest.Builder builder = CollectDebugRecordsRequest.newBuilder()
             .setSessionId(sessionId)
             .setSenderNodeId(peerCaller.getSelfNodeId())
-            .build();
-        return peerCaller.fanOut("CollectDebugSamples", channel ->
+            .setMaxRecords(maxRecords)
+            .setMaxBytes(maxBytes)
+            .setMaxRecordBytes(maxRecordBytes);
+        if (!CaptureTime.EARLIEST.equals(capturedSince)) {
+            builder.setCapturedSince(CaptureTimeCodec.encode(capturedSince));
+        }
+        final CollectDebugRecordsRequest req = builder.build();
+        return peerCaller.fanOut("CollectDebugRecords", collectDeadlineMs, channel -> assemble(
             DSLDebuggingClusterServiceGrpc.newBlockingStub(channel)
                 .withDeadlineAfter(collectDeadlineMs, TimeUnit.MILLISECONDS)
-                .collectDebugSamples(req));
+                .collectDebugRecords(req)));
+    }
+
+    /**
+     * @return the peer's page: its records, in the order they came, and the summary that ended them
+     */
+    static PeerPage assemble(final Iterator<CollectDebugRecordsPart> parts) {
+        final List<ClusterExecutionRecord> records = new ArrayList<>();
+        CollectDebugRecordsSummary summary = null;
+        while (parts.hasNext()) {
+            final CollectDebugRecordsPart part = parts.next();
+            if (summary != null) {
+                throw new IllegalStateException("the peer sent more after the summary that ends its page");
+            }
+            if (part.hasRecord()) {
+                records.add(part.getRecord());
+            } else if (part.hasSummary()) {
+                summary = part.getSummary();
+            }
+        }
+        if (summary == null) {
+            throw new IllegalStateException("the peer's records ended without their summary");
+        }
+        return new PeerPage(summary, records);
     }
 
     public List<PeerOutcome<StopDebugSessionAck>> broadcastStop(final String sessionId) {

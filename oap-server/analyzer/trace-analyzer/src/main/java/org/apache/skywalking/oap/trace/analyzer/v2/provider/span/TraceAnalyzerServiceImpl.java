@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,11 +26,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.trace.SpanAnalysisResult;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalDSL;
+import org.apache.skywalking.oap.trace.analyzer.v2.dsl.debug.TALDebug;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener.SpanFilterListener;
 
 /**
@@ -122,6 +125,9 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
         // per span, as the callee half is chosen; an aborted rule sends neither.
         String clientPeer = null;
         SpanMetadata clientMeta = null;
+        String clientRule = null;
+        // The runs a dsl-debugging session records, closed once the pairing halves are decided; null while none is.
+        List<DebuggedRun> debugged = null;
 
         boolean persist = true;
         boolean enforced = false;
@@ -139,10 +145,25 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             ctx.setSourceTypeProvider(binding.provider);
             ctx.init(ruleMeta, span, resourceAttributes, scopeAttributes);
             ctx.reuseAttributeIndex(attributeIndex);
+            final GateHolder holder = binding.debugHolder;
+            DebuggedRun run = null;
+            if (holder != null && holder.isGateOn()) {
+                ctx.setDebugging(true);
+                TALDebug.beginSpan(holder, ctx, resourceAttributes, scopeAttributes);
+                run = new DebuggedRun(binding.dsl.getRuleName(), holder, ctx);
+                if (debugged == null) {
+                    debugged = new ArrayList<>(rules.size());
+                }
+                debugged.add(run);
+            }
             try {
                 binding.dsl.evaluate(ctx);
             } catch (final RuntimeException e) {
                 reportFailure(binding.dsl, e);
+                if (run != null) {
+                    run.failed = true;
+                    TALDebug.failed(holder, ctx, e);
+                }
                 continue;
             } finally {
                 if (attributeIndex == null) {
@@ -159,6 +180,7 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             if (clientPeer == null && ctx.getNetworkAliasPeer() != null) {
                 clientPeer = ctx.getNetworkAliasPeer();
                 clientMeta = ruleMeta;
+                clientRule = binding.dsl.getRuleName();
             }
             tags.putAll(ctx.getAdditionalTags());
             if (ctx.isPersistVoted()) {
@@ -167,13 +189,23 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
             }
         }
 
-        if (clientPeer != null) {
-            spanPairing.clientSeen(clientMeta, clientPeer);
-        }
-        if (aliasRule != null) {
-            final Layer aliasLayer = resolveLayer(aliasMeta);
-            spanPairing.serverSeen(aliasMeta, MeterEntity.isNormal(aliasLayer != null ? aliasLayer : layer),
-                layer.name(), aliasRule);
+        PairingOutcome clientOutcome = null;
+        PairingOutcome serverOutcome = null;
+        // On the trace's owner a half may meet its pair here, which runs the callee's rule; the recorded runs are
+        // published even if that throws.
+        try {
+            if (clientPeer != null) {
+                clientOutcome = spanPairing.clientSeen(clientMeta, clientPeer);
+            }
+            if (aliasRule != null) {
+                final Layer aliasLayer = resolveLayer(aliasMeta);
+                serverOutcome = spanPairing.serverSeen(aliasMeta,
+                    MeterEntity.isNormal(aliasLayer != null ? aliasLayer : layer), layer.name(), aliasRule);
+            }
+        } finally {
+            if (debugged != null) {
+                endDebuggedRuns(debugged, aliasRule, serverOutcome, clientRule, clientOutcome);
+            }
         }
 
         // The common outcome carries nothing span-specific, so the dedup window holds the shared instance.
@@ -186,6 +218,51 @@ public class TraceAnalyzerServiceImpl implements ITraceAnalyzerService {
                                 .build();
         seenSpans.remember(meta.getTraceId(), meta.getSpanId(), result);
         return result;
+    }
+
+    /**
+     * Report to each recorded run what became of the pairing half it asked for, then publish its record. A span
+     * offers the half of the first rule that asks, so a later rule learns that rule and what became of its half.
+     */
+    private static void endDebuggedRuns(final List<DebuggedRun> runs,
+                                        final String serverRule, final PairingOutcome serverOutcome,
+                                        final String clientRule, final PairingOutcome clientOutcome) {
+        for (final DebuggedRun run : runs) {
+            final ExecutionContext ctx = run.ctx;
+            if (!run.failed && !ctx.isAborted()) {
+                if (ctx.isNetworkAliasRequested()) {
+                    reportHalf(run, "callee", serverRule, serverOutcome, null);
+                }
+                // A rule that named an empty peer asked for no half; its prepareNetworkAlias step shows the peer.
+                if (ctx.getNetworkAliasPeer() != null) {
+                    reportHalf(run, "caller", clientRule, clientOutcome, ctx.getNetworkAliasPeer());
+                }
+            }
+            TALDebug.endSpan(run.holder, ctx);
+        }
+    }
+
+    private static void reportHalf(final DebuggedRun run, final String role, final String offeredBy,
+                                   final PairingOutcome outcome, final String peer) {
+        // No outcome when offering the halves threw, as the trace's owner can while it builds the match.
+        TALDebug.pairing(run.holder, role, outcome == null ? "failed" : outcome.getCode(), peer,
+            run.ruleName.equals(offeredBy) ? null : offeredBy);
+    }
+
+    /**
+     * A rule's run on this span that a dsl-debugging session records.
+     */
+    private static final class DebuggedRun {
+        private final String ruleName;
+        private final GateHolder holder;
+        private final ExecutionContext ctx;
+        private boolean failed;
+
+        private DebuggedRun(final String ruleName, final GateHolder holder, final ExecutionContext ctx) {
+            this.ruleName = ruleName;
+            this.holder = holder;
+            this.ctx = ctx;
+        }
     }
 
     /**

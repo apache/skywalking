@@ -42,8 +42,10 @@ import org.apache.skywalking.oap.server.core.analysis.meter.MeterSystem;
 import org.apache.skywalking.oap.server.core.analysis.meter.ScopeType;
 import org.apache.skywalking.oap.server.core.dsl.DslClassNaming;
 import org.apache.skywalking.oap.server.core.dsl.DslGeneratedFileWriter;
+import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
 import org.apache.skywalking.oap.server.core.dsl.classloader.BytecodeClassDefiner;
+import org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.rt.TalExpressionPackageHolder;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalExpression;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfigs;
@@ -216,6 +218,7 @@ public final class TALClassGenerator {
                 "private static final org.slf4j.Logger " + SCRIPT_LOGGER
                     + " = org.slf4j.LoggerFactory.getLogger(\"" + scriptLoggerName(sourceRef) + "\");", ctClass));
             ctClass.addConstructor(CtNewConstructor.defaultConstructor(ctClass));
+            final String debugMembers = addDebugMembers(ctClass, dsl, segmentDefSlots);
 
             final List<GeneratedMethod> methods = new ArrayList<>(rule.methods);
             if (genCtx.networkAliasBuild != null) {
@@ -247,7 +250,7 @@ public final class TALClassGenerator {
                 bodies.append(method.source);
             }
 
-            final String sourceText = buildSourceText(ctClass, memberFields, bodies.toString());
+            final String sourceText = buildSourceText(ctClass, memberFields + debugMembers, bodies.toString());
             if (sourceRef != null) {
                 DslGeneratedFileWriter.setSourceFile(ctClass, sourceRef.sourceFileOf(ctClass.getSimpleName()));
             }
@@ -274,6 +277,41 @@ public final class TALClassGenerator {
             field.set(expression, registry.instance(function.getKey()));
         }
         return expression;
+    }
+
+    /**
+     * With dsl-debugging injection on, the rule's capture binding the probes read, its accessor, and the
+     * {@code segmentDef} names a capture shows a run's state by. The holder is built by the no-arg constructor, so a
+     * class compiled ahead of time carries it too.
+     *
+     * @return the members' source, for the generated-source dump; empty when injection is off
+     */
+    private static String addDebugMembers(final CtClass ctClass, final String dsl,
+                                          final Map<String, Integer> segmentDefSlots) throws CannotCompileException {
+        if (!DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            return "";
+        }
+        final StringBuilder source = new StringBuilder();
+        final String field = "public final " + TALDebugCodegen.GATE_HOLDER + " debug = new "
+            + TALDebugCodegen.GATE_HOLDER + "(\"" + DslJavaSourceText.toLiteral(dsl) + "\");";
+        ctClass.addField(CtField.make(field, ctClass));
+        source.append("  ").append(field).append('\n');
+        final String accessor = "public " + TALDebugCodegen.GATE_HOLDER + " debugHolder() {\n  return this.debug;\n}";
+        ctClass.addMethod(CtNewMethod.make(accessor, ctClass));
+        source.append(accessor).append('\n');
+        if (segmentDefSlots.isEmpty()) {
+            return source.toString();
+        }
+        final String[] names = new String[segmentDefSlots.size()];
+        segmentDefSlots.forEach((name, slot) -> names[slot] = name);
+        final StringBuilder array = new StringBuilder();
+        for (final String name : names) {
+            array.append(array.length() == 0 ? "" : ", ").append('"').append(DslJavaSourceText.toLiteral(name))
+                 .append('"');
+        }
+        final String namesMethod = "public String[] segmentDefNames() {\n  return new String[] {" + array + "};\n}";
+        ctClass.addMethod(CtNewMethod.make(namesMethod, ctClass));
+        return source.append(namesMethod).append('\n').toString();
     }
 
     /**
@@ -401,9 +439,11 @@ public final class TALClassGenerator {
         GeneratedMethod firstMethod = null;
         if (!firsts.isEmpty()) {
             genCtx.beginMethod();
+            genCtx.firstMethod = true;
             final StringBuilder first = new StringBuilder();
             for (final TALScriptModel.FirstBlock block : firsts) {
                 first.append("  {\n");
+                TALDebugCodegen.step(first, genCtx, "block", block, null, null);
                 TALBlockCodegen.generateStatements(first, block.getStatements(), genCtx);
                 first.append("  }\n");
             }
@@ -465,6 +505,7 @@ public final class TALClassGenerator {
             statements.add((TALScriptModel.FilterStatement) stmt);
         }
         final StringBuilder body = new StringBuilder();
+        TALDebugCodegen.step(body, genCtx, "block", site.block, null, null);
         TALBlockCodegen.generateStatements(body, statements, genCtx);
         final List<String[]> lvt = new ArrayList<>(RUN_LVT);
         lvt.add(new String[] {"captured", "[Ljava/lang/Object;"});
@@ -486,6 +527,7 @@ public final class TALClassGenerator {
         sb.append("  ").append(HELPER).append(" h = new ").append(HELPER)
           .append("(ctx, filterSpec, ").append(SCRIPT_LOGGER).append(");\n");
         lvt.add(new String[] {"h", "L" + HELPER.replace('.', '/') + ";"});
+        TALDebugCodegen.declareGate(sb, lvt);
         if (genCtx.usesInput && inputType != null) {
             final String typeName = inputType.getName();
             sb.append("  ").append(typeName).append(" _p = (")

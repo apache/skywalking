@@ -136,8 +136,9 @@ public class TALConfigs {
     }
 
     /**
-     * Load the TAL rule files through {@link RuleSetMerger}, as LAL and MAL load theirs. {@code Catalog} has no TAL
-     * entry, so no runtime rule can be created for TAL and the merge returns the files on disk as they are.
+     * Load the TAL rule files through {@link RuleSetMerger}, as LAL and MAL load theirs. No runtime-rule engine claims
+     * the {@code tal} catalog, so no runtime rule can be created for TAL and the merge returns the files on disk as
+     * they are.
      *
      * @param path    the directory the rule files live in
      * @param files   the rule file names without extension

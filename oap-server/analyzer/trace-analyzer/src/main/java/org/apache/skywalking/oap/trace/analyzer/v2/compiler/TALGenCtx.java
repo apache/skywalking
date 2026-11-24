@@ -202,6 +202,17 @@ public class TALGenCtx {
      * How deep the generator is inside a {@code build {}} block, where a native rule writes its outputs.
      */
     public int buildDepth;
+
+    /**
+     * Whether the condition being generated is an {@code if}'s, whose operands a debug capture records.
+     */
+    public boolean captureOperands;
+
+    /**
+     * Whether the method being generated is the rule's {@code first {}} run, whose steps a debug capture shows as
+     * the {@code first} stage.
+     */
+    public boolean firstMethod;
     /**
      * Every {@code build {}} block the rule's runs queue, by its index; each becomes a method of its own, generated
      * after the method that queues it.
@@ -246,6 +257,7 @@ public class TALGenCtx {
         extractorDepth = 0;
         voteDepth = 0;
         buildDepth = 0;
+        firstMethod = false;
         for (final Map.Entry<String, Integer> slot : segmentDefSlots.entrySet()) {
             final SegmentDefType type = segmentDefTypes.get(slot.getKey());
             final Class<?> resolved = type == null ? Object.class : type.type;

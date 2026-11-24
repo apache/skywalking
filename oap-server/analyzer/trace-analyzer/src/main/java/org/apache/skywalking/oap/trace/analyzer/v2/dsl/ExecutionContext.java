@@ -66,6 +66,14 @@ public class ExecutionContext {
     private GateHolder debugHolder;
 
     /**
+     * Whether a dsl-debugging session records this run. The runner reads the rule's gate and sets it, so the probes
+     * the generator emits read a plain field; every run starts with it off.
+     */
+    @Getter
+    @Setter
+    private boolean debugging;
+
+    /**
      * The span's own attributes, indexed on the first {@code attr()} of this execution and reused after, so a
      * rule with many lookups costs one pass over the attribute list.
      */
@@ -106,11 +114,13 @@ public class ExecutionContext {
     /**
      * Set by {@code dropper {}} in a {@code persist {}} block. It wins over everything else in the rule.
      */
+    @Getter
     private boolean spanDropped;
 
     /**
      * Set by a {@code rateLimit} in a {@code persist {}} block that ran out of budget.
      */
+    @Getter
     private boolean spanSampledOut;
 
     /**
@@ -171,6 +181,7 @@ public class ExecutionContext {
         this.resourceAttributes = resourceAttributes == null ? Collections.emptyMap() : resourceAttributes;
         this.attributeIndex = null;
         this.scopeAttributeIndex = scopeAttributes == null ? Collections.emptyMap() : scopeAttributes;
+        this.debugging = false;
         this.aborted = false;
         this.networkAliasRequested = false;
         this.networkAliasPeer = null;
@@ -202,6 +213,7 @@ public class ExecutionContext {
         this.input = span;
         this.nativeSegment = segment;
         this.segmentDefs = segmentDefs;
+        this.debugging = false;
         this.aborted = false;
         if (!queuedBuilds.isEmpty()) {
             queuedBuilds.clear();

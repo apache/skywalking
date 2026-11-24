@@ -15,6 +15,7 @@ within a record, each probe stage the expression executes appends one
 nodes[]
   records[]
     startedAtMs                  — record boundary timestamp (ms)
+    captureTime                  — when the node captured it, `<millis>.<six-digit nanos>`, which pages the read
     dsl                          — verbatim per-rule DSL text
     rule                         — rule envelope:
       metricPrefix
@@ -148,13 +149,17 @@ A trimmed slice (one record = one scrape window):
 {
   "sessionId": "76b3266a-...",
   "capturedAt": 1777967923700,
+  "nextCapturedSince": "1777967923699.871533",
+  "complete": false,
   "ruleKey": { "catalog": "otel-rules", "name": "mal-with-filter",
                "ruleName": "e2e_demo_filtered_requests" },
   "nodes": [{
     "nodeId": "0.0.0.0_11800",
+    "instanceId": "0f6c2a4e-...",
     "status": "ok",
     "records": [{
       "startedAtMs": 1777967921000,
+      "captureTime": "1777967921004.067385",
       "dsl": "(e2e_demo_request_count_total.sum(['service_name'])).service(['service_name'], Layer.GENERAL)",
       "rule": {
         "metricPrefix": "e2e_demo",
@@ -213,8 +218,11 @@ curl -s -X POST 'http://OAP:17128/dsl-debugging/session/SESSION_ID/stop'
 
 - **Install** broadcasts to every reachable peer; each peer binds its own
   recorder on its own holder so the slice reflects local L1 parsing.
-- **Collect** broadcasts and concatenates per-node slices into `nodes[]`;
-  unreachable peers appear as `status: "unreachable"` rather than being
+- **Collect** reads one page from every node: each other node streams the
+  records it captured at or after the client's point, and the response holds
+  every node's records before the point all of them are complete before; see
+  [Reading the records page by page](dsl-debugging.md#reading-the-records-page-by-page).
+  Unreachable peers appear as `status: "unreachable"` rather than being
   omitted.
 - **Stop** broadcasts; missed acks fall out via per-node retention timeout
   (default 5 minutes).
@@ -249,5 +257,6 @@ Override per-session (within the caps above) in the request body:
 
 - [DSL Debug API — OAL](dsl-debugging-oal.md)
 - [DSL Debug API — LAL](dsl-debugging-lal.md)
+- [DSL Debug API — TAL](dsl-debugging-tal.md)
 - [Runtime Rule Hot-Update API](runtime-rule.md) — apply / inactivate / delete MAL rules.
 - [SWIP-13](../../../swip/SWIP-13.md) — full design.

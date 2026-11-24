@@ -1,0 +1,67 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# DSL Debug API — paging across OAP nodes. A session started and read through oap2 gets the records oap1 captured
+# over the admin bus's streamed collect, and a read paged five records at a time, landing on oap2 and oap1 in turn as
+# a load balancer may route it, covers the capture with no record twice or missing. The flow script owns the
+# assertions; this YAML owns the container lifecycle.
+
+setup:
+  env: compose
+  file: docker-compose.yml
+  timeout: 25m
+  init-system-environment: ../../../script/env
+  steps:
+    - name: set PATH
+      command: export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+    - name: install yq
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh yq
+    - name: install swctl
+      command: bash test/e2e-v2/script/prepare/setup-e2e-shell/install.sh swctl
+    - name: install jq
+      command: |
+        if ! command -v jq >/dev/null 2>&1; then
+          curl -fsSL -o /tmp/skywalking-infra-e2e/bin/jq \
+            https://github.com/jqlang/jq/releases/download/jq-1.7.1/jq-linux-amd64
+          chmod +x /tmp/skywalking-infra-e2e/bin/jq
+        fi
+    - name: drive the cluster paging flow
+      command: |
+        set -euo pipefail
+        export PATH=/tmp/skywalking-infra-e2e/bin:$PATH
+        export OAP_HOST=127.0.0.1
+        export OAP_REST_PORT=17128
+        bash test/e2e-v2/cases/dsl-debugging/cluster-paging/dsl-debug-flow.sh
+
+verify:
+  retry:
+    count: 1
+    interval: 1s
+  cases:
+    - query: swctl --display json --admin-url=http://127.0.0.1:17128 admin dsl-debug status >/dev/null && echo ok
+      expected: expected/ok.txt
+
+cleanup:
+  on: always
+  collect:
+    on: failure
+    output-dir: $SW_INFRA_E2E_LOG_DIR/dsl-debugging-cluster-paging
+    items:
+      - service: oap1
+        paths:
+          - /skywalking/logs/
+      - service: oap2
+        paths:
+          - /skywalking/logs/

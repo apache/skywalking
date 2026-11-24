@@ -41,7 +41,7 @@ endpoint hosted there.
 ## Endpoints by feature
 
 `admin-server` itself only provides the HTTP host. Each feature module
-registers its own routes on it. Today there are five:
+registers its own routes on it. Today there are six:
 
 ### [Runtime Rule Hot-Update API](runtime-rule.md)
 
@@ -61,23 +61,42 @@ Full reference: [Runtime Rule Hot-Update API](runtime-rule.md).
 
 ### [DSL Debug API](dsl-debugging.md)
 
-Operators run sampling debug sessions that capture how MAL / LAL / OAL
+Operators run sampling debug sessions that capture how MAL / LAL / OAL / TAL
 rules transform live ingest, with per-stage / per-block payloads
-available for inspection. Routes live under `/dsl-debugging/*` and
-`/runtime/oal/*` (read-only OAL rule listing for the debugger's rule
-picker). Requires `SW_DSL_DEBUGGING=default` (`admin-server` is on by default).
+available for inspection. Routes live under `/dsl-debugging/*`,
+`/runtime/oal/*` and `/runtime/tal/*` (read-only OAL and TAL rule listings
+for the debugger's rule picker). Requires `SW_DSL_DEBUGGING=default` (`admin-server` is on by default).
 
 Common operations:
 
 - `POST /dsl-debugging/session` — start a debug capture session.
-- `GET /dsl-debugging/session/{id}` — poll captured records.
+- `GET /dsl-debugging/session/{id}` — poll captured records, page by page with `capturedSince` and `pageSize`.
 - `POST /dsl-debugging/session/{id}/stop` — stop a session.
 - `GET /dsl-debugging/status` — current posture (active sessions, injection state).
 - `GET /runtime/oal/files` — list loaded `.oal` files (debug picker source).
 - `GET /runtime/oal/rules/{ruleName}` — single OAL rule detail.
+- `GET /runtime/tal/files` — list loaded TAL files and their rules.
+- `GET /runtime/tal/files/{name}` — a loaded TAL file's content.
 
 Design reference: [SWIP-13](../../../swip/SWIP-13.md).
 Operator reference: [DSL Debug API](dsl-debugging.md).
+
+### [Trace Pairing Debugging API](trace-pairing-debugging.md)
+
+Operators capture, on demand, the network-alias pairing of OTLP calls on every OAP node, as the owner of each
+trace: the peers matched to a server, and the peers and servers whose halves went unmatched. One capture per node,
+shared by every reader, no sessions; it runs while it is read. Not a rule's run, so apart from the DSL Debug API.
+Routes live under `/trace-pairing-debugging/*`. Enabled by default (`SW_TRACE_PAIRING_DEBUGGING=default`, `admin-server` is on by
+default); requires the `trace-analyzer` module.
+
+Common operations:
+
+- `GET /trace-pairing-debugging/status` — whether the node serves it, and its capture's state.
+- `POST /trace-pairing-debugging/start`, `POST /trace-pairing-debugging/stop` — turn the capture on or off on every
+  node; it also stops a minute after it was last read, and a stop releases what it found.
+- `GET /trace-pairing-debugging/pairings?limit=` — the counts and the three lists, summed over the nodes.
+
+Operator reference: [Trace Pairing Debugging API](trace-pairing-debugging.md).
 
 ### [Inspect API](inspect.md)
 
@@ -102,8 +121,8 @@ Operator reference: [Inspect API](inspect.md).
 
 Cluster, alarm, TTL, and per-query debug-trace endpoints. Hosted by the
 `status` feature module on the admin-server REST port (default `17128`),
-alongside `/ui-management/*`, `/inspect/*`, `/dsl-debugging/*`, and
-`/runtime/rule/*`. Both `status` and `admin-server` are enabled by
+alongside `/ui-management/*`, `/inspect/*`, `/dsl-debugging/*`,
+`/trace-pairing-debugging/*`, and `/runtime/rule/*`. Both `status` and `admin-server` are enabled by
 default — no opt-in required.
 
 Common operations:
@@ -144,7 +163,7 @@ a SkyWalking sub-project. Horizon UI consumes both the public query
 surface (GraphQL / MQE on `core.restPort`, default `12800`, or on the
 [query server](../backend-expose.md#query-server) when it has its own port) and every
 admin host endpoint listed above (`/ui-management/*`, `/status/*`,
-`/inspect/*`, `/dsl-debugging/*`, `/runtime/rule/*` on the admin port,
+`/inspect/*`, `/dsl-debugging/*`, `/trace-pairing-debugging/*`, `/runtime/rule/*` on the admin port,
 default `17128`). Operators who prefer not to deploy a web UI can drive
 every admin endpoint with `curl`, `swctl`, or a front-end of their
 choice.
@@ -160,7 +179,8 @@ export SW_STATUS=-                  # /status/* and /debugging/*
 export SW_INSPECT=-                 # /inspect/*
 export SW_UI_MANAGEMENT=-           # /ui-management/*
 export SW_RECEIVER_RUNTIME_RULE=-   # /runtime/rule/*, /runtime/mal/*, /runtime/lal/*
-export SW_DSL_DEBUGGING=-           # /dsl-debugging/* and /runtime/oal/*
+export SW_DSL_DEBUGGING=-           # /dsl-debugging/*, /runtime/oal/* and /runtime/tal/*
+export SW_TRACE_PAIRING_DEBUGGING=- # /trace-pairing-debugging/*
 export SW_ADMIN_SERVER=-            # the admin host itself, only with all of the above
 ```
 
@@ -177,7 +197,7 @@ other module dependency in OAP.
 | Port | Default | Direction | Purpose |
 |------|---------|-----------|---------|
 | `port` | `17128` | inbound from operators | HTTP REST surface (operator API) |
-| `gRPCPort` | `17129` | peer-to-peer between OAP nodes | admin-internal gRPC bus (cluster RPCs for runtime-rule Suspend/Resume/Forward, dsl-debugging install/collect/stop) |
+| `gRPCPort` | `17129` | peer-to-peer between OAP nodes | admin-internal gRPC bus (cluster RPCs for runtime-rule Suspend/Resume/Forward, dsl-debugging install/collect/stop, trace-pairing-debugging start/stop/collect) |
 
 Privileged admin RPCs ride the **dedicated `17129` gRPC server** rather than the public agent / cluster gRPC port (`core.gRPCPort`, default `11800`). This isolation is the core security property of `admin-server`: an attacker on the agent network can reach `11800` for legitimate telemetry submission, but cannot reach `17129` if the operator binds it to a private peer-to-peer interface. Admin RPCs and agent telemetry never share a blast radius.
 
@@ -208,7 +228,8 @@ admin-server:
     gRPCSslCertChainPath: ${SW_ADMIN_SERVER_GRPC_SSL_CERT_CHAIN_PATH:""}
     gRPCSslTrustedCAsPath: ${SW_ADMIN_SERVER_GRPC_SSL_TRUSTED_CAS_PATH:""}
     # Default per-call timeout (ms) for admin-internal RPCs between OAP nodes
-    # (dsl-debugging install / collect / stop). Workflow-specific call sites
+    # (dsl-debugging install / collect / stop, trace-pairing-debugging start /
+    # stop / collect). Workflow-specific call sites
     # — runtime-rule Suspend / Forward — keep their own tuned values.
     internalCommunicationTimeout: ${SW_ADMIN_SERVER_INTERNAL_COMM_TIMEOUT:5000}
 ```

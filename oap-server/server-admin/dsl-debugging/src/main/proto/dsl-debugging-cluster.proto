@@ -45,18 +45,18 @@ service DSLDebuggingClusterService {
 
     // Bind a recorder for `sessionId` to the live rule artifact on this
     // node, if the rule is loaded here. Receiving the same sessionId on
-    // every peer lets the later CollectDebugSamples fan-out collect every
+    // every peer lets the later CollectDebugRecords fan-out collect every
     // node's slice without a per-peer id mapping. Peers without the rule
     // loaded return NOT_LOCAL — that's not an error, just "this peer
     // contributes nothing to the session".
     rpc InstallDebugSession(InstallDebugSessionRequest) returns (InstallDebugSessionAck);
 
-    // Return this node's captured slice for `sessionId`. Returns an empty
-    // slice with status="not_local" when the session was never installed
-    // here (peer was unreachable during InstallDebugSession or install was
-    // rejected). The original-receiving node concatenates every peer's
-    // slice into the REST response's nodes[] array.
-    rpc CollectDebugSamples(CollectDebugSamplesRequest) returns (CollectDebugSamplesAck);
+    // A page of this node's captured slice for `sessionId`, one record a message and then the summary, so only a
+    // single record has to fit what one message carries. The summary has status="not_local", and no record comes
+    // before it, when the session was never installed here (peer was unreachable during InstallDebugSession or
+    // install was rejected). The original-receiving node puts every peer's page into the REST response's nodes[]
+    // array.
+    rpc CollectDebugRecords(CollectDebugRecordsRequest) returns (stream CollectDebugRecordsPart);
 
     // Stop a session locally. Idempotent — a missed stop falls out via
     // the per-node retention timeout.
@@ -121,9 +121,34 @@ message InstallDebugSessionAck {
     string detail = 3;
 }
 
-message CollectDebugSamplesRequest {
+// When a node captured a record: epoch milliseconds and the nanoseconds within that millisecond, compared
+// milliseconds first.
+message ClusterCaptureTime {
+    int64 millis = 1;
+    int32 nanos = 2;
+}
+
+message CollectDebugRecordsRequest {
     string session_id = 1;
     string sender_node_id = 2;
+    // A page of the session: the records captured at or after this time; unset for the first page.
+    ClusterCaptureTime captured_since = 3;
+    // At most this many records, at least 1.
+    int32 max_records = 4;
+    // At most this many bytes; the first record is sent whatever its size, and records of one capture time are not
+    // split.
+    int64 max_bytes = 5;
+    // The largest record the caller's channel takes in one message; a larger one goes as a stub holding its size.
+    // 0 sends every record whole.
+    int64 max_record_bytes = 6;
+}
+
+// One message of CollectDebugRecords: a captured record of the page, or the summary, which ends the stream.
+message CollectDebugRecordsPart {
+    oneof part {
+        ClusterExecutionRecord record = 1;
+        CollectDebugRecordsSummary summary = 2;
+    }
 }
 
 // One step inside a single rule execution — verbatim DSL fragment +
@@ -172,22 +197,36 @@ message ClusterExecutionRecord {
     repeated ClusterSample samples = 2;
     string dsl = 3;
     // Catalog-specific structured rule metadata (MAL: metricPrefix /
-    // name / filter / exp / expSuffix; LAL: outputClass; OAL: empty).
+    // name / filter / exp / expSuffix; LAL: outputClass; OAL: empty;
+    // TAL: ruleName / file / inputType / layer / sourceLine / segmentDefs).
     // Per-record so hot-update mid-session keeps revisions distinguishable
     // and cluster slices stay self-describing.
     map<string, string> metadata = 4;
+    // A catalog whose record is not a list of samples carries its body here as
+    // one JSON object instead (TAL: the record's context and its spans); empty
+    // for the others.
+    string body_json = 5;
+    // When the node captured the record.
+    ClusterCaptureTime captured_at = 6;
+    // Set, to the record's size, when the record alone is larger than one message carries; it then holds no samples,
+    // body or dsl.
+    int64 oversized_bytes = 7;
 }
 
-message CollectDebugSamplesAck {
+// The node's state for one read, sent once, after the page's records.
+message CollectDebugRecordsSummary {
     string node_id = 1;
-    // "ok" when a recorder is bound on this node, "not_local" when the
-    // session was never installed (e.g. peer was unreachable during
-    // InstallDebugSession), "captured" when the recorder reached its caps.
+    // "ok" when a recorder is bound on this node and still captures, "captured" when it reached its record cap,
+    // "not_local" when the session was never installed here (e.g. peer was unreachable during InstallDebugSession).
     string status = 2;
     bool captured = 3;
+    // The size of the node's whole capture, not of the page.
     int64 total_bytes = 4;
-    repeated ClusterExecutionRecord records = 5;
-    string detail = 6;
+    // The capture time the page holds every record of this node before; unset when the node holds no session. The
+    // latest capture time when the node reached its cap and the page holds the rest of its records.
+    ClusterCaptureTime complete_before = 5;
+    // This OAP process, apart from every other, a restarted one included; node_id is not unique.
+    string instance_id = 6;
 }
 
 message StopDebugSessionRequest {

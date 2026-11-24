@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.server.core.analysis.metrics;
 
+import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.apache.skywalking.oap.server.core.Const;
+import org.apache.skywalking.oap.server.core.dsl.debug.ToJson;
 import org.apache.skywalking.oap.server.core.storage.type.StorageDataComplexObject;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 
@@ -38,7 +40,7 @@ import static org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel.G
  */
 @ToString
 @EqualsAndHashCode
-public class DataTable implements StorageDataComplexObject<DataTable> {
+public class DataTable implements StorageDataComplexObject<DataTable>, ToJson {
     private HashMap<String, Long> data;
 
     public DataTable() {
@@ -250,5 +252,12 @@ public class DataTable implements StorageDataComplexObject<DataTable> {
             }
         }
         return labelIndex;
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject json = new JsonObject();
+        data.forEach(json::addProperty);
+        return json.toString();
     }
 }

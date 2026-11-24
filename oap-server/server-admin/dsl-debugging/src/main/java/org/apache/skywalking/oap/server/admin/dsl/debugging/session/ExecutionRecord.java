@@ -61,17 +61,40 @@ public final class ExecutionRecord {
      *
      * <p>For MAL: {@code {metricPrefix, name, filter, exp, expSuffix}}.
      * For LAL: {@code {outputClass}}. For OAL: empty (the dsl text is
-     * already structured).
+     * already structured). For TAL: {@code {ruleName, file, inputType, layer,
+     * sourceLine, segmentDefs}}, and {@code dslFirstLine} when the node reads
+     * the rule file.
      */
     @Getter
     private final Map<String, String> metadata;
     private final List<Sample> samples = new ArrayList<>();
+    /**
+     * The record's body as one JSON object, for a catalog whose record is not a list of samples: TAL's context and
+     * spans. Null for the others.
+     */
+    @Getter
+    private final String bodyJson;
+    /**
+     * When the node captured the record, stamped as the recorder lists it; null until then.
+     */
+    @Getter
+    private CaptureTime capturedAt;
 
     public ExecutionRecord(final long startedAtMillis, final String dsl,
                            final Map<String, String> metadata) {
+        this(startedAtMillis, dsl, metadata, null);
+    }
+
+    public ExecutionRecord(final long startedAtMillis, final String dsl,
+                           final Map<String, String> metadata, final String bodyJson) {
         this.startedAtMillis = startedAtMillis;
         this.dsl = dsl == null ? "" : dsl;
         this.metadata = metadata == null ? Collections.emptyMap() : metadata;
+        this.bodyJson = bodyJson;
+    }
+
+    void capture(final CaptureTime time) {
+        this.capturedAt = time;
     }
 
     /** Append one sample to this execution. Caller must serialise concurrent writes. */
@@ -86,7 +109,7 @@ public final class ExecutionRecord {
     }
 
     public boolean isEmpty() {
-        return samples.isEmpty();
+        return samples.isEmpty() && bodyJson == null;
     }
 
     /**
@@ -102,6 +125,9 @@ public final class ExecutionRecord {
         }
         for (final Sample s : samples) {
             total += s.byteSize();
+        }
+        if (bodyJson != null) {
+            total += bodyJson.length();
         }
         return total;
     }

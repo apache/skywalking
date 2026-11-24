@@ -24,4 +24,9 @@ public interface TALExprCondition extends TALCondition {
     TALValueAccess getExpr();
 
     String getCastType();
+
+    /**
+     * @return the expression as written, cast included, which the debugger names its value by
+     */
+    String getText();
 }

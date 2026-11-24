@@ -495,6 +495,11 @@ fits. A function name that two classes serve for one input fails the boot, among
 helpers and the modules' providers, and so does one that takes an entity constructor's name, such as `service`. A
 function object is stateless across runs and safe to call from every receiver thread.
 
+## Debugging a rule
+
+A rule's run on live traffic can be captured statement by statement through the
+[DSL Debug API](../setup/backend/admin-api/dsl-debugging-tal.md).
+
 ## Differences from LAL
 
 - No parser blocks. `text {}`, `json {}` and `yaml {}` give a log body structure; a span is already structured.

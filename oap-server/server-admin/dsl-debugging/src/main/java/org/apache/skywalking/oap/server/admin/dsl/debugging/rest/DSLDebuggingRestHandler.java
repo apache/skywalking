@@ -32,19 +32,24 @@ import com.linecorp.armeria.server.annotation.Get;
 import com.linecorp.armeria.server.annotation.Param;
 import com.linecorp.armeria.server.annotation.Post;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.CaptureTimeCodec;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.DSLDebuggingClusterClient;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.PeerOutcome;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.PeerPage;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterExecutionRecord;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterSample;
-import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugSamplesAck;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugRecordsSummary;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.InstallDebugSessionAck;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.InstallState;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopByClientIdAck;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopDebugSessionAck;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.module.DSLDebuggingModuleConfig;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.session.CapturePage;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.session.CaptureTime;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.DebugSession;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.DebugSessionRegistry;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.InstallOutcome;
@@ -59,30 +64,30 @@ import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
  * Session control plane for the DSL debug API. Routes mount on the shared
  * {@code admin-server} HTTP host under {@code /dsl-debugging/*}.
  *
- * <h2>Wire shape (post-reshape)</h2>
+ * <h2>Wire shape</h2>
  * <pre>
- *   GET /dsl-debugging/session/{id}
+ *   GET /dsl-debugging/session/{id}?capturedSince=&amp;pageSize=
  *     {
- *       sessionId, capturedAt, ruleKey,
- *       rule: { name, dsl },          // verbatim rule source, once at envelope level
+ *       sessionId, capturedAt, nextCapturedSince, complete, ruleKey,
  *       nodes: [{
- *         nodeId, status, captured, totalBytes,
- *         records: [{                  // one record = one execution
- *           startedAtMs,
- *           samples: [{                // one sample per pipeline step
+ *         nodeId | peer, instanceId, status, captured, totalBytes,
+ *         records: [{                  // one record = one execution, captured at or after the request's point
+ *           startedAtMs, captureTime,
+ *           dsl, rule,                 // the rule's source and metadata as the record was captured
+ *           samples: [{                // MAL / LAL / OAL: one sample per pipeline step
  *             sourceText,              // verbatim DSL fragment
  *             continueOn,              // did the rule keep going past this step?
  *             payload,                 // hand-built JSON via toJson()
  *             sourceLine               // 1-based source line, 0 if N/A
  *           }, ...]
+ *           // TAL: context and spans[] in place of samples
  *         }, ...]
  *       }, ...]
  *     }
  * </pre>
  *
- * <p>No {@code stage} on samples and no per-record {@code content} — the
- * envelope's {@code rule.dsl} carries the verbatim source once, and each
- * sample's {@code sourceText} is the locator inside the rule.
+ * <p>Each record carries the rule's source as it was when the record was captured, so a hot update during a
+ * session keeps the records unambiguous; a sample's {@code sourceText} locates its step inside the rule.
  *
  * <p>Catalog parsing is the only string-typed boundary: the handler resolves
  * the wire-name to a typed {@link Catalog} before constructing
@@ -293,14 +298,32 @@ public class DSLDebuggingRestHandler {
         return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, GSON.toJson(payload));
     }
 
+    /**
+     * A page of the session's records from every node: those captured at or after {@code capturedSince}, from the
+     * first when it is not given, and before {@code nextCapturedSince} in the response, which the next request passes
+     * back. The point travels with the client, so the next request may land on any node.
+     */
     @Get("/dsl-debugging/session/{id}")
-    public HttpResponse getSession(@Param("id") final String id) {
+    public HttpResponse getSession(@Param("id") final String id,
+                                   @Param("capturedSince") @Default("") final String capturedSinceParam,
+                                   @Param("pageSize") @Default("1000") final int pageSize) {
+        if (pageSize < 1 || pageSize > CapturePaging.MAX_PAGE_SIZE) {
+            return error(HttpStatus.BAD_REQUEST, "invalid_page",
+                         "pageSize " + pageSize + " is outside 1.." + CapturePaging.MAX_PAGE_SIZE + ".");
+        }
+        final CaptureTime capturedSince;
+        try {
+            capturedSince = capturedSinceParam.isEmpty() ? CaptureTime.EARLIEST : CaptureTime.parse(capturedSinceParam);
+        } catch (final IllegalArgumentException e) {
+            return error(HttpStatus.BAD_REQUEST, "invalid_page", e.getMessage());
+        }
+        final long nodeBytes = clusterClient.nodePageBytes(CapturePaging.RESPONSE_BYTES);
         final DebugSession local = sessionRegistry.find(id);
         // No-local-session is fine — the receiving node may have minted the id and
         // forwarded to peers. Carry on with a "local: not_local" entry; cluster
         // collect carries the rest.
-        final List<PeerOutcome<CollectDebugSamplesAck>> peerOutcomes =
-            clusterClient.broadcastCollect(id);
+        final List<PeerOutcome<PeerPage>> peerOutcomes =
+            clusterClient.broadcastCollect(id, capturedSince, pageSize, nodeBytes);
 
         // 404 contract: when EVERY reachable node has explicitly disowned the
         // session ("not_local"), the id is genuinely unknown. A peer that
@@ -315,12 +338,12 @@ public class DSLDebuggingRestHandler {
         if (local == null) {
             boolean anyPeerKnowsSession = false;
             boolean anyPeerFailed = false;
-            for (final PeerOutcome<CollectDebugSamplesAck> outcome : peerOutcomes) {
+            for (final PeerOutcome<PeerPage> outcome : peerOutcomes) {
                 if (!outcome.isOk()) {
                     anyPeerFailed = true;
                     continue;
                 }
-                if (!"not_local".equals(outcome.getAck().getStatus())) {
+                if (!"not_local".equals(outcome.getAck().getSummary().getStatus())) {
                     anyPeerKnowsSession = true;
                     break;
                 }
@@ -335,17 +358,42 @@ public class DSLDebuggingRestHandler {
 
         final JsonObject payload = new JsonObject();
         payload.addProperty("sessionId", id);
-        // One slice-level timestamp at GET-time. Probes fire sub-millisecond, so
-        // per-record stamps are noise — array order preserves intra-execution
-        // ordering. The UI uses this to render "fetched at ...".
+        // When the response was built, which the UI renders as "fetched at ..."; each record carries its own
+        // captureTime, which pages the read.
         payload.addProperty("capturedAt", System.currentTimeMillis());
         if (local != null) {
             payload.add("ruleKey", ruleKeyToJson(local.getRuleKey()));
         }
+        final CapturePage localRead = local == null ? null
+            : local.getRecorder().page(capturedSince, pageSize, nodeBytes, ExecutionRecord::byteSize);
+        final CapturePaging.NodePage localPage = localRead == null ? null : localPage(localRead);
+        final List<CapturePaging.NodePage> pages = new ArrayList<>(peerOutcomes.size() + 1);
+        if (localPage != null) {
+            pages.add(localPage);
+        }
+        final List<CapturePaging.NodePage> peerPages = new ArrayList<>(peerOutcomes.size());
+        final CaptureTime servedAt = CaptureTime.now();
+        boolean unanswered = false;
+        for (final PeerOutcome<PeerPage> outcome : peerOutcomes) {
+            final CapturePaging.NodePage page = outcome.isOk() ? peerPage(outcome.getAck()) : null;
+            peerPages.add(page);
+            if (page != null) {
+                pages.add(page);
+            }
+            unanswered |= !outcome.isOk();
+        }
+        final List<CapturePaging.NodePage> bounding = CapturePaging.withUnanswered(pages, unanswered, servedAt);
+        final CaptureTime next = CapturePaging.nextSince(bounding, capturedSince, pageSize);
+        // Empty when no node holding the session answered and the client gave no point: read from the first again.
+        payload.addProperty("nextCapturedSince", CaptureTime.EARLIEST.equals(next) ? "" : next.toString());
+        payload.addProperty("complete", CapturePaging.readThrough(bounding, next));
         final JsonArray nodes = new JsonArray();
-        nodes.add(localNodeSlice(local));
-        for (final PeerOutcome<CollectDebugSamplesAck> outcome : peerOutcomes) {
-            nodes.add(peerNodeSlice(outcome));
+        nodes.add(localNodeSlice(localRead, localPage == null ? new JsonArray()
+            : CapturePaging.kept(localPage, capturedSince, next)));
+        for (int i = 0; i < peerOutcomes.size(); i++) {
+            final CapturePaging.NodePage page = peerPages.get(i);
+            nodes.add(peerNodeSlice(peerOutcomes.get(i), page == null ? new JsonArray()
+                : CapturePaging.kept(page, capturedSince, next)));
         }
         payload.add("nodes", nodes);
         return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, GSON.toJson(payload));
@@ -402,6 +450,12 @@ public class DSLDebuggingRestHandler {
         body.addProperty("nodeId", selfNodeId);
         body.addProperty("injectionEnabled", moduleConfig.isInjectionEnabled());
         body.addProperty("activeSessions", sessionRegistry.snapshotActive().size());
+        // The catalogs a session can be installed on, so a client can tell which DSLs this OAP debugs.
+        final JsonArray catalogs = new JsonArray();
+        for (final Catalog c : Catalog.values()) {
+            catalogs.add(c.getWireName());
+        }
+        body.add("catalogs", catalogs);
         return HttpResponse.of(HttpStatus.OK, MediaType.JSON_UTF_8, GSON.toJson(body));
     }
 
@@ -472,22 +526,24 @@ public class DSLDebuggingRestHandler {
         return obj;
     }
 
-    private JsonObject localNodeSlice(final DebugSession local) {
+    private JsonObject localNodeSlice(final CapturePage local, final JsonArray records) {
         final JsonObject node = new JsonObject();
         node.addProperty("nodeId", selfNodeId);
+        node.addProperty("instanceId", sessionRegistry.getInstanceId());
         if (local == null) {
             node.addProperty("status", "not_local");
             node.add("records", new JsonArray());
             return node;
         }
-        node.addProperty("status", local.getRecorder().isCaptured() ? "captured" : "ok");
-        node.addProperty("captured", local.getRecorder().isCaptured());
-        node.addProperty("totalBytes", local.getRecorder().totalBytes());
-        node.add("records", recordsToJson(local.getRecorder().snapshotRecords()));
+        node.addProperty("status", local.isCaptured() ? "captured" : "ok");
+        node.addProperty("captured", local.isCaptured());
+        node.addProperty("totalBytes", local.getTotalBytes());
+        node.add("records", records);
         return node;
     }
 
-    private static JsonObject peerNodeSlice(final PeerOutcome<CollectDebugSamplesAck> outcome) {
+    private static JsonObject peerNodeSlice(final PeerOutcome<PeerPage> outcome,
+                                            final JsonArray records) {
         final JsonObject node = new JsonObject();
         node.addProperty("peer", outcome.getPeerAddress());
         if (!outcome.isOk()) {
@@ -496,15 +552,12 @@ public class DSLDebuggingRestHandler {
             node.add("records", new JsonArray());
             return node;
         }
-        final CollectDebugSamplesAck ack = outcome.getAck();
-        node.addProperty("nodeId", ack.getNodeId());
-        node.addProperty("status", ack.getStatus());
-        node.addProperty("captured", ack.getCaptured());
-        node.addProperty("totalBytes", ack.getTotalBytes());
-        final JsonArray records = new JsonArray();
-        for (final ClusterExecutionRecord r : ack.getRecordsList()) {
-            records.add(clusterRecordToJson(r));
-        }
+        final CollectDebugRecordsSummary summary = outcome.getAck().getSummary();
+        node.addProperty("nodeId", summary.getNodeId());
+        node.addProperty("instanceId", summary.getInstanceId());
+        node.addProperty("status", summary.getStatus());
+        node.addProperty("captured", summary.getCaptured());
+        node.addProperty("totalBytes", summary.getTotalBytes());
         node.add("records", records);
         return node;
     }
@@ -549,26 +602,59 @@ public class DSLDebuggingRestHandler {
         return arr;
     }
 
-    private static JsonArray recordsToJson(final List<ExecutionRecord> records) {
-        final JsonArray arr = new JsonArray();
-        for (final ExecutionRecord r : records) {
-            final JsonObject entry = new JsonObject();
-            entry.addProperty("startedAtMs", r.getStartedAtMillis());
-            // Per-record dsl: a hot-update mid-session that rotates the rule
-            // onto a fresh compiled class would otherwise make the captured
-            // records ambiguous. Each record carries the source as it was
-            // when the record was published.
-            entry.addProperty("dsl", r.getDsl());
-            // Per-record structured rule metadata (catalog-specific).
-            entry.add("rule", metadataToJson(r.getMetadata()));
-            final JsonArray samples = new JsonArray();
-            for (final Sample s : r.getSamples()) {
-                samples.add(sampleToJson(s));
-            }
-            entry.add("samples", samples);
-            arr.add(entry);
+    private static CapturePaging.NodePage localPage(final CapturePage page) {
+        final List<CapturePaging.Entry> entries = new ArrayList<>(page.getRecords().size());
+        for (final ExecutionRecord r : page.getRecords()) {
+            entries.add(new CapturePaging.Entry(r.getCapturedAt(), r.byteSize(), recordToJson(r)));
         }
-        return arr;
+        return new CapturePaging.NodePage(entries, page.getCompleteBefore());
+    }
+
+    /**
+     * @return the peer's page for the merge; null when the peer holds no session, whose summary carries no point
+     */
+    static CapturePaging.NodePage peerPage(final PeerPage peer) {
+        if ("not_local".equals(peer.getSummary().getStatus())) {
+            return null;
+        }
+        final List<CapturePaging.Entry> entries = new ArrayList<>(peer.getRecords().size());
+        for (final ClusterExecutionRecord r : peer.getRecords()) {
+            entries.add(new CapturePaging.Entry(CaptureTimeCodec.decode(r.getCapturedAt()), r.getSerializedSize(),
+                clusterRecordToJson(r)));
+        }
+        return new CapturePaging.NodePage(entries, CaptureTimeCodec.decode(peer.getSummary().getCompleteBefore()));
+    }
+
+    private static JsonObject recordToJson(final ExecutionRecord r) {
+        final JsonObject entry = new JsonObject();
+        entry.addProperty("startedAtMs", r.getStartedAtMillis());
+        entry.addProperty("captureTime", r.getCapturedAt().toString());
+        // Per-record dsl: a hot-update mid-session that rotates the rule
+        // onto a fresh compiled class would otherwise make the captured
+        // records ambiguous. Each record carries the source as it was
+        // when the record was published.
+        entry.addProperty("dsl", r.getDsl());
+        // Per-record structured rule metadata (catalog-specific).
+        entry.add("rule", metadataToJson(r.getMetadata()));
+        if (r.getBodyJson() != null) {
+            addBody(entry, r.getBodyJson());
+            return entry;
+        }
+        final JsonArray samples = new JsonArray();
+        for (final Sample s : r.getSamples()) {
+            samples.add(sampleToJson(s));
+        }
+        entry.add("samples", samples);
+        return entry;
+    }
+
+    /**
+     * A record whose body is one JSON object, TAL's, shows its members, the context and the spans, in place of
+     * samples.
+     */
+    private static void addBody(final JsonObject entry, final String bodyJson) {
+        JsonParser.parseString(bodyJson).getAsJsonObject().entrySet()
+                  .forEach(member -> entry.add(member.getKey(), member.getValue()));
     }
 
     private static JsonObject metadataToJson(final Map<String, String> metadata) {
@@ -608,8 +694,18 @@ public class DSLDebuggingRestHandler {
     private static JsonObject clusterRecordToJson(final ClusterExecutionRecord r) {
         final JsonObject entry = new JsonObject();
         entry.addProperty("startedAtMs", r.getStartedAtMs());
+        entry.addProperty("captureTime", CaptureTimeCodec.decode(r.getCapturedAt()).toString());
+        if (r.getOversizedBytes() > 0) {
+            entry.add("rule", metadataToJson(r.getMetadataMap()));
+            entry.addProperty("oversizedBytes", r.getOversizedBytes());
+            return entry;
+        }
         entry.addProperty("dsl", r.getDsl());
         entry.add("rule", metadataToJson(r.getMetadataMap()));
+        if (!r.getBodyJson().isEmpty()) {
+            addBody(entry, r.getBodyJson());
+            return entry;
+        }
         final JsonArray samples = new JsonArray();
         for (final ClusterSample s : r.getSamplesList()) {
             samples.add(clusterSampleToJson(s));

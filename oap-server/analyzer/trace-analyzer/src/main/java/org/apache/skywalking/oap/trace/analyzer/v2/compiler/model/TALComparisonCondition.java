@@ -31,4 +31,14 @@ public interface TALComparisonCondition extends TALCondition {
     CompareOp getOp();
 
     TALConditionValue getRight();
+
+    /**
+     * @return the left operand as written, cast included, which the debugger names its value by
+     */
+    String getLeftText();
+
+    /**
+     * @return the right operand as written
+     */
+    String getRightText();
 }

@@ -20,6 +20,7 @@ package org.apache.skywalking.oap.server.library.util.genai;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class GenAIPricingConfig {
 
     @Getter
     @Setter
+    @ToString
     public static class Model {
         private String name;
         private List<String> aliases = new ArrayList<>();

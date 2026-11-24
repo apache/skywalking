@@ -19,6 +19,7 @@ package org.apache.skywalking.oap.trace.analyzer.v2.provider.span;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.RemovalNotification;
 import com.google.common.util.concurrent.Striped;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -55,8 +56,14 @@ public class SpanPairing implements Service {
     static final long MAX_ENTRIES = 200_000L;
     private static final long WARN_INTERVAL_MILLIS = 60_000L;
 
-    private final Cache<String, PairingFact> callers = buffer(TTL_SECONDS, TimeUnit.SECONDS);
-    private final Cache<String, PairingFact> callees = buffer(TTL_SECONDS, TimeUnit.SECONDS);
+    /**
+     * The debugging captures watching this node's pairing, for the halves it owns.
+     */
+    @Getter
+    private final PairingDebugGate debugGate = new PairingDebugGate();
+
+    private final Cache<String, PairingFact> callers = buffer();
+    private final Cache<String, PairingFact> callees = buffer();
 
     /**
      * Both halves of one call can arrive at once on two receiver threads; matching under the key's lock keeps them
@@ -94,8 +101,32 @@ public class SpanPairing implements Service {
         (caller, callee) -> IDManager.NetworkAddressAliasDefine.buildCallerScopedAddress(
             caller.getService(), caller.getPeer());
 
-    private static <T> Cache<String, T> buffer(final long ttl, final TimeUnit unit) {
-        return CacheBuilder.newBuilder().maximumSize(MAX_ENTRIES).expireAfterWrite(ttl, unit).build();
+    private Cache<String, PairingFact> buffer() {
+        return CacheBuilder.newBuilder().maximumSize(MAX_ENTRIES).expireAfterWrite(TTL_SECONDS, TimeUnit.SECONDS)
+                           .<String, PairingFact>removalListener(this::removed).build();
+    }
+
+    /**
+     * A waiting half left a buffer. A match takes it out explicitly, which the received half reports; any other way
+     * out is unmatched. Guava evicts an expired half when the buffer is next written, so its report comes then.
+     */
+    private void removed(final RemovalNotification<String, PairingFact> removal) {
+        if (!debugGate.isOn() || removal.getValue() == null) {
+            return;
+        }
+        switch (removal.getCause()) {
+            case EXPIRED:
+                debugGate.leftUnmatched(removal.getValue(), "expired");
+                break;
+            case SIZE:
+                debugGate.leftUnmatched(removal.getValue(), "evicted");
+                break;
+            case REPLACED:
+                debugGate.leftUnmatched(removal.getValue(), "replaced");
+                break;
+            default:
+                break;
+        }
     }
 
     /**
@@ -107,18 +138,20 @@ public class SpanPairing implements Service {
      * @param normal    the {@code normal} flag its service id carries
      * @param ruleLayer the layer of the rule whose {@code buildNetworkAlias} the span ran
      * @param ruleName  that rule's name
+     * @return whether the half was sent, or why not
      */
-    public void serverSeen(final SpanMetadata meta, final boolean normal,
-                           final String ruleLayer, final String ruleName) {
-        if (!SpanMetadata.KIND_SERVER.equals(meta.getKind())
-            || meta.getParentSpanId() == null || meta.getParentSpanId().isEmpty()
-            || SpanMetadata.PARENT_LOCAL.equals(meta.getParentLocation())) {
-            return;
+    public PairingOutcome serverSeen(final SpanMetadata meta, final boolean normal,
+                                     final String ruleLayer, final String ruleName) {
+        if (!SpanMetadata.KIND_SERVER.equals(meta.getKind())) {
+            return PairingOutcome.NOT_SERVER_SPAN;
         }
-        final PairingFact fact = PairingFact.server(meta, normal, ruleLayer, ruleName);
-        if (sampled.test(fact)) {
-            transport.accept(fact);
+        if (meta.getParentSpanId() == null || meta.getParentSpanId().isEmpty()) {
+            return PairingOutcome.ROOT_SPAN;
         }
+        if (SpanMetadata.PARENT_LOCAL.equals(meta.getParentLocation())) {
+            return PairingOutcome.PARENT_LOCAL;
+        }
+        return send(PairingFact.server(meta, normal, ruleLayer, ruleName));
     }
 
     /**
@@ -132,17 +165,25 @@ public class SpanPairing implements Service {
      *             id, is for the hop to its upstream. Any other kind is ignored: a PRODUCER span's peer is the
      *             broker, which answers with no span of its own, so there is nothing to pair it with
      * @param peer the peer as the rule spelled it
+     * @return whether the half was sent, or why not
      */
-    public void clientSeen(final SpanMetadata meta, final String peer) {
+    public PairingOutcome clientSeen(final SpanMetadata meta, final String peer) {
         final String kind = meta.getKind();
-        if ((!SpanMetadata.KIND_CLIENT.equals(kind) && !SpanMetadata.KIND_SERVER.equals(kind))
-            || peer == null || peer.isEmpty()) {
-            return;
+        if (!SpanMetadata.KIND_CLIENT.equals(kind) && !SpanMetadata.KIND_SERVER.equals(kind)) {
+            return PairingOutcome.NOT_CALLER_KIND;
         }
-        final PairingFact fact = PairingFact.client(meta, peer);
-        if (sampled.test(fact)) {
-            transport.accept(fact);
+        if (peer == null || peer.isEmpty()) {
+            return PairingOutcome.NO_PEER;
         }
+        return send(PairingFact.client(meta, peer));
+    }
+
+    private PairingOutcome send(final PairingFact fact) {
+        if (!sampled.test(fact)) {
+            return PairingOutcome.NOT_SAMPLED;
+        }
+        transport.accept(fact);
+        return PairingOutcome.SENT;
     }
 
     /**
@@ -161,16 +202,21 @@ public class SpanPairing implements Service {
             match = other.getIfPresent(key);
             if (match == null) {
                 own.put(key, fact);
-                return;
+            } else {
+                other.invalidate(key);
             }
-            other.invalidate(key);
         } finally {
             lock.unlock();
         }
-        if (fact.isServer()) {
-            build(match, fact);
-        } else {
-            build(fact, match);
+        if (match == null) {
+            if (debugGate.isOn()) {
+                debugGate.received(fact, null);
+            }
+            return;
+        }
+        final PairingMatch built = fact.isServer() ? build(match, fact) : build(fact, match);
+        if (debugGate.isOn()) {
+            debugGate.received(fact, built);
         }
     }
 
@@ -188,30 +234,35 @@ public class SpanPairing implements Service {
         return uncomposed.total();
     }
 
-    private void build(final PairingFact caller, final PairingFact callee) {
+    private PairingMatch build(final PairingFact caller, final PairingFact callee) {
         // An uninstrumented gateway keeps its own node, as on the agent path. A call to another replica of the caller
         // is built like any other: the row is the caller's own, so it draws the call as the loop it is.
         if (aliasRegistrar != null && aliasRegistrar.isGateway(caller.getPeer())) {
-            return;
+            return new PairingMatch(caller, callee, MatchOutcome.GATEWAY, null, null);
         }
         final String address;
         try {
             address = addressComposer.apply(caller, callee);
         } catch (final RuntimeException e) {
             reportUncomposed(callee, e);
-            return;
+            return new PairingMatch(caller, callee, MatchOutcome.UNCOMPOSED, null,
+                e.getClass().getSimpleName() + ": " + e.getMessage());
         }
         if (address == null || address.isEmpty()) {
             reportUncomposed(callee, null);
-            return;
+            return new PairingMatch(caller, callee, MatchOutcome.UNCOMPOSED, null, null);
         }
         if (address.length() > NetworkAddressAlias.ADDRESS_MAX_LENGTH) {
             reportTooLong(address);
-            return;
+            return new PairingMatch(caller, callee, MatchOutcome.TOO_LONG, address, null);
         }
-        if (aliasRegistrar != null) {
-            aliasRegistrar.register(address, callee.getService(), callee.isNormal(), System.currentTimeMillis());
+        if (aliasRegistrar == null) {
+            return new PairingMatch(caller, callee, MatchOutcome.COMPOSED, address, null);
         }
+        final boolean pushed = aliasRegistrar.register(
+            address, callee.getService(), callee.isNormal(), System.currentTimeMillis());
+        return new PairingMatch(caller, callee, pushed ? MatchOutcome.REGISTERED : MatchOutcome.NO_SERVICE, address,
+            null);
     }
 
     /**

@@ -837,6 +837,10 @@ public class RuntimeRuleService {
      */
     public HttpResponse listBundled(final Catalog catalog,
                                      final String withContentRaw) {
+        // A Catalog value no engine claims, as oal and tal, has no runtime rules to list beside.
+        if (!isValidCatalog(catalog.getWireName())) {
+            return invalidCatalog(catalog.getWireName(), null);
+        }
         return doListBundled(catalog.getWireName(), withContentRaw);
     }
 
@@ -882,6 +886,9 @@ public class RuntimeRuleService {
     }
 
     public HttpResponse dumpCatalog(final Catalog catalog) {
+        if (!isValidCatalog(catalog.getWireName())) {
+            return invalidCatalog(catalog.getWireName(), null);
+        }
         return doDump(catalog.getWireName());
     }
     // ----- Shared handlers ---------------------------------------------------------------------

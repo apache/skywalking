@@ -462,6 +462,15 @@ class RuntimeRuleRestHandlerTest {
     }
 
     @Test
+    void bundledAndDumpRefuseACatalogNoEngineClaims() throws Exception {
+        // tal and oal are Catalog values, for the DSL debugger, but no runtime-rule engine claims either.
+        for (final String catalog : new String[] {"tal", "oal"}) {
+            assertHttpStatus(handler.listBundled(catalog, "true"), HttpStatus.BAD_REQUEST);
+            assertHttpStatus(handler.dumpCatalog(catalog), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @Test
     void listBundledReturnsAllForCatalog() throws Exception {
         clearStaticRegistry();
         final StaticRuleRegistry registry =

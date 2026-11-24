@@ -116,16 +116,20 @@ public final class TALValueCodegen {
                 sb.append(expr.isLiteral("true") ? "true" : "false");
                 return;
             }
+            final String text = ((TALExprCondition) cond).getText();
             // A built-in that already returns boolean is the condition. Wrapping it would hand a primitive to
             // an Object overload, which Javassist compiles without autoboxing and the verifier then rejects.
             if (ct == null && expr.getFunctionCallName() != null && expr.getChain().isEmpty()
                     && genCtx.resolver.functionReturnType(expr, genCtx) == ExprType.BOOLEAN) {
-                generateValueAccess(sb, expr, genCtx);
+                final StringBuilder value = new StringBuilder();
+                generateValueAccess(value, expr, genCtx);
+                sb.append(seen(value.toString(), text, true, isLiteralAccess(expr), genCtx));
                 return;
             }
-            sb.append(TALRuntimeRoles.method("Boolean".equals(ct) ? "isTrue" : "isNotEmpty")).append("(");
-            generateBoxedValueAccess(sb, expr, ct, genCtx);
-            sb.append(")");
+            final StringBuilder boxed = new StringBuilder();
+            generateBoxedValueAccess(boxed, expr, ct, genCtx);
+            sb.append(TALRuntimeRoles.method("Boolean".equals(ct) ? "isTrue" : "isNotEmpty")).append("(")
+              .append(seen(boxed.toString(), text, false, isLiteralAccess(expr), genCtx)).append(")");
         } else {
             throw new IllegalArgumentException("Unsupported condition in TAL rule: " + cond);
         }
@@ -198,8 +202,10 @@ public final class TALValueCodegen {
     private static void generateComparison(final StringBuilder sb,
                                            final TALComparisonCondition cc,
                                            final TALGenCtx genCtx) {
-        final Operand left = operand(cc.getLeft(), cc.getLeftCast(), genCtx);
-        final Operand right = rightOperand(cc.getRight(), genCtx);
+        final Operand left = seen(operand(cc.getLeft(), cc.getLeftCast(), genCtx), cc.getLeftText(),
+            isLiteralAccess(cc.getLeft()), genCtx);
+        final Operand right = seen(rightOperand(cc.getRight(), genCtx), cc.getRightText(),
+            isLiteralValue(cc.getRight()), genCtx);
         final CompareOp op = cc.getOp();
         requireComparable(left, op, right);
         final boolean equality = op == CompareOp.EQ || op == CompareOp.NEQ;
@@ -232,6 +238,42 @@ public final class TALValueCodegen {
         }
         sb.append(TALRuntimeRoles.method("compareOrdered")).append("(").append(left.expr).append(", ")
           .append(right.expr).append(", ").append(op.ordinal()).append(")");
+    }
+
+    /**
+     * The operand, recorded for a debug capture as it is evaluated when it is an {@code if}'s and no literal, whose
+     * value the rule's text already shows. Every emitted comparison takes its operands as {@code Object}, so the
+     * recording call's {@code Object} result stands in for the typed expression.
+     */
+    private static Operand seen(final Operand op, final String text, final boolean literal, final TALGenCtx genCtx) {
+        if (!genCtx.captureOperands || literal || op.kind == OperandKind.NULL) {
+            return op;
+        }
+        return new Operand(TALDebugCodegen.operand(op.expr, text, false), op.kind, op.type, op.nullable,
+            op.stringLiteral, op.source);
+    }
+
+    private static String seen(final String expr, final String text, final boolean primitive, final boolean literal,
+                               final TALGenCtx genCtx) {
+        return genCtx.captureOperands && !literal ? TALDebugCodegen.operand(expr, text, primitive) : expr;
+    }
+
+    private static boolean isLiteralAccess(final TALValueAccess value) {
+        TALValueAccess v = value;
+        // Grouping parentheses, as operand() unwraps them: `("x")` is the literal "x", which no probe wraps.
+        while (v.getParenInner() != null && v.getChain().isEmpty() && v.getConcatParts().isEmpty()
+            && v.getParenCast() == null) {
+            v = v.getParenInner();
+        }
+        return v.isStringLiteral() || v.isNumberLiteral() || v.isLiteral("true")
+            || v.isLiteral("false") || v.isLiteral("null");
+    }
+
+    private static boolean isLiteralValue(final TALConditionValue value) {
+        if (value instanceof TALValueAccessConditionValue) {
+            return isLiteralAccess(((TALValueAccessConditionValue) value).getValue());
+        }
+        return true;
     }
 
     /**

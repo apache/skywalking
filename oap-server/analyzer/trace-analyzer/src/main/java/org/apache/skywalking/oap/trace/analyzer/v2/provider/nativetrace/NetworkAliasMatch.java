@@ -17,8 +17,10 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.provider.nativetrace;
 
+import com.google.gson.JsonObject;
 import org.apache.skywalking.oap.server.core.analysis.IDManager;
 import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.NetworkAddressAlias;
+import org.apache.skywalking.oap.server.core.dsl.debug.ToJson;
 
 /**
  * What {@code findNetworkAlias(address)} answers: the stored alias row with its service and instance decoded from
@@ -26,7 +28,7 @@ import org.apache.skywalking.oap.server.core.analysis.manual.networkalias.Networ
  * both always, so a malformed id fails even when the instance is not used. The instance is {@code _blank} when the
  * row names none.
  */
-public class NetworkAliasMatch {
+public class NetworkAliasMatch implements ToJson {
     private final String service;
     private final String instance;
 
@@ -45,5 +47,13 @@ public class NetworkAliasMatch {
 
     public String getInstance() {
         return instance;
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject json = new JsonObject();
+        json.addProperty("service", service);
+        json.addProperty("instance", instance);
+        return json.toString();
     }
 }

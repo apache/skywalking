@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -32,6 +33,7 @@ import java.util.TreeSet;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.dsl.DslJavaSourceText;
 import org.apache.skywalking.oap.server.core.dsl.DslNumbers;
+import org.apache.skywalking.oap.server.core.dsl.debug.DSLDebugCodegenSwitch;
 import org.apache.skywalking.oap.server.core.source.DefaultScopeDefine;
 import org.apache.skywalking.oap.server.core.source.ISource;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.model.TALFunctionArg;
@@ -68,14 +70,16 @@ final class TALBlockCodegen {
      * A {@code persist} block. An empty one is still a vote: it says keep.
      */
     private static void generatePersistBlock(final StringBuilder sb,
-                                             final List<TALScriptModel.VoteStatement> stmts,
+                                             final TALScriptModel.PersistBlock block,
                                              final TALGenCtx genCtx) {
+        final List<TALScriptModel.VoteStatement> stmts = block.getStatements();
         if (genCtx.extractorDepth > 0 || genCtx.voteDepth > 0) {
             throw new IllegalArgumentException(
                 "persist {} belongs at the filter level, not inside an extractor or a persist block");
         }
         genCtx.voteDepth++;
         sb.append("  {\n");
+        TALDebugCodegen.step(sb, genCtx, "block", block, null, null);
         // A block that runs votes keep for the span unless a statement in it says otherwise.
         sb.append("    ctx.votePersist(true);\n");
         final List<TALScriptModel.FilterStatement> asFilter = new ArrayList<>(stmts.size());
@@ -106,6 +110,7 @@ final class TALBlockCodegen {
         }
         genCtx.extractorDepth++;
         sb.append("  {\n");
+        TALDebugCodegen.step(sb, genCtx, "block", block, null, null);
         generateStatements(sb, stmts, genCtx);
         sb.append("  }\n");
         genCtx.extractorDepth--;
@@ -173,6 +178,7 @@ final class TALBlockCodegen {
                                           final TALScriptModel.FilterStatement stmt,
                                           final TALGenCtx genCtx) {
         if (stmt instanceof TALScriptModel.AbortStatement) {
+            TALDebugCodegen.step(sb, genCtx, "abort", (TALScriptModel.AbortStatement) stmt, null, null);
             // A guarded return: an unconditional one at the end of a block makes the statements after the block
             // unreachable, and the bytecode Javassist emits for them fails verification.
             sb.append("  h.ctx().abort();\n");
@@ -183,15 +189,20 @@ final class TALBlockCodegen {
             generateExtractorBlock(sb, (TALScriptModel.ExtractorBlock) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.PersistBlock) {
             TALInputs.require(TALConstruct.PERSIST, genCtx.inputAlias);
-            generatePersistBlock(sb, ((TALScriptModel.PersistBlock) stmt).getStatements(), genCtx);
+            generatePersistBlock(sb, (TALScriptModel.PersistBlock) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.DefStatement) {
-            TALDefCodegen.generateDefStatement(sb, (TALScriptModel.DefStatement) stmt, genCtx);
+            final TALScriptModel.DefStatement def = (TALScriptModel.DefStatement) stmt;
+            TALDefCodegen.generateDefStatement(sb, def, genCtx);
+            valueStep(sb, genCtx, "def", def, def.getVarName());
         } else if (stmt instanceof TALScriptModel.AssignStatement) {
-            TALDefCodegen.generateAssignStatement(sb, (TALScriptModel.AssignStatement) stmt, genCtx);
+            final TALScriptModel.AssignStatement assign = (TALScriptModel.AssignStatement) stmt;
+            TALDefCodegen.generateAssignStatement(sb, assign, genCtx);
+            valueStep(sb, genCtx, "assign", assign, assign.getVarName());
         } else if (stmt instanceof TALScriptModel.ForeachBlock) {
             generateForeachBlock(sb, (TALScriptModel.ForeachBlock) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.LogStatement) {
             generateLogStatement(sb, (TALScriptModel.LogStatement) stmt, genCtx);
+            TALDebugCodegen.step(sb, genCtx, "log", (TALScriptModel.LogStatement) stmt, null, null);
         } else if (stmt instanceof TALScriptModel.FieldAssignment) {
             generateFieldAssignment(sb, (TALScriptModel.FieldAssignment) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.TagAssignment) {
@@ -203,16 +214,20 @@ final class TALBlockCodegen {
         } else if (stmt instanceof TALScriptModel.EnforcerStatement) {
             requireVoteBlock("enforcer {}", genCtx);
             sb.append("  filterSpec.enforcer(h.ctx());\n");
+            TALDebugCodegen.step(sb, genCtx, "enforcer", (TALScriptModel.EnforcerStatement) stmt, null, null);
         } else if (stmt instanceof TALScriptModel.DropperStatement) {
             requireVoteBlock("dropper {}", genCtx);
             sb.append("  filterSpec.dropper(h.ctx());\n");
+            TALDebugCodegen.step(sb, genCtx, "dropper", (TALScriptModel.DropperStatement) stmt, null, null);
         } else if (stmt instanceof TALScriptModel.SamplerBlock) {
             requireVoteBlock("sampler {}", genCtx);
             generateSamplerBlock(sb, (TALScriptModel.SamplerBlock) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.IfBlock) {
             generateIfBlock(sb, (TALScriptModel.IfBlock) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.SegmentDefStatement) {
-            TALDefCodegen.generateSegmentDefStatement(sb, (TALScriptModel.SegmentDefStatement) stmt, genCtx);
+            final TALScriptModel.SegmentDefStatement def = (TALScriptModel.SegmentDefStatement) stmt;
+            TALDefCodegen.generateSegmentDefStatement(sb, def, genCtx);
+            valueStep(sb, genCtx, "segmentDef", def, def.getVarName());
         } else if (stmt instanceof TALScriptModel.BuildBlock) {
             generateBuildBlock(sb, (TALScriptModel.BuildBlock) stmt, genCtx);
         } else if (stmt instanceof TALScriptModel.SourceBlock) {
@@ -220,9 +235,22 @@ final class TALBlockCodegen {
         } else if (stmt instanceof TALScriptModel.WriteNetworkAliasStatement) {
             final TALScriptModel.WriteNetworkAliasStatement alias = (TALScriptModel.WriteNetworkAliasStatement) stmt;
             TALInputs.require(TALConstruct.WRITE_NETWORK_ALIAS, genCtx.inputAlias);
-            sb.append("  ").append(TALRuntimeRoles.method("writeNetworkAlias")).append("(h, ");
-            TALValueCodegen.generateStringValueAccess(sb, alias.getValue(), alias.getCastType(), genCtx);
-            sb.append(");\n");
+            if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
+                // The address is evaluated once, for the write and for the probe.
+                final String address = genCtx.nextLocalName("_w");
+                genCtx.localVarDecls.append("  String ").append(address).append(" = null;\n");
+                genCtx.localVarLvtVars.add(new String[] {address, "Ljava/lang/String;"});
+                sb.append("  ").append(address).append(" = ");
+                TALValueCodegen.generateStringValueAccess(sb, alias.getValue(), alias.getCastType(), genCtx);
+                sb.append(";\n");
+                sb.append("  ").append(TALRuntimeRoles.method("writeNetworkAlias")).append("(h, ").append(address)
+                  .append(");\n");
+                TALDebugCodegen.step(sb, genCtx, "writeNetworkAlias", alias, address, String.class);
+            } else {
+                sb.append("  ").append(TALRuntimeRoles.method("writeNetworkAlias")).append("(h, ");
+                TALValueCodegen.generateStringValueAccess(sb, alias.getValue(), alias.getCastType(), genCtx);
+                sb.append(");\n");
+            }
         } else if (stmt instanceof TALScriptModel.FirstBlock) {
             // TALClassGenerator takes the ones written directly in filter {} into their own method.
             TALInputs.require(TALConstruct.FIRST, genCtx.inputAlias);
@@ -232,6 +260,17 @@ final class TALBlockCodegen {
         } else {
             throw new IllegalArgumentException(
                 "Unsupported TAL statement in codegen: " + stmt.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * The value a {@code def}, an assignment or a {@code segmentDef} left in its variable.
+     */
+    private static void valueStep(final StringBuilder sb, final TALGenCtx genCtx, final String kind,
+                                  final TALScriptModel.Located stmt, final String varName) {
+        final TALLocalVar var = genCtx.localVars.get(varName);
+        if (var != null) {
+            TALDebugCodegen.step(sb, genCtx, kind, stmt, var.javaVarName, var.resolvedType);
         }
     }
 
@@ -303,6 +342,7 @@ final class TALBlockCodegen {
         sb.append("  while (").append(iterator).append(".hasNext()) {\n");
         sb.append("  ").append(loopVar).append(" = (").append(TALCodegenHelper.javaTypeName(elementType)).append(") ")
           .append(iterator).append(".next();\n");
+        TALDebugCodegen.step(sb, genCtx, "foreach", block, loopVar, elementType);
         for (final String name : declaredInBody) {
             sb.append("  ").append(genCtx.localVars.get(name).javaVarName).append(" = null;\n");
         }
@@ -399,9 +439,26 @@ final class TALBlockCodegen {
     private static void generateIfBlock(final StringBuilder sb,
                                         final TALScriptModel.IfBlock block,
                                         final TALGenCtx genCtx) {
-        sb.append("  if (");
-        TALValueCodegen.generateCondition(sb, block.getCondition(), genCtx);
-        sb.append(") {\n");
+        if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            // The condition is evaluated once, for the branch and for the probe.
+            final String result = genCtx.nextLocalName("_c");
+            genCtx.localVarDecls.append("  boolean ").append(result).append(" = false;\n");
+            genCtx.localVarLvtVars.add(new String[] {result, "Z"});
+            sb.append("  ").append(result).append(" = ");
+            genCtx.captureOperands = true;
+            try {
+                TALValueCodegen.generateCondition(sb, block.getCondition(), genCtx);
+            } finally {
+                genCtx.captureOperands = false;
+            }
+            sb.append(";\n");
+            TALDebugCodegen.condition(sb, genCtx, block, result);
+            sb.append("  if (").append(result).append(") {\n");
+        } else {
+            sb.append("  if (");
+            TALValueCodegen.generateCondition(sb, block.getCondition(), genCtx);
+            sb.append(") {\n");
+        }
         // A def holds its own collection, or a quotient, after the block when it does on every branch that ends.
         final TALGenCtx.Facts before = genCtx.facts();
         generateStatements(sb, block.getThenStatements(), genCtx);
@@ -464,6 +521,8 @@ final class TALBlockCodegen {
         sb.append("  h.ctx().getMeta().").append(setter).append("(");
         TALValueCodegen.generateStringValueAccess(sb, stmt.getValue(), stmt.getCastType(), genCtx);
         sb.append(");\n");
+        TALDebugCodegen.step(sb, genCtx, stmt.getFieldType().name().toLowerCase(Locale.ROOT), stmt,
+            "h.ctx().getMeta().g" + setter.substring(1) + "()", String.class);
     }
 
     /**
@@ -529,6 +588,7 @@ final class TALBlockCodegen {
             sb.append("}");
         }
         sb.append(");\n");
+        TALDebugCodegen.step(sb, genCtx, "build", block, Integer.toString(index), int.class);
     }
 
     /**
@@ -562,6 +622,8 @@ final class TALBlockCodegen {
             sb.append(");\n");
         }
         sb.append("  filterSpec.getSourceReceiver().receive(").append(var).append(");\n");
+        // After the receiver: a source sets its ids in prepare(), there, and a getter that memoizes reads them.
+        TALDebugCodegen.source(sb, genCtx, block, var);
     }
 
     /**
@@ -641,10 +703,26 @@ final class TALBlockCodegen {
                                               final TALGenCtx genCtx) {
         TALInputs.require(TALConstruct.TAG, genCtx.inputAlias);
         for (final Map.Entry<String, TALScriptModel.TagValue> e : stmt.getTags().entrySet()) {
-            sb.append("  h.ctx().addTag(\"").append(DslJavaSourceText.toLiteral(e.getKey())).append("\", ");
+            final String key = DslJavaSourceText.toLiteral(e.getKey());
+            if (!DSLDebugCodegenSwitch.isInjectionEnabled()) {
+                sb.append("  h.ctx().addTag(\"").append(key).append("\", ");
+                TALValueCodegen.generateStringValueAccess(
+                    sb, e.getValue().getValue(), e.getValue().getCastType(), genCtx);
+                sb.append(");\n");
+                continue;
+            }
+            // The value is evaluated once, for the tag and for the probe, which shows it even when the tag ignores a
+            // null.
+            final String value = genCtx.nextLocalName("_g");
+            genCtx.localVarDecls.append("  String ").append(value).append(" = null;\n");
+            genCtx.localVarLvtVars.add(new String[] {value, "Ljava/lang/String;"});
+            sb.append("  ").append(value).append(" = ");
             TALValueCodegen.generateStringValueAccess(
                 sb, e.getValue().getValue(), e.getValue().getCastType(), genCtx);
-            sb.append(");\n");
+            sb.append(";\n");
+            sb.append("  h.ctx().addTag(\"").append(key).append("\", ").append(value).append(");\n");
+            TALDebugCodegen.step(sb, genCtx, "tag", stmt, "new Object[] {\"" + key + "\", " + value + "}",
+                Object.class);
         }
     }
 
@@ -656,9 +734,22 @@ final class TALBlockCodegen {
         if (!stmt.isBuild()) {
             // Recorded only: TraceAnalyzerServiceImpl sends the caller half once the rules have run, so a rule that
             // aborts later sends none.
-            sb.append("  h.ctx().prepareNetworkAlias(");
+            if (!DSLDebugCodegenSwitch.isInjectionEnabled()) {
+                sb.append("  h.ctx().prepareNetworkAlias(");
+                TALValueCodegen.generateStringValueAccess(sb, stmt.getValue(), stmt.getCastType(), genCtx);
+                sb.append(");\n");
+                return;
+            }
+            // The peer is evaluated once, for the run and for the probe, which shows the peer this statement named;
+            // the run keeps the first a rule names.
+            final String peer = genCtx.nextLocalName("_n");
+            genCtx.localVarDecls.append("  String ").append(peer).append(" = null;\n");
+            genCtx.localVarLvtVars.add(new String[] {peer, "Ljava/lang/String;"});
+            sb.append("  ").append(peer).append(" = ");
             TALValueCodegen.generateStringValueAccess(sb, stmt.getValue(), stmt.getCastType(), genCtx);
-            sb.append(");\n");
+            sb.append(";\n");
+            sb.append("  h.ctx().prepareNetworkAlias(").append(peer).append(");\n");
+            TALDebugCodegen.step(sb, genCtx, "prepareNetworkAlias", stmt, peer, String.class);
             return;
         }
         // The address is composed on the trace's owner from the matched caller half, by the method
@@ -670,23 +761,30 @@ final class TALBlockCodegen {
         }
         genCtx.networkAliasBuild = stmt;
         sb.append("  h.ctx().requestNetworkAlias();\n");
+        TALDebugCodegen.step(sb, genCtx, "buildNetworkAlias", stmt, null, null);
     }
 
     private static void generateSamplerBlock(final StringBuilder sb,
                                              final TALScriptModel.SamplerBlock block,
                                              final TALGenCtx genCtx) {
+        // A sampler the rule wrote; the one an if body groups its sampler statements into has no place in the text.
+        if (block.getSourceLine() > 0) {
+            TALDebugCodegen.step(sb, genCtx, "block", block, null, null);
+        }
         for (final TALScriptModel.SamplerContent content : block.getContents()) {
             if (content instanceof TALScriptModel.RateLimitBlock) {
                 final TALScriptModel.RateLimitBlock rl = (TALScriptModel.RateLimitBlock) content;
                 sb.append("  filterSpec.rateLimit(h.ctx(), ");
                 appendRateLimitId(sb, rl, genCtx);
                 sb.append(", ").append(rl.getRpm()).append(");\n");
+                TALDebugCodegen.step(sb, genCtx, "rateLimit", rl, null, null);
             } else if (content instanceof TALScriptModel.IfBlock) {
                 generateIfBlock(sb, (TALScriptModel.IfBlock) content, genCtx);
             } else if (content instanceof TALScriptModel.ForeachBlock) {
                 generateForeachBlock(sb, (TALScriptModel.ForeachBlock) content, genCtx);
             } else if (content instanceof TALScriptModel.LogStatement) {
                 generateLogStatement(sb, (TALScriptModel.LogStatement) content, genCtx);
+                TALDebugCodegen.step(sb, genCtx, "log", (TALScriptModel.LogStatement) content, null, null);
             } else {
                 throw new IllegalArgumentException(
                     "Unsupported sampler statement in codegen: " + content.getClass().getSimpleName());
@@ -777,10 +875,17 @@ final class TALBlockCodegen {
         sb.append("      ").append(valueVar).append(".accept(").append(entityVar).append(", ")
           .append(observationVar).append(");\n");
         sb.append("      ").append(TALRuntimeRoles.method("send")).append("(h, ").append(valueVar).append(", ").append(timeVar).append(");\n");
+        TALDebugCodegen.metric(sb, genCtx, block, fullName, entityVar, observationVar, timeVar);
         sb.append("    }\n");
+        if (DSLDebugCodegenSwitch.isInjectionEnabled()) {
+            sb.append("    else {\n");
+            TALDebugCodegen.metricSkipped(sb, genCtx, block, fullName, "\"the entity's layer is not registered\"");
+            sb.append("    }\n");
+        }
         sb.append("  } catch (RuntimeException ").append(failureVar).append(") {\n");
         sb.append("    ").append(TALRuntimeRoles.method("metricsBlockFailed")).append("(\"").append(DslJavaSourceText.toLiteral(fullName)).append("\", ")
           .append(failureVar).append(");\n");
+        TALDebugCodegen.metricSkipped(sb, genCtx, block, fullName, failureVar);
         sb.append("  }\n");
 
         genCtx.metricDeclarations.add(

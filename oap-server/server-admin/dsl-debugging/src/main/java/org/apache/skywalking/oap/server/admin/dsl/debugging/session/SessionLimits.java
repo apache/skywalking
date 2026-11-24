@@ -32,7 +32,7 @@ import lombok.Getter;
  * not gate.
  *
  * <p>Behaviour switches: {@link #granularity} selects per-statement vs
- * per-block capture for DSLs that distinguish (LAL today). Recorders
+ * per-block capture for DSLs that distinguish (LAL and TAL). Recorders
  * that don't differentiate ignore it.
  */
 @Getter

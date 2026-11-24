@@ -17,8 +17,10 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.dsl.debug.ToJson;
 
 /**
  * One observation of {@link org.apache.skywalking.oap.server.core.analysis.meter.function.apdex.ApdexFunction}: how
@@ -26,11 +28,20 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 @Getter
-public class ApdexArgument {
+public class ApdexArgument implements ToJson {
     private final int latency;
     /**
      * The service the threshold is looked up by, which is the entity's service whatever the entity's scope.
      */
     private final String serviceName;
     private final boolean status;
+
+    @Override
+    public String toJson() {
+        final JsonObject json = new JsonObject();
+        json.addProperty("latency", latency);
+        json.addProperty("serviceName", serviceName);
+        json.addProperty("status", status);
+        return json.toString();
+    }
 }

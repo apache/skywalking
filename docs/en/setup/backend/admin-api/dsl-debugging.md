@@ -1,9 +1,9 @@
 # DSL Debug API
 
-> Status: **shipped**. Sample-based runtime debugger for the three DSLs that
+> Status: **shipped**. Sample-based runtime debugger for the four DSLs that
 > drive SkyWalking analysis: **MAL** (meter analysis language), **LAL** (log
-> analysis language), and **OAL** (observability analysis language). Design:
-> [SWIP-13](../../../swip/SWIP-13.md).
+> analysis language), **OAL** (observability analysis language), and **TAL**
+> (trace analysis language). Design: [SWIP-13](../../../swip/SWIP-13.md).
 
 ## Per-DSL operator references
 
@@ -13,6 +13,7 @@ Each DSL has its own probe surface, payload shape, and rule-key conventions
 - **[MAL](dsl-debugging-mal.md)** — meter rules under `otel-rules`, `log-mal-rules`, `telegraf-rules`, `meter-analyzer-config`. Each captured record is one `SampleFamily` walking through the rule end-to-end (filter → chain ops → meterEmit). Sample payloads carry the complete `SampleFamily` (every sample's name + labels + value + timestamp).
 - **[OAL](dsl-debugging-oal.md)** — per-metric dispatcher capture under `catalog=oal`. Each record is one `ISource` walking through (source entry → filter clauses → aggregation function → emit). Source samples carry the rich `ServiceRelation`-style payload (sourceServiceName, destServiceName, layers, latency, status, detectPoint, ...).
 - **[LAL](dsl-debugging-lal.md)** — log analysis under `catalog=lal`. Each record is one log walking through (text → parser → extractor statements → sink). `granularity=statement` emits one sample per extractor statement; `granularity=block` (default) collapses extractor into one sample.
+- **[TAL](dsl-debugging-tal.md)** — trace analysis under `catalog=tal`. A record follows the object the analyzer passes through the rule: one OTLP span, or one native segment. Every record is a span list; each span carries the rule's run on it (the statements it executed, its outputs, its end state), not samples. `granularity` works as for LAL.
 
 ## Kept-only capture for MAL (filter is the relevance gate)
 
@@ -22,7 +23,7 @@ discriminate on tag values (`service_name == 'foo'`,
 `kind == 'http_server_request_duration'`) and in a multi-tenant or
 multi-component flow, a single rule may reject 99% of the traffic
 routed to it. If every rejection landed as a record, the default
-`recordCap` (32) would fill with noise within seconds and the capture
+`recordCap` (100) would fill with noise within seconds and the capture
 would never reach a row demonstrating the rule's actual processing.
 
 So for MAL the contract is: **every record represents one
@@ -40,7 +41,8 @@ its job in plain view, useful for verifying partition logic.
 **LAL** has no analogue (`abort()` is a per-statement short-circuit,
 not a filter); aborted logs publish their accumulated samples with
 `continueOn=false` on the abort point so operators can see where the
-rule gave up.
+rule gave up. **TAL** does the same: an aborted run is published with
+`continueOn=false` and the abort line as its `reason`.
 
 For MAL operators debugging "why isn't my data being aggregated?":
 the runtime-rule list endpoint surfaces the rule's filter source;
@@ -50,7 +52,7 @@ accepted.
 
 ## Common ground
 
-What the three DSLs share:
+What the four DSLs share:
 
 - **One REST surface**: routes mount under `/dsl-debugging/*` on the
   `admin-server` HTTP host (default port `17128`). The shape of session
@@ -69,8 +71,8 @@ What the three DSLs share:
   stay off the agent network; operators bind `17129` to a private
   peer-to-peer interface only. Each peer's slice is self-contained — no
   L2 join.
-- **One retention contract**: per-session `recordCap` (default `1000`,
-  hard cap `10000`) and `retentionMillis` (default 5 minutes, hard cap
+- **One retention contract**: per-session `recordCap` (default and
+  hard cap `100`) and `retentionMillis` (default 5 minutes, hard cap
   1 hour). Requests outside these bounds return `400 invalid_limits`.
   A missed `stop` self-cleans on retention timeout.
 - **LB-safe routing**: any node can serve any verb. POST mints the
@@ -80,16 +82,20 @@ What the three DSLs share:
   L7 LB in front of the admin port (default port `17128`) can route
   any request to any OAP, and the cluster fan-out hides which node
   actually owns the rule.
-- **One timestamp per slice**: the GET response envelope carries a
-  single `capturedAt` (millis) stamped at GET time. Per-record stamps
-  were redundant — probes fire at clock-tick speed and intra-slice
-  ordering is preserved by array order.
+- **Paged reads**: every record carries `captureTime`, when its node
+  captured it, and a GET returns the records captured at or after the
+  point the client passes, which the previous response returned as
+  `nextCapturedSince`; see
+  [Reading the records page by page](#reading-the-records-page-by-page).
+  The point travels with the client, so any node serves the next page.
+  The response envelope's `capturedAt` (millis) is when it was built.
 - **`sourceText` is the verbatim ANTLR slice**: pulled via
   `ctx.getStart().getInputStream().getText(Interval.of(start, stop))` at
   parse time, so whitespace and identifier spelling are byte-identical
   to the original `.yaml` / `.oal`. This applies to MAL chain segments,
-  OAL filter clauses, OAL aggregation calls, and LAL extractor
-  statements. Operators can grep the captured `sourceText` against the
+  OAL filter clauses, OAL aggregation calls, LAL extractor
+  statements, and TAL statements (a TAL statement with a body shows its
+  first line). Operators can grep the captured `sourceText` against the
   source file directly.
 
 Each DSL's page has its own walkthrough — start there for a copy-paste
@@ -100,14 +106,60 @@ example targeting that DSL's rules.
 | Verb | Path                                                                                        | Purpose                                  |
 |------|---------------------------------------------------------------------------------------------|------------------------------------------|
 | POST | `/dsl-debugging/session?catalog=&name=&ruleName=&clientId=&granularity=`                    | Start a debug capture session.            |
-| GET  | `/dsl-debugging/session/{id}`                                                               | Snapshot the captured records.            |
+| GET  | `/dsl-debugging/session/{id}?capturedSince=&pageSize=`                                      | Read a page of the captured records, see [Reading the records page by page](#reading-the-records-page-by-page). |
 | POST | `/dsl-debugging/session/{id}/stop`                                                          | Stop a session (idempotent).              |
 | GET  | `/dsl-debugging/sessions`                                                                   | List active sessions on this node.        |
-| GET  | `/dsl-debugging/status`                                                                     | Module posture (phase, injectionEnabled). |
+| GET  | `/dsl-debugging/status`                                                                     | Module posture (injectionEnabled, active sessions, and `catalogs`, the DSLs a session can be installed on). |
 
-`granularity` is LAL-only; MAL/OAL recorders ignore it. Body fields
+`granularity` applies to LAL and TAL; MAL/OAL recorders ignore it. Body fields
 (`recordCap`, `retentionMillis`, `granularity`) are optional; defaults from
 the table above apply.
+
+## Reading the records page by page
+
+Every node holds its own records in memory until the session stops, its retention ends, or the same `clientId`
+starts another session. Each record carries `captureTime`, when its node captured it: the node's wall clock as
+`<millis>.<nanos>`, epoch milliseconds and the nanoseconds within that millisecond in six digits, such as
+`1795505219786.871986`. Two times compare by their milliseconds, then their nanoseconds; with both parts at a fixed
+width, plain string order is time order. On a JDK whose clock ticks in microseconds, as JDK 11's does, the last three
+digits are `000`; the image's JDK keeps them.
+
+A read returns the records captured at or after `capturedSince`, from the first one when it is not given, from every
+node, grouped by node as before, and before the response's `nextCapturedSince`. Every record captured before
+`nextCapturedSince`, on every node that answered, is in this response or an earlier one; the next read passes it back
+as `capturedSince` and gets what was captured since, so a record captured at the point itself comes with the next
+read. Everything the next page needs travels with the client, so the read may land on any node. An empty
+`nextCapturedSince` means read from the first record again.
+
+- `pageSize` bounds the records of one response, across the nodes: 1 to 1000, by default 1000. Records of one capture
+  time stay on one page, so a page can hold a few more when two nodes, or one node's clock tick, captured several at
+  once. Whatever it asks for, a response holds at most 100 MiB, which the nodes share evenly, so the page size is what
+  a read meets. A node always sends its next record, so a page moves on even when that record alone is larger than
+  its share.
+- Another node streams its part to the node serving the read, one record a message, so only a single record has to
+  fit a message between nodes: `admin-server.gRPCMaxMessageSize` (`SW_ADMIN_SERVER_GRPC_MAX_MSG_SIZE`, 50 MB by
+  default). A larger record comes from another node as its `startedAtMs`, `captureTime`, `rule` and
+  `oversizedBytes`, its size, without its content. A node of an earlier version, which has no such stream, shows as
+  `unreachable` to this one and the other way round, until every node runs the same version.
+- A node whose page was cut short, or whose clock runs behind the others while it still captures, holds
+  `nextCapturedSince` back, and the others' later records come with the next read; a node's clock running behind by
+  some time delays the others' records by that much. A node that reached its `recordCap` captures no more, so its
+  clock holds back nothing once its records are read.
+- `complete` is `true` when the capture is read through: every node holding the session answered, reached its
+  `recordCap`, and this response holds the rest of its records. `nextCapturedSince` is then the latest capture time,
+  `9223372036854775807.999999`, and a read from it returns no records. A node that still captures, or one that did
+  not answer, keeps `complete` `false`.
+- Each node's slice carries `instanceId`, which tells that OAP process apart from every other, a restarted one
+  included. `nodeId` does not: every node that binds `0.0.0.0` reports the same one, and the node serving a read names
+  itself without `peer`, so a client folding pages read through a load balancer keys the slices by `instanceId`. A
+  node that did not answer has no `instanceId` in that response, only its `peer` address.
+- A node that does not answer has no records in that response. When another node holding the session answered, the
+  serving node's clock stands in for its point, and the records it captured before the response's
+  `nextCapturedSince` are not read again; when none did, the point stays where the read gave it. Nor are the records a node captures after its clock steps back, as NTP can
+  step it to correct a large offset, while their times are before a point already returned.
+- An OAP before this API ignores both parameters and returns every record each time, without
+  `nextCapturedSince`; a client that gets no `nextCapturedSince` reads each response as the whole capture.
+- `capturedAt` at the top of a response is when the response was built, in milliseconds.
 
 ## OAL rule picker (read-only)
 
@@ -122,6 +174,18 @@ loaded by an OAP node, used by the debugger UI's rule picker:
 
 These do not require `injectionEnabled=true` — they are pure metadata.
 
+## TAL rule listing (read-only)
+
+The TAL rules a node loaded at boot, for the rule picker and the rule view. See
+[Picking the rule key](dsl-debugging-tal.md#picking-the-rule-key).
+
+| Verb | Path                            | Purpose                                              |
+|------|---------------------------------|------------------------------------------------------|
+| GET  | `/runtime/tal/files`            | Every loaded TAL file with its rules.                |
+| GET  | `/runtime/tal/files/{name}`     | A loaded file's content (text).                      |
+
+These do not require `injectionEnabled=true` either.
+
 ## Failure modes
 
 Common across DSLs. Per-DSL pages list any DSL-specific failures.
@@ -131,6 +195,7 @@ Common across DSLs. Per-DSL pages list any DSL-specific failures.
 | `400 invalid_catalog`        | Wire `catalog` doesn't match any known DSL.                                         |
 | `400 missing_param`          | `name`, `ruleName`, or `clientId` query param missing. `clientId` is required so the receiving node can clean up the prior session bound to it before installing a new one. |
 | `400 invalid_limits`         | `recordCap` / `retentionMillis` outside the per-session bounds (see above).         |
+| `400 invalid_page`           | `pageSize` outside 1 to 1000, or a `capturedSince` that is not `<millis>.<six-digit nanos>`. |
 | `429 too_many_sessions`      | Active-session ceiling on the receiving node (200) is full. Stop a session or wait for retention. |
 | `404 rule_not_found`         | No live DSL artifact for `(catalog, name, ruleName)` on **any reachable** OAP node — every node and peer reported `NOT_LOCAL`. The 404 body carries `peers[]` so operators can see which OAP rejected what. |
 | `404 session_not_found`      | Session id unknown to **every reachable** OAP node — never created, retention timed out, or already stopped. |
@@ -149,6 +214,7 @@ table. The DSL-debug-relevant keys:
 | `SW_DSL_DEBUGGING_INJECTION_ENABLED` | `true`  | Boot-time codegen switch. Set `false` to disable probes.      |
 
 > SECURITY: capture payloads include sensitive operational state (raw log
-> bodies, parsed maps, MAL builder state, OAL source events). Treat the
+> bodies, parsed maps, MAL builder state, OAL source events, TAL spans with
+> their attributes and tags). Treat the
 > admin port as authenticated infrastructure — see
 > [Admin API readme — Security Notice](readme.md#security-notice).

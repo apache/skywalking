@@ -23,7 +23,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 /**
- * Process-wide boolean every DSL code generator (MAL / LAL / OAL) consults
+ * Process-wide boolean every DSL code generator (MAL / LAL / OAL / TAL) consults
  * before emitting probe call sites or {@link GateHolder} fields. Defaults to
  * {@code false} — debug-probe injection is OFF unless the {@code dsl-debugging}
  * module is enabled <i>and</i> its {@code injectionEnabled} flag is true.
@@ -38,7 +38,7 @@ import lombok.NoArgsConstructor;
  *
  * <h2>Idle path when injection is OFF</h2>
  * The generator emits zero probe lines and zero holder field — the compiled
- * MAL / LAL / OAL bytecode is byte-identical to a build without SWIP-13.
+ * MAL / LAL / OAL / TAL bytecode is byte-identical to a build without SWIP-13.
  * Sessions can't be created (the REST path returns 503), there are no
  * call sites that could fire, and the generated class doesn't reference
  * {@code GateHolder} at all.

@@ -20,8 +20,10 @@ package org.apache.skywalking.oap.server.admin.dsl.debugging.session;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.ToLongFunction;
 import lombok.Getter;
 import org.apache.skywalking.oap.server.core.dsl.debug.DebugRecorder;
 import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
@@ -190,6 +192,37 @@ public abstract class AbstractDebugRecorder implements DebugRecorder {
             return;
         }
         current.remove();
+        publishRecord(exec);
+    }
+
+    /**
+     * @return the bound rule's catalog-specific metadata, as it was when the session installed
+     */
+    protected final Map<String, String> ruleMetadata() {
+        return metadata;
+    }
+
+    /**
+     * A record of the bound rule with its body as one JSON object, for a recorder that assembles its records itself;
+     * see {@link #publishRecord}.
+     */
+    protected final ExecutionRecord newRecord(final long startedAtMillis, final String bodyJson) {
+        return new ExecutionRecord(startedAtMillis, content, metadata, bodyJson);
+    }
+
+    /**
+     * As {@link #newRecord(long, String)}, with rule metadata of the recorder's own: the bound rule's, as
+     * {@link #ruleMetadata()} gives it, with what the recorder adds.
+     */
+    protected final ExecutionRecord newRecord(final long startedAtMillis, final Map<String, String> recordMetadata,
+                                              final String bodyJson) {
+        return new ExecutionRecord(startedAtMillis, content, recordMetadata, bodyJson);
+    }
+
+    /**
+     * Publish a record a recorder assembled itself, as TAL's do, under the same record cap.
+     */
+    protected final void publishRecord(final ExecutionRecord exec) {
         if (exec.isEmpty()) {
             return;
         }
@@ -198,6 +231,9 @@ public abstract class AbstractDebugRecorder implements DebugRecorder {
             if (captured) {
                 return;
             }
+            // Stamped under the lock that lists it, so a page read under that lock sees a record captured later at
+            // or after its own clock reading, unless the wall clock steps back; page() orders what it reads by time.
+            exec.capture(CaptureTime.now());
             records.add(exec);
             if (records.size() >= limits.getRecordCap()) {
                 captured = true;
@@ -206,7 +242,15 @@ public abstract class AbstractDebugRecorder implements DebugRecorder {
         }
         if (justCaptured) {
             detachFromHolder();
+            onCaptured();
         }
+    }
+
+    /**
+     * Called once, when the recorder reaches its cap and stops receiving probes; a recorder that assembles records
+     * across probes drops what it had in flight here, since the probes that would close those records no longer come.
+     */
+    protected void onCaptured() {
     }
 
     /**
@@ -230,6 +274,55 @@ public abstract class AbstractDebugRecorder implements DebugRecorder {
         synchronized (records) {
             return Collections.unmodifiableList(new ArrayList<>(records));
         }
+    }
+
+    /**
+     * The records captured at or after a client's point, in capture order, up to {@code maxRecords} and
+     * {@code maxBytes}. The first one is taken whatever its size, so a page always moves on, and records of one
+     * capture time are never split, so the next page, from the time of the first record left out, misses none.
+     *
+     * @param capturedSince the point the client read from; {@link CaptureTime#EARLIEST} for the first page
+     * @param maxRecords    at most this many records, at least 1
+     * @param maxBytes      at most this many bytes, as {@code sizeOf} counts them
+     * @param sizeOf        a record's size as the page carries it
+     */
+    public final CapturePage page(final CaptureTime capturedSince, final int maxRecords, final long maxBytes,
+                                  final ToLongFunction<ExecutionRecord> sizeOf) {
+        final CaptureTime now;
+        final boolean capturedNow;
+        long totalBytes = 0;
+        final List<ExecutionRecord> after = new ArrayList<>();
+        synchronized (records) {
+            // Read under the lock publishRecord stamps and caps under, so a record listed afterwards is at or after
+            // this time, and the cap and size are those of the records read.
+            now = CaptureTime.now();
+            capturedNow = captured;
+            for (final ExecutionRecord r : records) {
+                totalBytes += r.byteSize();
+                if (r.getCapturedAt().compareTo(capturedSince) >= 0) {
+                    after.add(r);
+                }
+            }
+        }
+        // Listing order is capture-time order until the wall clock steps back, so the page orders by time before it
+        // cuts, or a cut could split one time or leave out a record before the point it returns.
+        after.sort(Comparator.comparing(ExecutionRecord::getCapturedAt));
+        // Sized outside the lock, since a record is not changed once listed, so probes publishing records never wait
+        // on a page being measured.
+        final List<ExecutionRecord> page = new ArrayList<>();
+        long bytes = 0;
+        for (final ExecutionRecord r : after) {
+            final long size = sizeOf.applyAsLong(r);
+            if (!page.isEmpty() && (page.size() >= maxRecords || bytes + size > maxBytes)
+                && !r.getCapturedAt().equals(page.get(page.size() - 1).getCapturedAt())) {
+                return new CapturePage(page, r.getCapturedAt(), capturedNow, totalBytes);
+            }
+            page.add(r);
+            bytes += size;
+        }
+        // A capped recorder captures no more, so its clock bounds nothing: a slower one must not hold back the records
+        // other nodes captured after it.
+        return new CapturePage(page, capturedNow ? CaptureTime.LATEST : now, capturedNow, totalBytes);
     }
 
     /** Total bytes (sum of contained sample sizes). Reported in responses; not enforced. */

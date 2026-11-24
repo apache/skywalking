@@ -34,7 +34,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleConfig;
 public class DSLDebuggingModuleConfig extends ModuleConfig {
     /**
      * Boot-time switch that enables capture-probe emission in the
-     * MAL / LAL / OAL code generators. Default {@code true} — when an operator
+     * MAL / LAL / OAL / TAL code generators. Default {@code true} — when an operator
      * has explicitly enabled the {@code dsl-debugging} module
      * ({@code SW_DSL_DEBUGGING=default}), they expect probes to be active so
      * that {@code POST /dsl-debugging/session} actually captures samples; this

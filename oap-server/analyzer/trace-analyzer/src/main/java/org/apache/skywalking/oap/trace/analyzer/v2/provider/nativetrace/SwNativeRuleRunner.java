@@ -31,12 +31,14 @@ import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.Tag;
 import org.apache.skywalking.oap.server.core.config.ConfigService;
 import org.apache.skywalking.oap.server.core.config.SearchableTracesTagsWatcher;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.ExecutionContext;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.QueuedBuild;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalDSL;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalExpression;
+import org.apache.skywalking.oap.trace.analyzer.v2.dsl.debug.TALDebug;
 import org.apache.skywalking.oap.trace.analyzer.v2.spi.TALSourceTypeProvider;
 
 /**
@@ -70,6 +72,11 @@ public class SwNativeRuleRunner implements ISegmentParserService {
      * Written last by {@link #loadRules}, so a thread that reads the rules reads the services set before them.
      */
     private volatile List<TalDSL> rules;
+    /**
+     * Each rule's dsl-debugging capture binding, by the rule's position; null where the probes were not compiled in.
+     * Written before {@link #rules}, so a segment that reads the rules reads these too.
+     */
+    private volatile GateHolder[] debugHolders = new GateHolder[0];
 
     /**
      * @param moduleManager the manager serving the agent analyzer's settings and the core's searchable tags
@@ -90,6 +97,11 @@ public class SwNativeRuleRunner implements ISegmentParserService {
         this.config = moduleManager.find(AnalyzerModule.NAME).provider().getService(NativeTraceAnalysisConfig.class);
         this.searchableTags = moduleManager.find(CoreModule.NAME).provider().getService(ConfigService.class)
                                            .getSearchableTracesTags();
+        final GateHolder[] holders = new GateHolder[nativeRules.size()];
+        for (int r = 0; r < holders.length; r++) {
+            holders[r] = nativeRules.get(r).getExpression().debugHolder();
+        }
+        this.debugHolders = holders;
         this.rules = List.copyOf(nativeRules);
     }
 
@@ -107,6 +119,7 @@ public class SwNativeRuleRunner implements ISegmentParserService {
         }
         final SwNativeSegmentState segment = new SwNativeSegmentState(segmentObject);
         parseSegment(segment);
+        final GateHolder[] holders = debugHolders;
 
         final int ruleCount = loaded.size();
         final Object[][] segmentDefs = new Object[ruleCount][];
@@ -120,38 +133,102 @@ public class SwNativeRuleRunner implements ISegmentParserService {
         // The metadata the engine reads, which no native rule can: the span's start, the default timestamp of a
         // metrics {} block. One per segment run, moved to each span.
         final SpanMetadata meta = SpanMetadata.builder().build();
-        for (int s = 0; s < segmentObject.getSpansCount(); s++) {
-            final SpanObject span = segmentObject.getSpans(s);
-            meta.setStartTime(span.getStartTime());
-            if (span.getSpanId() == 0) {
+        // Whether a dsl-debugging session records some rule's run on this segment, read once per segment, so a
+        // segment no session records reads no gate per span.
+        boolean debugging = false;
+        for (int r = 0; r < ruleCount; r++) {
+            if (gateOn(holders, r)) {
+                debugging = true;
+                TALDebug.beginSegment(holders[r], segment);
+            }
+        }
+        int current = -1;
+        try {
+            for (int s = 0; s < segmentObject.getSpansCount(); s++) {
+                final SpanObject span = segmentObject.getSpans(s);
+                meta.setStartTime(span.getStartTime());
+                if (span.getSpanId() == 0) {
+                    for (int r = 0; r < ruleCount; r++) {
+                        final TalDSL rule = loaded.get(r);
+                        if (rule.getExpression().hasFirst()) {
+                            current = r;
+                            ctx.bindNativeRun(meta, span, segment, segmentDefs[r]);
+                            final boolean recorded = debugging && gateOn(holders, r);
+                            if (recorded) {
+                                ctx.setDebugging(true);
+                                TALDebug.beginSpan(holders[r], ctx, null, null);
+                            }
+                            rule.getExpression().executeFirst(rule.getFilterSpec(), ctx);
+                            keepQueued(ctx, builds.get(r));
+                            if (recorded) {
+                                // The segment's values first {} set, kept should a later rule fail the segment.
+                                TALDebug.endSpan(holders[r], ctx);
+                            }
+                        }
+                    }
+                }
+                final SpanType type = span.getSpanType();
+                if (type != SpanType.Entry && type != SpanType.Exit && type != SpanType.Local) {
+                    log.error("span type value was unexpected, span type name: {}", type.name());
+                }
                 for (int r = 0; r < ruleCount; r++) {
                     final TalDSL rule = loaded.get(r);
-                    if (rule.getExpression().hasFirst()) {
-                        ctx.bindNativeRun(meta, span, segment, segmentDefs[r]);
-                        rule.getExpression().executeFirst(rule.getFilterSpec(), ctx);
-                        keepQueued(ctx, builds.get(r));
+                    current = r;
+                    ctx.bindNativeRun(meta, span, segment, segmentDefs[r]);
+                    final boolean recorded = debugging && gateOn(holders, r);
+                    if (recorded) {
+                        ctx.setDebugging(true);
+                        TALDebug.beginSpan(holders[r], ctx, null, null);
+                    }
+                    rule.getExpression().execute(rule.getFilterSpec(), ctx);
+                    keepQueued(ctx, builds.get(r));
+                    if (recorded) {
+                        TALDebug.endSpan(holders[r], ctx);
                     }
                 }
             }
-            final SpanType type = span.getSpanType();
-            if (type != SpanType.Entry && type != SpanType.Exit && type != SpanType.Local) {
-                log.error("span type value was unexpected, span type name: {}", type.name());
-            }
             for (int r = 0; r < ruleCount; r++) {
                 final TalDSL rule = loaded.get(r);
-                ctx.bindNativeRun(meta, span, segment, segmentDefs[r]);
-                rule.getExpression().execute(rule.getFilterSpec(), ctx);
-                keepQueued(ctx, builds.get(r));
+                final TalExpression expression = rule.getExpression();
+                current = r;
+                for (final QueuedBuild build : builds.get(r)) {
+                    final SpanObject span = (SpanObject) build.getInput();
+                    meta.setStartTime(span.getStartTime());
+                    ctx.bindNativeRun(meta, span, segment, segmentDefs[r]);
+                    final boolean recorded = debugging && gateOn(holders, r);
+                    if (recorded) {
+                        ctx.setDebugging(true);
+                        TALDebug.beginBuild(holders[r], span, build.getIndex());
+                    }
+                    expression.executeBuild(build.getIndex(), rule.getFilterSpec(), ctx, build.getCaptured());
+                    if (recorded) {
+                        // A build {} may assign the segment's values; the span's state is what they are after it.
+                        TALDebug.endSpan(holders[r], ctx);
+                    }
+                }
             }
+        } catch (final RuntimeException e) {
+            // The segment fails as it would without a session; the recorded rule that threw says where.
+            if (debugging && current >= 0 && gateOn(holders, current)) {
+                TALDebug.failed(holders[current], ctx, e);
+            }
+            endSegment(holders, ruleCount, debugging);
+            throw e;
+        }
+        endSegment(holders, ruleCount, debugging);
+    }
+
+    private static boolean gateOn(final GateHolder[] holders, final int rule) {
+        return rule < holders.length && holders[rule] != null && holders[rule].isGateOn();
+    }
+
+    private static void endSegment(final GateHolder[] holders, final int ruleCount, final boolean debugging) {
+        if (!debugging) {
+            return;
         }
         for (int r = 0; r < ruleCount; r++) {
-            final TalDSL rule = loaded.get(r);
-            final TalExpression expression = rule.getExpression();
-            for (final QueuedBuild build : builds.get(r)) {
-                final SpanObject span = (SpanObject) build.getInput();
-                meta.setStartTime(span.getStartTime());
-                ctx.bindNativeRun(meta, span, segment, segmentDefs[r]);
-                expression.executeBuild(build.getIndex(), rule.getFilterSpec(), ctx, build.getCaptured());
+            if (gateOn(holders, r)) {
+                TALDebug.endSegment(holders[r]);
             }
         }
     }

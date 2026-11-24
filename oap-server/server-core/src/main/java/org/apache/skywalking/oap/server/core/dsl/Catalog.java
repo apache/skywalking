@@ -34,7 +34,8 @@ public enum Catalog {
     TELEGRAF_RULES("telegraf-rules"),
     METER_ANALYZER_CONFIG("meter-analyzer-config"),
     LAL("lal"),
-    OAL("oal");
+    OAL("oal"),
+    TAL("tal");
 
     @Getter
     private final String wireName;

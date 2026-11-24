@@ -191,6 +191,18 @@ class TALScriptParserTest {
     }
 
     @Test
+    void anIfIsOnTheLineOfItsKeywordThoughItsConditionOpensOnTheNext() {
+        final TALScriptModel model = TALScriptParser.parse(
+            "filter {\n  if (\n    meta.root\n  ) {\n    abort {}\n  } else if (\n    peer\n  ) {\n    abort {}\n  }\n}");
+        final IfBlock top = (IfBlock) model.getStatements().get(0);
+        assertEquals(2, top.getSourceLine());
+        assertEquals("if (meta.root)", top.getSourceText());
+        final IfBlock elseIf = (IfBlock) top.getElseStatements().get(0);
+        assertEquals(6, elseIf.getSourceLine());
+        assertEquals("else if (peer)", elseIf.getSourceText());
+    }
+
+    @Test
     void parseNetworkAliasStatementsInExtractorAndAtFilterLevel() {
         final TALScriptModel model = TALScriptParser.parse(
             "filter { prepareNetworkAlias attr(\"server.address\")\n"

@@ -45,9 +45,13 @@ import org.apache.skywalking.oap.server.core.server.GRPCHandlerRegister;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.SourceReceiverImpl;
 import org.apache.skywalking.oap.server.telemetry.api.TelemetryRelatedContext;
+import org.apache.skywalking.oap.trace.analyzer.v2.dsl.debug.TalStaticBindingHook;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.oal.RuntimeOalRestHandler;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.rest.DSLDebuggingRestHandler;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.DebugSessionRegistry;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.tal.RuntimeTalRestHandler;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.tal.TALDebugRecorderFactory;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.tal.TALHolderRegistry;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.oal.rt.OALEngineLoaderService;
 import org.apache.skywalking.oap.server.core.server.HTTPHandlerRegister;
@@ -98,6 +102,7 @@ public class DSLDebuggingModuleProvider extends ModuleProvider {
     private DebugSessionRegistry sessionRegistry;
     private MALHolderRegistry malHolderRegistry;
     private LALHolderRegistry lalHolderRegistry;
+    private TALHolderRegistry talHolderRegistry;
     private DSLDebuggingClusterClient clusterClient;
     private ScheduledExecutorService reaperExecutor;
 
@@ -128,7 +133,7 @@ public class DSLDebuggingModuleProvider extends ModuleProvider {
 
     @Override
     public void prepare() {
-        // Flip the codegen switch FIRST. Every MAL / LAL / OAL code generator
+        // Flip the codegen switch FIRST. Every MAL / LAL / OAL / TAL code generator
         // checks DSLDebugCodegenSwitch.isInjectionEnabled() before emitting
         // probe call sites and the GateHolder field — flipping here, in this
         // module's prepare() phase, ensures every static-rule loader running
@@ -153,6 +158,11 @@ public class DSLDebuggingModuleProvider extends ModuleProvider {
         sessionRegistry.registerLookup(lalHolderRegistry);
         sessionRegistry.registerRecorderFactory(new MALDebugRecorderFactory());
         sessionRegistry.registerRecorderFactory(new LALDebugRecorderFactory());
+        // TAL rules load once, at boot, and are not runtime-rule managed, so nothing outside this module looks the
+        // registry up.
+        talHolderRegistry = new TALHolderRegistry();
+        sessionRegistry.registerLookup(talHolderRegistry);
+        sessionRegistry.registerRecorderFactory(new TALDebugRecorderFactory());
 
         // Install the MAL static-binding hook in prepare() (not start()) because
         // some receiver-plugin loaders construct MetricConvert during their own
@@ -178,6 +188,7 @@ public class DSLDebuggingModuleProvider extends ModuleProvider {
             lalHolderRegistry.register(
                 new RuleKey(Catalog.LAL, fileName, ruleName),
                 holder));
+        TalStaticBindingHook.install(talHolderRegistry::register);
     }
 
     private static Catalog catalogOf(final String wireName) {
@@ -227,9 +238,13 @@ public class DSLDebuggingModuleProvider extends ModuleProvider {
                         .getService(AdminClusterChannelManager.class);
         final long perCallDeadline = adminPeerChannels.getInternalCommunicationTimeoutMs();
         final long collectDeadline = (long) (perCallDeadline * COLLECT_DEADLINE_MULTIPLIER);
+        // A peer's record must fit one message of this node's channels: gRPCMaxMessageSize, or gRPC's 4 MiB when it
+        // is 0, less room for the message's own framing.
+        final int channelMessageBytes = adminPeerChannels.getMaxMessageSize() > 0
+            ? adminPeerChannels.getMaxMessageSize() : 4 * 1024 * 1024;
         clusterClient = new DSLDebuggingClusterClient(
             new ClusterPeerCaller(adminPeerChannels, selfNodeId),
-            perCallDeadline, collectDeadline);
+            perCallDeadline, collectDeadline, Math.max(1L, channelMessageBytes - 1024L));
         final GRPCHandlerRegister clusterGrpc =
             getManager().find(AdminServerModule.NAME).provider()
                         .getService(GRPCHandlerRegister.class);
@@ -237,13 +252,15 @@ public class DSLDebuggingModuleProvider extends ModuleProvider {
 
         adminRegister.addHandler(new RuntimeOalRestHandler(oalEngineLoader, oalDispatcherManager),
                                  Arrays.asList(HttpMethod.GET));
+        adminRegister.addHandler(new RuntimeTalRestHandler(talHolderRegistry, moduleConfig.isInjectionEnabled()),
+                                 Arrays.asList(HttpMethod.GET));
         adminRegister.addHandler(
             new DSLDebuggingRestHandler(moduleConfig, sessionRegistry, clusterClient, selfNodeId),
             Arrays.asList(HttpMethod.POST, HttpMethod.GET));
 
         log.info(
-            "DSL debug API: read-only OAL listing + session control plane + cluster fan-out "
-                + "registered on admin-server (MAL + LAL + OAL capture live; selfNodeId={}; "
+            "DSL debug API: read-only OAL and TAL listings + session control plane + cluster fan-out "
+                + "registered on admin-server (MAL + LAL + OAL + TAL capture live; selfNodeId={}; "
                 + "injectionEnabled={}).",
             selfNodeId, moduleConfig.isInjectionEnabled()
         );

@@ -18,12 +18,27 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.apache.skywalking.oap.server.core.dsl.debug.ToJson;
 
 @RequiredArgsConstructor
 @Getter
-public class PercentileArgument {
+public class PercentileArgument implements ToJson {
     private final BucketedValues bucketedValues;
     private final int[] ranks;
+
+    @Override
+    public String toJson() {
+        final JsonObject json = JsonParser.parseString(bucketedValues.toJson()).getAsJsonObject();
+        final JsonArray rankArray = new JsonArray();
+        for (final int rank : ranks) {
+            rankArray.add(rank);
+        }
+        json.add("ranks", rankArray);
+        return json.toString();
+    }
 }

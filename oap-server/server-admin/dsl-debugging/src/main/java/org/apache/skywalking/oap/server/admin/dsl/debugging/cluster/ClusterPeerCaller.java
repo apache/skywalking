@@ -81,6 +81,19 @@ public final class ClusterPeerCaller {
     }
 
     /**
+     * @return the OAP nodes a fan-out and this node reach together
+     */
+    public int nodeCount() {
+        int others = 0;
+        for (final AdminClusterChannelManager.Peer peer : peerChannelManager.getPeers()) {
+            if (!peer.isSelf()) {
+                others++;
+            }
+        }
+        return others + 1;
+    }
+
+    /**
      * Fan out one RPC call to every non-self peer in parallel.
      *
      * @param description short description (logged on failure, included in failure detail)
@@ -90,6 +103,15 @@ public final class ClusterPeerCaller {
      *                    into a {@link PeerOutcome#failed(String, String)} entry.
      */
     public <A> List<PeerOutcome<A>> fanOut(final String description,
+                                           final Function<ManagedChannel, A> body) {
+        return fanOut(description, peerChannelManager.getInternalCommunicationTimeoutMs(), body);
+    }
+
+    /**
+     * Fan out one RPC call to every non-self peer in parallel, waiting for them at most {@code deadlineMs}: the
+     * deadline of a call that may take longer than the admin bus's default, as a streamed collect does.
+     */
+    public <A> List<PeerOutcome<A>> fanOut(final String description, final long deadlineMs,
                                            final Function<ManagedChannel, A> body) {
         final List<AdminClusterChannelManager.Peer> peers = peerChannelManager.getPeers();
         // Parallel arrays so a future that times out / errors / gets cancelled
@@ -106,8 +128,7 @@ public final class ClusterPeerCaller {
             futures.add(CompletableFuture.supplyAsync(
                 () -> invokeOne(peer, description, body), executor));
         }
-        final long globalDeadlineMs = peerChannelManager.getInternalCommunicationTimeoutMs();
-        final long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(globalDeadlineMs);
+        final long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(deadlineMs);
         final List<PeerOutcome<A>> outcomes = new ArrayList<>(futures.size());
         for (int i = 0; i < futures.size(); i++) {
             final CompletableFuture<PeerOutcome<A>> future = futures.get(i);

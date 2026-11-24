@@ -18,6 +18,8 @@
 
 package org.apache.skywalking.oap.server.core.analysis.meter.function;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
@@ -26,6 +28,7 @@ import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataTable;
+import org.apache.skywalking.oap.server.core.dsl.debug.ToJson;
 import org.apache.skywalking.oap.server.core.query.type.Bucket;
 import org.apache.skywalking.oap.server.core.query.type.HeatMap;
 
@@ -34,7 +37,7 @@ import org.apache.skywalking.oap.server.core.query.type.HeatMap;
  */
 @ToString
 @Getter
-public class BucketedValues {
+public class BucketedValues implements ToJson {
     @Setter
     private DataLabel labels = new DataLabel();
     /**
@@ -85,5 +88,22 @@ public class BucketedValues {
         }
 
         return Arrays.equals(buckets, existedBuckets);
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject json = new JsonObject();
+        final JsonObject labelObject = new JsonObject();
+        labels.forEach(labelObject::addProperty);
+        json.add("labels", labelObject);
+        final JsonArray bucketArray = new JsonArray();
+        final JsonArray valueArray = new JsonArray();
+        for (int i = 0; i < buckets.length; i++) {
+            bucketArray.add(buckets[i]);
+            valueArray.add(values[i]);
+        }
+        json.add("buckets", bucketArray);
+        json.add("values", valueArray);
+        return json.toString();
     }
 }

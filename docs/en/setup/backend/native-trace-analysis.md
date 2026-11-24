@@ -99,10 +99,16 @@ the logger that writes its lines:
 
 `GenAIMeterAnalyzer` keeps logging under its own name for OpenTelemetry and Zipkin spans.
 
+## Debugging a rule
+
+The [DSL Debug API](admin-api/dsl-debugging-tal.md) captures how a native rule runs on live segments: each segment
+with all its spans, and for each span the statements the rule executed, what it wrote and its `segmentDef` values.
+
 ## Startup
 
 `trace-analyzer` requires `agent-analyzer` and every module a listed file names under `requiredModules`, when they are
 loaded, so they start before it. It compiles the native rules in its `start()`, and the trace receiver and the Kafka
 fetcher, which require it, start after. Removing the module with `SW_TRACE_ANALYZER=-` while the trace receiver
-(loaded by default) or the Kafka fetcher is loaded fails the boot, naming the missing module; with neither loaded,
+(loaded by default), the Kafka fetcher or `trace-pairing-debugging` (loaded by default; `SW_TRACE_PAIRING_DEBUGGING=-`
+removes it) is loaded fails the boot, naming the missing module; with none of them loaded,
 removing it still works for OpenTelemetry alone, see [Turning the analysis off](trace-analyzer.md#turning-the-analysis-off).
