@@ -60,6 +60,13 @@ input:
         gc: PS Scavenge
         level: ERROR
       value: 100.0
+    - labels:
+        service: test-service
+        host_name: test-host
+        protocol: otlp-grpc
+        gc: PS Scavenge
+        level: ERROR
+      value: 100.0
   trace_in_latency:
     - labels:
         le: '50'
@@ -114,6 +121,15 @@ input:
         service: test-service
         host_name: test-host
         protocol: http
+        reason: sampled
+        gc: PS Scavenge
+        level: ERROR
+      value: 100.0
+    - labels:
+        service: test-service
+        host_name: test-host
+        protocol: otlp-grpc
+        reason: rate_limited
         gc: PS Scavenge
         level: ERROR
       value: 100.0
@@ -455,14 +471,7 @@ input:
         gc: PS Scavenge
         level: ERROR
       value: 100.0
-  otel_spans_latency_count:
-    - labels:
-        service: test-service
-        host_name: test-host
-        gc: PS Scavenge
-        level: ERROR
-      value: 100.0
-  otel_spans_dropped:
+  otel_spans_rejected:
     - labels:
         service: test-service
         host_name: test-host
@@ -506,42 +515,6 @@ input:
         level: ERROR
       value: 50.0
   otel_logs_latency:
-    - labels:
-        le: '50'
-        service: test-service
-        host_name: test-host
-        gc: PS Scavenge
-        level: ERROR
-      value: 10.0
-    - labels:
-        le: '100'
-        service: test-service
-        host_name: test-host
-        gc: PS Scavenge
-        level: ERROR
-      value: 20.0
-    - labels:
-        le: '250'
-        service: test-service
-        host_name: test-host
-        gc: PS Scavenge
-        level: ERROR
-      value: 30.0
-    - labels:
-        le: '500'
-        service: test-service
-        host_name: test-host
-        gc: PS Scavenge
-        level: ERROR
-      value: 40.0
-    - labels:
-        le: '1000'
-        service: test-service
-        host_name: test-host
-        gc: PS Scavenge
-        level: ERROR
-      value: 50.0
-  otel_spans_latency:
     - labels:
         le: '50'
         service: test-service
@@ -979,6 +952,11 @@ expected:
           host_name: test-host
           protocol: http
         value: 50.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: otlp-grpc
+        value: 50.0
   meter_oap_instance_trace_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1039,6 +1017,30 @@ expected:
           service: test-service
           host_name: test-host
           protocol: http
+        value: 50.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: otlp-grpc
+        value: 50.0
+  meter_oap_instance_spans_dropped_by_reason:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: http
+          reason: sampled
+        value: 50.0
+      - labels:
+          service: test-service
+          host_name: test-host
+          protocol: otlp-grpc
+          reason: rate_limited
         value: 50.0
   meter_oap_instance_ai_evaluation_dropped_count:
     entities:
@@ -1496,6 +1498,17 @@ expected:
           service: test-service
           host_name: test-host
         value: 50.0
+  meter_oap_otel_spans_rejected:
+    entities:
+      - scope: SERVICE_INSTANCE
+        service: test-service
+        instance: test-host
+        layer: SO11Y_OAP
+    samples:
+      - labels:
+          service: test-service
+          host_name: test-host
+        value: 50.0
   meter_oap_otel_metrics_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
@@ -1529,38 +1542,6 @@ expected:
           le: '50000'
         value: 5.0
   meter_oap_otel_logs_latency_percentile:
-    entities:
-      - scope: SERVICE_INSTANCE
-        service: test-service
-        instance: test-host
-        layer: SO11Y_OAP
-    samples:
-      - labels:
-          service: test-service
-          host_name: test-host
-          le: '1000000'
-        value: 25.0
-      - labels:
-          service: test-service
-          host_name: test-host
-          le: '100000'
-        value: 10.0
-      - labels:
-          service: test-service
-          host_name: test-host
-          le: '250000'
-        value: 15.0
-      - labels:
-          service: test-service
-          host_name: test-host
-          le: '500000'
-        value: 20.0
-      - labels:
-          service: test-service
-          host_name: test-host
-          le: '50000'
-        value: 5.0
-  meter_oap_otel_spans_latency_percentile:
     entities:
       - scope: SERVICE_INSTANCE
         service: test-service

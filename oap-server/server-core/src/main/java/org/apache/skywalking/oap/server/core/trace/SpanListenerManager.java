@@ -42,7 +42,9 @@ import org.apache.skywalking.oap.server.library.module.Service;
  *
  * <p>Callers:
  * <ul>
- *   <li>{@code OpenTelemetryTraceHandler} calls {@link #notifyOTLPPhase} before Zipkin conversion.</li>
+ *   <li>{@code OpenTelemetryTraceHandler} calls {@link #notifyOTLPPhase} before the span is stored natively or
+ *   converted to Zipkin; {@code OTLPNativeTraceStorage} calls {@link #notifyNativeOTLPPhase} before storing it
+ *   natively.</li>
  *   <li>{@code SpanForward} calls {@link #notifyZipkinPhase} after Zipkin conversion.</li>
  * </ul>
  */

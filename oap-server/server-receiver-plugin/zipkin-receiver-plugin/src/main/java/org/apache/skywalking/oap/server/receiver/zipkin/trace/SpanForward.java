@@ -29,6 +29,8 @@ import org.apache.skywalking.oap.server.core.analysis.manual.searchtag.TagType;
 import org.apache.skywalking.oap.server.core.config.NamingControl;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
+import org.apache.skywalking.oap.server.core.trace.TraceInLatency;
+import org.apache.skywalking.oap.server.core.trace.TraceSpansDropped;
 import org.apache.skywalking.oap.server.core.source.SourceReceiver;
 import org.apache.skywalking.oap.server.core.source.TagAutocomplete;
 import org.apache.skywalking.oap.server.core.zipkin.ZipkinSpanRecord;
@@ -41,13 +43,13 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.server.receiver.zipkin.SpanForwardService;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverConfig;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import zipkin2.Annotation;
 import zipkin2.Span;
 import zipkin2.internal.HexCodec;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -74,114 +76,124 @@ public class SpanForward implements SpanForwardService {
         }
     }
 
-    public List<Span> send(List<Span> spanList) {
+    @Override
+    public void send(final List<Span> spanList, final HistogramMetrics spanLatency,
+                     final TraceSpansDropped droppedSpans) {
         if (CollectionUtils.isEmpty(spanList)) {
-            return Collections.emptyList();
+            return;
         }
-        final var sampledTraces = getSampledTraces(spanList);
-        sampledTraces.forEach(span -> {
-            ZipkinSpan zipkinSpan = new ZipkinSpan();
-            String serviceName = span.localServiceName();
-            if (StringUtil.isEmpty(serviceName)) {
-                serviceName = "Unknown";
-            }
-            zipkinSpan.setSpanId(span.id());
-            zipkinSpan.setTraceId(span.traceId());
-            zipkinSpan.setSpanId(span.id());
-            zipkinSpan.setParentId(span.parentId());
-            zipkinSpan.setName(getNamingControl().formatEndpointName(serviceName, span.name()));
-            zipkinSpan.setDuration(span.duration() == null ? 0 : span.duration());
-            if (span.kind() != null) {
-                zipkinSpan.setKind(span.kind().name());
-            }
-            zipkinSpan.setLocalEndpointServiceName(getNamingControl().formatServiceName(serviceName));
-            if (span.localEndpoint() != null) {
-                zipkinSpan.setLocalEndpointIPV4(span.localEndpoint().ipv4());
-                zipkinSpan.setLocalEndpointIPV6(span.localEndpoint().ipv6());
-                Integer localPort = span.localEndpoint().port();
-                if (localPort != null) {
-                    zipkinSpan.setLocalEndpointPort(localPort);
+        final var sampledTraces = getSampledTraces(spanList, droppedSpans);
+        for (final Span span : sampledTraces) {
+            final long startNanos = System.nanoTime();
+            // One span's failure costs that span only, and is counted.
+            try {
+                ZipkinSpan zipkinSpan = new ZipkinSpan();
+                String serviceName = span.localServiceName();
+                if (StringUtil.isEmpty(serviceName)) {
+                    serviceName = "Unknown";
                 }
-            }
-            if (span.remoteEndpoint() != null) {
-                zipkinSpan.setRemoteEndpointServiceName(getNamingControl().formatServiceName(span.remoteServiceName()));
-                zipkinSpan.setRemoteEndpointIPV4(span.remoteEndpoint().ipv4());
-                zipkinSpan.setRemoteEndpointIPV6(span.remoteEndpoint().ipv6());
-                Integer remotePort = span.remoteEndpoint().port();
-                if (remotePort != null) {
-                    zipkinSpan.setRemoteEndpointPort(remotePort);
+                zipkinSpan.setSpanId(span.id());
+                zipkinSpan.setTraceId(span.traceId());
+                zipkinSpan.setSpanId(span.id());
+                zipkinSpan.setParentId(span.parentId());
+                zipkinSpan.setName(getNamingControl().formatEndpointName(serviceName, span.name()));
+                zipkinSpan.setDuration(span.duration() == null ? 0 : span.duration());
+                if (span.kind() != null) {
+                    zipkinSpan.setKind(span.kind().name());
                 }
-            }
-            zipkinSpan.setTimestamp(span.timestampAsLong());
-            zipkinSpan.setDebug(span.debug());
-            zipkinSpan.setShared(span.shared());
+                zipkinSpan.setLocalEndpointServiceName(getNamingControl().formatServiceName(serviceName));
+                if (span.localEndpoint() != null) {
+                    zipkinSpan.setLocalEndpointIPV4(span.localEndpoint().ipv4());
+                    zipkinSpan.setLocalEndpointIPV6(span.localEndpoint().ipv6());
+                    Integer localPort = span.localEndpoint().port();
+                    if (localPort != null) {
+                        zipkinSpan.setLocalEndpointPort(localPort);
+                    }
+                }
+                if (span.remoteEndpoint() != null) {
+                    zipkinSpan.setRemoteEndpointServiceName(getNamingControl().formatServiceName(span.remoteServiceName()));
+                    zipkinSpan.setRemoteEndpointIPV4(span.remoteEndpoint().ipv4());
+                    zipkinSpan.setRemoteEndpointIPV6(span.remoteEndpoint().ipv6());
+                    Integer remotePort = span.remoteEndpoint().port();
+                    if (remotePort != null) {
+                        zipkinSpan.setRemoteEndpointPort(remotePort);
+                    }
+                }
+                zipkinSpan.setTimestamp(span.timestampAsLong());
+                zipkinSpan.setDebug(span.debug());
+                zipkinSpan.setShared(span.shared());
 
-            long timestampMillis = span.timestampAsLong() / 1000;
-            zipkinSpan.setTimestampMillis(timestampMillis);
-            long timeBucket = TimeBucket.getRecordTimeBucket(timestampMillis);
-            zipkinSpan.setTimeBucket(timeBucket);
+                long timestampMillis = span.timestampAsLong() / 1000;
+                zipkinSpan.setTimestampMillis(timestampMillis);
+                long timeBucket = TimeBucket.getRecordTimeBucket(timestampMillis);
+                zipkinSpan.setTimeBucket(timeBucket);
 
-            long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(timestampMillis);
+                long minuteTimeBucket = TimeBucket.getMinuteTimeBucket(timestampMillis);
 
-            if (!span.tags().isEmpty() || !span.annotations().isEmpty()) {
-                List<String> query = zipkinSpan.getQuery();
-                JsonObject annotationsJson = new JsonObject();
-                JsonObject tagsJson = new JsonObject();
-                for (Annotation annotation : span.annotations()) {
-                    annotationsJson.addProperty(Long.toString(annotation.timestamp()), annotation.value());
-                    if (annotation.value().length() > ZipkinSpanRecord.QUERY_LENGTH) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Span annotation : {}  length > : {}, dropped", annotation.value(), ZipkinSpanRecord.QUERY_LENGTH);
+                if (!span.tags().isEmpty() || !span.annotations().isEmpty()) {
+                    List<String> query = zipkinSpan.getQuery();
+                    JsonObject annotationsJson = new JsonObject();
+                    JsonObject tagsJson = new JsonObject();
+                    for (Annotation annotation : span.annotations()) {
+                        annotationsJson.addProperty(Long.toString(annotation.timestamp()), annotation.value());
+                        if (annotation.value().length() > ZipkinSpanRecord.QUERY_LENGTH) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Span annotation : {}  length > : {}, dropped", annotation.value(), ZipkinSpanRecord.QUERY_LENGTH);
+                            }
+                            continue;
                         }
-                        continue;
+                        query.add(annotation.value());
                     }
-                    query.add(annotation.value());
-                }
-                zipkinSpan.setAnnotations(annotationsJson);
-                for (Map.Entry<String, String> tag : span.tags().entrySet()) {
-                    String tagString = tag.getKey() + "=" + tag.getValue();
-                    tagsJson.addProperty(tag.getKey(), tag.getValue());
-                    if (tag.getValue().length() > Tag.TAG_LENGTH || tagString.length() > Tag.TAG_LENGTH) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Span tag : {} length > : {}, dropped", tagString, Tag.TAG_LENGTH);
+                    zipkinSpan.setAnnotations(annotationsJson);
+                    for (Map.Entry<String, String> tag : span.tags().entrySet()) {
+                        String tagString = tag.getKey() + "=" + tag.getValue();
+                        tagsJson.addProperty(tag.getKey(), tag.getValue());
+                        if (tag.getValue().length() > Tag.TAG_LENGTH || tagString.length() > Tag.TAG_LENGTH) {
+                            if (log.isDebugEnabled()) {
+                                log.debug("Span tag : {} length > : {}, dropped", tagString, Tag.TAG_LENGTH);
+                            }
+                            continue;
                         }
-                        continue;
+                        query.add(tag.getKey());
+                        query.add(tagString);
+
+                        if (searchTagKeys.contains(tag.getKey())) {
+                            addAutocompleteTags(minuteTimeBucket, tag.getKey(), tag.getValue());
+                        }
                     }
-                    query.add(tag.getKey());
-                    query.add(tagString);
+                    zipkinSpan.setTags(tagsJson);
+                }
 
-                    if (searchTagKeys.contains(tag.getKey())) {
-                        addAutocompleteTags(minuteTimeBucket, tag.getKey(), tag.getValue());
+                // Phase 2: notify span listeners with the Zipkin span
+                final SpanListenerResult listenerResult = getSpanListenerManager()
+                    .notifyZipkinPhase(zipkinSpan);
+
+                // Merge additional tags from listeners into span tags
+                if (!listenerResult.getAdditionalTags().isEmpty()) {
+                    JsonObject tags = zipkinSpan.getTags();
+                    if (tags == null) {
+                        tags = new JsonObject();
                     }
+                    for (final Map.Entry<String, String> entry : listenerResult.getAdditionalTags().entrySet()) {
+                        tags.addProperty(entry.getKey(), entry.getValue());
+                    }
+                    zipkinSpan.setTags(tags);
                 }
-                zipkinSpan.setTags(tagsJson);
-            }
 
-            // Phase 2: notify span listeners with the Zipkin span
-            final SpanListenerResult listenerResult = getSpanListenerManager()
-                .notifyZipkinPhase(zipkinSpan);
+                getReceiver().receive(zipkinSpan);
 
-            // Merge additional tags from listeners into span tags
-            if (!listenerResult.getAdditionalTags().isEmpty()) {
-                JsonObject tags = zipkinSpan.getTags();
-                if (tags == null) {
-                    tags = new JsonObject();
+                toService(zipkinSpan, minuteTimeBucket);
+                toServiceSpan(zipkinSpan, minuteTimeBucket);
+                if (!StringUtil.isEmpty(zipkinSpan.getRemoteEndpointServiceName())) {
+                    toServiceRelation(zipkinSpan, minuteTimeBucket);
                 }
-                for (final Map.Entry<String, String> entry : listenerResult.getAdditionalTags().entrySet()) {
-                    tags.addProperty(entry.getKey(), entry.getValue());
-                }
-                zipkinSpan.setTags(tags);
+            } catch (Exception e) {
+                log.warn("Processing Zipkin span {} failed, dropping it: {}", span.id(), e.getMessage());
+                droppedSpans.count(TraceSpansDropped.Reason.PROCESS_FAILED, 1);
+            } finally {
+                TraceInLatency.observeSpans(spanLatency, startNanos, 1);
             }
-
-            getReceiver().receive(zipkinSpan);
-
-            toService(zipkinSpan, minuteTimeBucket);
-            toServiceSpan(zipkinSpan, minuteTimeBucket);
-            if (!StringUtil.isEmpty(zipkinSpan.getRemoteEndpointServiceName())) {
-                toServiceRelation(zipkinSpan, minuteTimeBucket);
-            }
-        });
-        return sampledTraces;
+        }
     }
 
     private void addAutocompleteTags(final long minuteTimeBucket, final String key, final String value) {
@@ -216,7 +228,7 @@ public class SpanForward implements SpanForwardService {
         getReceiver().receive(relation);
     }
 
-    private List<Span> getSampledTraces(List<Span> input) {
+    private List<Span> getSampledTraces(final List<Span> input, final TraceSpansDropped droppedSpans) {
         // 100% sampleRate and no rateLimiter, return all spans
         if (config.getSampleRate() == 10000 && rateLimiter == null) {
             return input;
@@ -231,6 +243,7 @@ public class SpanForward implements SpanForwardService {
             // Apply maximum spans per minute sampling first
             if (rateLimiter != null && !rateLimiter.tryAcquire()) {
                 log.debug("Span dropped due to maximum spans per minute limit: {}", span.id());
+                droppedSpans.count(TraceSpansDropped.Reason.RATE_LIMITED, 1);
                 continue;
             }
 
@@ -243,6 +256,8 @@ public class SpanForward implements SpanForwardService {
                 traceId = traceId == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(traceId);
                 if (traceId <= samplerBoundary) {
                     sampledTraces.add(span);
+                } else {
+                    droppedSpans.count(TraceSpansDropped.Reason.SAMPLED, 1);
                 }
             }
         }

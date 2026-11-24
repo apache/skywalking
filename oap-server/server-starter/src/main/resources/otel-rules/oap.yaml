@@ -58,6 +58,8 @@ metricsRules:
     exp: trace_analysis_error_count.sum(['service', 'host_name', 'protocol']).increase('PT1M')
   - name: instance_spans_dropped_count
     exp: spans_dropped_count.sum(['service', 'host_name', 'protocol']).increase('PT1M')
+  - name: instance_spans_dropped_by_reason
+    exp: spans_dropped_count.sum(['service', 'host_name', 'protocol', 'reason']).increase('PT1M')
   - name: instance_ai_evaluation_dropped_count
     exp: ai_evaluation_dropped_count.sum(['service', 'host_name', 'reason']).increase('PT1M')
   - name: instance_ai_evaluation_error_count
@@ -123,15 +125,15 @@ metricsRules:
   - name: otel_logs_received
     exp: otel_logs_latency_count.sum(['service', 'host_name']).increase('PT1M')
   - name: otel_spans_received
-    exp: otel_spans_latency_count.sum(['service', 'host_name']).increase('PT1M')
+    exp: trace_in_latency_count.tagMatch('protocol', 'otlp-grpc|otlp-http').sum(['service', 'host_name']).increase('PT1M')
   - name: otel_spans_dropped
-    exp: otel_spans_dropped.sum(['service', 'host_name']).increase('PT1M')
+    exp: spans_dropped_count.tagMatch('protocol', 'otlp-grpc|otlp-http').sum(['service', 'host_name']).increase('PT1M')
+  - name: otel_spans_rejected
+    exp: otel_spans_rejected.sum(['service', 'host_name']).increase('PT1M')
   - name: otel_metrics_latency_percentile
     exp: otel_metrics_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99])
   - name: otel_logs_latency_percentile
     exp: otel_logs_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99])
-  - name: otel_spans_latency_percentile
-    exp: otel_spans_latency.sum(['le', 'service', 'host_name']).increase('PT1M').histogram().histogram_percentile([50,75,90,95,99])
   - name: graphql_query_latency_percentile
     exp: graphql_query_latency.sum(['le', 'service', 'host_name']).increase('PT5M').histogram().histogram_percentile([50,75,90,95,99])
   - name: instance_graphql_query_count

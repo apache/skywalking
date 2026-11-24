@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.trace.SpanAnalysisResult;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
+import org.apache.skywalking.oap.server.core.trace.TraceSpansDropped;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
@@ -71,12 +72,14 @@ class OTLPAnalysisBeforeStorageHandlerTest {
             SpanListenerResult.builder().shouldPersist(false).build(), SpanListenerResult.CONTINUE);
         final OpenTelemetryTraceHandler handler = handler(analyzed, listeners);
         final OTLPSpanForward forward = mock(OTLPSpanForward.class);
-        when(forward.send(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(true);
-        final Field field = OpenTelemetryTraceHandler.class.getDeclaredField("otlpSpanForward");
+        when(forward.send(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(OTLPSpanForward.Outcome.STORED);
+        final Field storageField = OpenTelemetryTraceHandler.class.getDeclaredField("storage");
+        storageField.setAccessible(true);
+        final Field field = OTLPNativeTraceStorage.class.getDeclaredField("otlpSpanForward");
         field.setAccessible(true);
-        field.set(handler, forward);
+        field.set(storageField.get(handler), forward);
 
-        handler.processExport(request("vetoed", "kept"));
+        handler.processExport(request("vetoed", "kept"), mock(HistogramMetrics.class), mock(TraceSpansDropped.class));
 
         assertEquals(List.of("0102030405060701", "0102030405060702"),
             analyzed.stream().map(SpanMetadata::getSpanId).collect(Collectors.toList()), "both spans reach the rules");

@@ -34,6 +34,7 @@ import org.apache.skywalking.oap.server.core.trace.SpanAnalysisResult;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
+import org.apache.skywalking.oap.server.core.trace.TraceSpansDropped;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
@@ -67,15 +68,17 @@ class OTLPStoredLayerHandlerTest {
         final List<SpanMetadata> analyzed = new ArrayList<>();
         final OpenTelemetryTraceHandler handler = handler(analyzed);
         final OTLPSpanForward forward = mock(OTLPSpanForward.class);
-        when(forward.send(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(true);
-        final Field field = OpenTelemetryTraceHandler.class.getDeclaredField("otlpSpanForward");
+        when(forward.send(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(OTLPSpanForward.Outcome.STORED);
+        final Field storageField = OpenTelemetryTraceHandler.class.getDeclaredField("storage");
+        storageField.setAccessible(true);
+        final Field field = OTLPNativeTraceStorage.class.getDeclaredField("otlpSpanForward");
         field.setAccessible(true);
-        field.set(handler, forward);
+        field.set(storageField.get(handler), forward);
 
         handler.processExport(request(
             Map.of("service.name", "typo", "service.layer", "otlp_general"),
             Map.of("service.name", "unlabelled"),
-            Map.of("service.name", "general", "service.layer", "OTLP_GENERAL")));
+            Map.of("service.name", "general", "service.layer", "OTLP_GENERAL")), mock(HistogramMetrics.class), mock(TraceSpansDropped.class));
 
         assertEquals(List.of("otlp_general", "", "OTLP_GENERAL"),
             List.of(analyzed.get(0).getLayer(), analyzed.get(1).getLayer(), analyzed.get(2).getLayer()),

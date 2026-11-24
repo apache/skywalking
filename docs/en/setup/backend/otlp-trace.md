@@ -84,7 +84,7 @@ The Zipkin receiver and query modules are not needed in this mode.
 | `otlpTraceStorage`           | `SW_OTEL_TRACE_STORAGE`              | `otlp`, the default, stores the native span. `zipkin` converts to Zipkin v2 as earlier releases did. Any other value fails the boot.                                               |
 | `otlpTraceSearchableTags`    | `SW_OTEL_TRACE_SEARCHABLE_TAG_KEYS`  | Attribute keys offered by tag autocomplete (`/api/v2/search/tags`), each written with its TraceQL scope, `resource.<key>` or `span.<key>`, and listed under that scope; an entry without a scope fails the boot. List low-cardinality attributes only: every distinct value is stored once per day. Every resource and span attribute is indexed for equality search regardless of this list.                        |
 | `otlpTraceSampleRate`        | `SW_OTEL_TRACE_SAMPLE_RATE`          | Head sampling by trace id, precision 1/10000. `10000` keeps every trace.                                                                                                              |
-| `otlpTraceMaxSpansPerSecond` | `SW_OTEL_TRACE_MAX_SPANS_PER_SECOND` | Spans per second accepted before the receiver drops the rest. `0` means no limit. Dropped spans are counted in the `otel_spans_dropped` self-observability metric.                    |
+| `otlpTraceMaxSpansPerSecond` | `SW_OTEL_TRACE_MAX_SPANS_PER_SECOND` | Spans per second accepted before the receiver drops the rest. `0` means no limit. Dropped spans are counted in `spans_dropped_count` with `reason=rate_limited`, see [Self-observability](#self-observability). |
 
 ### Service name
 
@@ -175,3 +175,33 @@ rule file analyzes the spans whose resource carries `service.layer=OTLP_GENERAL`
 that layer with their metrics, topology and slow statements; every other span is only stored. See [OpenTelemetry
 Trace Analysis](trace-analyzer.md#enabling-the-analysis-for-an-application) for how an application enables it, the
 settings, and what it produces.
+
+## Self-observability
+
+The `otlp-traces` handler reports these metrics on the OAP's [telemetry](backend-telemetry.md) endpoint, in both
+storage modes. The [OAP self-observability](dashboards-so11y.md) MAL rules turn them into the `meter_oap_*` metrics
+named in the last column.
+
+Every metric counts spans, not export requests, as the OTLP log metrics count log records.
+
+| Metric | Labels | Meaning | Meter |
+|--------|--------|---------|-------|
+| `trace_in_latency` | `protocol`: `otlp-grpc`, `otlp-http` | Latency of processing 1,000 spans, observed for each span as its own latency × 1,000, because one span takes microseconds, below the smallest histogram bucket. A span's latency covers the span listeners, the TAL rules, and storing it natively or converting it to Zipkin. Its count is the spans received from resources with a service name. Shared with the agent (`grpc`, `http`, `kafka`) and Zipkin (`zipkin-http`, `zipkin-kafka`) receivers, in the same per-span unit | `meter_oap_instance_trace_count`, `meter_oap_instance_trace_latency_percentile` (ms per 1,000 spans), by `protocol`; `meter_oap_otel_spans_received`, the two OTLP protocols summed |
+| `otel_spans_rejected` | | Spans rejected because their resource names no service, see [Service name](#service-name) | `meter_oap_otel_spans_rejected` |
+| `spans_dropped_count` | `protocol`: `otlp-grpc`, `otlp-http`; `reason` | Spans received but not stored, by reason, see below. Shared with the Zipkin (`zipkin-http`, `zipkin-kafka`) receiver | `meter_oap_instance_spans_dropped_count` by `protocol`, `meter_oap_instance_spans_dropped_by_reason` by `protocol` and `reason`; `meter_oap_otel_spans_dropped`, the two OTLP protocols summed |
+| `trace_analysis_error_count` | `protocol`: `otlp-grpc`, `otlp-http` | Export requests that failed as a whole: an OTLP/HTTP body that does not parse, or an error that escaped the per-span handling. Shared with the agent (`grpc`) and Zipkin (`zipkin-http`, `zipkin-kafka`) receivers | `meter_oap_instance_trace_analysis_error_count` |
+
+In Zipkin mode the Zipkin receiver stores the converted spans of an export request as one batch, after their
+`trace_in_latency` observations, so the time spent storing them is not in the span latency.
+
+The `reason` of a dropped span is one of:
+
+- `sampled`: left out by the head sampling, `otlpTraceSampleRate` in native mode, the Zipkin receiver's `sampleRate`
+  in Zipkin mode.
+- `rate_limited`: over the spans per second limit, `otlpTraceMaxSpansPerSecond` in native mode, the Zipkin
+  receiver's `maxSpansPerSecond` in Zipkin mode.
+- `store_failed`: native mode, an error while storing the span.
+- `process_failed`: an error in the span listeners or, in Zipkin mode, while converting or processing the span. Only
+  that span is lost; the rest of the export request is processed.
+
+A span that the span listeners or a TAL rule decide not to persist is not counted as dropped.

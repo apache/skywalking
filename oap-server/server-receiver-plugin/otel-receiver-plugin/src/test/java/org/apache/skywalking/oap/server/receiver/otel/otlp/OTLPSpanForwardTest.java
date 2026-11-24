@@ -106,7 +106,7 @@ class OTLPSpanForwardTest {
                                 .addAttributes(string("db.statement", tooLong))
                                 .build();
 
-        assertTrue(forward.send(resource, "https://opentelemetry.io/schemas/1.26.0", scope, "", span, "checkout",
+        assertEquals(OTLPSpanForward.Outcome.STORED, forward.send(resource, "https://opentelemetry.io/schemas/1.26.0", scope, "", span, "checkout",
                                 Map.of("service.name", "checkout", "service.instance.id", "checkout-1"),
                                 Map.of("gen_ai.injected", "yes"), false
         ));
@@ -177,7 +177,7 @@ class OTLPSpanForwardTest {
                                 .addAttributes(string("deployment.environment", "canary"))
                                 .build();
 
-        assertTrue(forward.send(resource, "", InstrumentationScope.getDefaultInstance(), "", span, "checkout",
+        assertEquals(OTLPSpanForward.Outcome.STORED, forward.send(resource, "", InstrumentationScope.getDefaultInstance(), "", span, "checkout",
                                 Map.of("service.name", "checkout"), Map.of(), false));
 
         // Each configured entry names one scope; a key listed for both is published once per scope.
@@ -200,7 +200,7 @@ class OTLPSpanForwardTest {
         final Resource resource = Resource.newBuilder().addAttributes(string("deployment.environment", "prod")).build();
         final Span span = span().addAttributes(string("deployment.environment", "canary")).build();
 
-        assertTrue(forward.send(resource, "", InstrumentationScope.getDefaultInstance(), "", span, "checkout",
+        assertEquals(OTLPSpanForward.Outcome.STORED, forward.send(resource, "", InstrumentationScope.getDefaultInstance(), "", span, "checkout",
                                 Map.of(), Map.of(), false));
 
         assertEquals(Set.of("resource.deployment.environment=prod"), received().stream()
@@ -215,8 +215,8 @@ class OTLPSpanForwardTest {
         config.setOtlpTraceMaxSpansPerSecond(1);
         final OTLPSpanForward forward = new OTLPSpanForward(config, moduleManager);
 
-        assertTrue(send(forward, TRACE_ID));
-        assertFalse(send(forward, TRACE_ID));
+        assertEquals(OTLPSpanForward.Outcome.STORED, send(forward, TRACE_ID));
+        assertEquals(OTLPSpanForward.Outcome.RATE_LIMITED, send(forward, TRACE_ID));
     }
 
     @Test
@@ -227,11 +227,11 @@ class OTLPSpanForwardTest {
         highTraceId[8] = 0x7f;
         highTraceId[9] = (byte) 0xff;
 
-        assertTrue(send(forward, TRACE_ID));
-        assertFalse(send(forward, highTraceId));
+        assertEquals(OTLPSpanForward.Outcome.STORED, send(forward, TRACE_ID));
+        assertEquals(OTLPSpanForward.Outcome.SAMPLED_OUT, send(forward, highTraceId));
     }
 
-    private boolean send(final OTLPSpanForward forward, final byte[] traceId) {
+    private OTLPSpanForward.Outcome send(final OTLPSpanForward forward, final byte[] traceId) {
         return forward.send(
             Resource.getDefaultInstance(), "", InstrumentationScope.getDefaultInstance(), "",
             span().setTraceId(ByteString.copyFrom(traceId)).build(), "checkout", Map.of(), Map.of(), false

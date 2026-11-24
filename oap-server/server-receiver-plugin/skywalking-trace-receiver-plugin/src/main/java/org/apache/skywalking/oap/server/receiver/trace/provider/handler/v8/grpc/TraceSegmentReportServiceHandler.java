@@ -25,6 +25,8 @@ import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentCollection;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.apm.network.language.agent.v3.TraceSegmentReportServiceGrpc;
+import org.apache.skywalking.oap.server.core.trace.TraceAnalysisError;
+import org.apache.skywalking.oap.server.core.trace.TraceInLatency;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.server.grpc.GRPCHandler;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -51,10 +53,10 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                                                      .provider()
                                                      .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "trace_in_latency", "The process latency of trace data",
+            TraceInLatency.NAME, TraceInLatency.HELP,
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
-        errorCounter = metricsCreator.createCounter("trace_analysis_error_count", "The error number of trace analysis",
+        errorCounter = metricsCreator.createCounter(TraceAnalysisError.NAME, TraceAnalysisError.HELP,
                                                     new MetricsTag.Keys("protocol"), new MetricsTag.Values("grpc")
         );
     }
@@ -68,14 +70,14 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
                     log.debug("received segment in streaming");
                 }
 
-                HistogramMetrics.Timer timer = histogram.createTimer();
+                final long startNanos = System.nanoTime();
                 try {
                     segmentParserService.send(segment);
                 } catch (Exception e) {
                     errorCounter.inc();
                     log.error(e.getMessage(), e);
                 } finally {
-                    timer.finish();
+                    TraceInLatency.observeSpans(histogram, startNanos, segment.getSpansCount());
                 }
             }
 
@@ -106,14 +108,14 @@ public class TraceSegmentReportServiceHandler extends TraceSegmentReportServiceG
         }
 
         request.getSegmentsList().forEach(segment -> {
-            HistogramMetrics.Timer timer = histogram.createTimer();
+            final long startNanos = System.nanoTime();
             try {
                 segmentParserService.send(segment);
             } catch (Exception e) {
                 errorCounter.inc();
                 log.error(e.getMessage(), e);
             } finally {
-                timer.finish();
+                TraceInLatency.observeSpans(histogram, startNanos, segment.getSpansCount());
             }
         });
 

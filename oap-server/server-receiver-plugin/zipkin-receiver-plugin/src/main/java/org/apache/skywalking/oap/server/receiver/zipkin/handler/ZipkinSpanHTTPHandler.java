@@ -29,6 +29,9 @@ import com.linecorp.armeria.server.annotation.ConsumesProtobuf;
 import com.linecorp.armeria.server.annotation.Post;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.trace.TraceAnalysisError;
+import org.apache.skywalking.oap.server.core.trace.TraceInLatency;
+import org.apache.skywalking.oap.server.core.trace.TraceSpansDropped;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.receiver.zipkin.trace.SpanForward;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
@@ -46,7 +49,7 @@ import static java.util.Objects.nonNull;
 public class ZipkinSpanHTTPHandler {
     private final HistogramMetrics histogram;
     private final CounterMetrics errorCounter;
-    private final CounterMetrics droppedCounter;
+    private final TraceSpansDropped droppedSpans;
     private final SpanForward spanForward;
 
     public ZipkinSpanHTTPHandler(SpanForward forward, ModuleManager manager) {
@@ -55,17 +58,14 @@ public class ZipkinSpanHTTPHandler {
                                                .provider()
                                                .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "trace_in_latency", "The process latency of trace data",
+            TraceInLatency.NAME, TraceInLatency.HELP,
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-http")
         );
         errorCounter = metricsCreator.createCounter(
-            "trace_analysis_error_count", "The error number of trace analysis",
+            TraceAnalysisError.NAME, TraceAnalysisError.HELP,
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-http")
         );
-        droppedCounter = metricsCreator.createCounter(
-            "spans_dropped_count", "The count of spans that were dropped due to rate limit",
-            new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-http")
-        );
+        droppedSpans = new TraceSpansDropped(metricsCreator, "zipkin-http");
     }
 
     @Post("/api/v2/spans")
@@ -110,14 +110,10 @@ public class ZipkinSpanHTTPHandler {
 
     HttpResponse doCollectSpans(final SpanBytesDecoder decoder,
                                 final HttpRequest req) {
-        final HistogramMetrics.Timer timer = histogram.createTimer();
         final HttpResponse response = HttpResponse.from(req.aggregate().thenApply(request -> {
             try (final HttpData httpData = request.content()) {
                 final List<Span> spanList = decoder.decodeList(httpData.byteBuf().nioBuffer());
-                final var processedSpans = spanForward.send(spanList);
-                if (processedSpans.size() < spanList.size()) {
-                    droppedCounter.inc(spanList.size() - processedSpans.size());
-                }
+                spanForward.send(spanList, histogram, droppedSpans);
                 return HttpResponse.of(HttpStatus.ACCEPTED);
             }
         }));
@@ -125,7 +121,6 @@ public class ZipkinSpanHTTPHandler {
             if (nonNull(throwable)) {
                 errorCounter.inc();
             }
-            timer.close();
             return null;
         });
         return response;

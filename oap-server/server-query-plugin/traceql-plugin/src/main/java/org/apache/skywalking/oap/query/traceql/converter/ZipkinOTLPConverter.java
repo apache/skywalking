@@ -129,7 +129,7 @@ public class ZipkinOTLPConverter {
                     spanBuilder.setParentSpanId(ByteString.copyFrom(OTLPConverter.hexToBytes(zipkinSpan.parentId())));
                 }
 
-                // Set status based on tags (reference: OpenTelemetryTraceHandler.populateStatus)
+                // Set status based on tags (reference: OTLPZipkinTraceStorage.populateStatus)
                 Status.StatusCode statusCode = Status.StatusCode.STATUS_CODE_UNSET;
                 String statusMessage = "";
                 if (zipkinSpan.tags() != null) {
@@ -207,7 +207,7 @@ public class ZipkinOTLPConverter {
                 }
 
                 // Add remote endpoint info as attributes
-                // Reference: OpenTelemetryTraceHandler.convertEndpointFromTags
+                // Reference: OTLPZipkinTraceStorage.convertEndpointFromTags
                 if (zipkinSpan.remoteEndpoint() != null) {
                     zipkin2.Endpoint remoteEndpoint = zipkinSpan.remoteEndpoint();
                     // Service name mapping: prefer peer.service, fallback to net.peer.name

@@ -1907,7 +1907,7 @@
           "refId": "A"
         }
       ],
-      "title": "Trace Segment Received Count / Second",
+      "title": "Trace Span Received Count / Second",
       "type": "timeseries"
     },
     {
@@ -2060,7 +2060,7 @@
           "refId": "E"
         }
       ],
-      "title": "Trace Segment Analysis Latency",
+      "title": "Trace Span Analysis Latency (per 1,000 spans)",
       "type": "timeseries"
     },
     {
@@ -2158,8 +2158,107 @@
           "refId": "A"
         }
       ],
-      "title": "Trace Segment Analysis Error Count (Increment) / Minute",
+      "title": "Trace Analysis Error Count (Increment) / Minute",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "uid": "$datasource"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "id": 167,
+      "interval": "1m",
+      "options": {
+        "dataLinks": [],
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.3.1",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "$datasource"
+          },
+          "expr": "sum by(protocol, reason)(increase(spans_dropped_count{instance=\"$instance\",job=\"$job\"}[1m]))",
+          "format": "time_series",
+          "interval": "1m",
+          "intervalFactor": 1,
+          "legendFormat": "{{protocol}} {{reason}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Trace Spans Dropped (Increment) / Minute",
+      "type": "timeseries",
+      "description": "Spans received but not stored, by protocol (zipkin-http, zipkin-kafka, otlp-grpc, otlp-http) and reason: sampled, rate_limited, store_failed, process_failed."
     },
     {
       "datasource": {
@@ -2225,7 +2324,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 52
+        "y": 58
       },
       "id": 92,
       "options": {
@@ -2322,7 +2421,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 52
+        "y": 58
       },
       "id": 93,
       "interval": "1m",
@@ -2479,7 +2578,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 52
+        "y": 58
       },
       "id": 94,
       "interval": "1m",
@@ -2578,7 +2677,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 58
+        "y": 64
       },
       "id": 123,
       "options": {
@@ -2677,7 +2776,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 58
+        "y": 64
       },
       "id": 125,
       "options": {
@@ -2828,7 +2927,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 58
+        "y": 64
       },
       "id": 127,
       "options": {
@@ -2924,7 +3023,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 64
+        "y": 70
       },
       "id": 101,
       "options": {
@@ -3021,7 +3120,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 64
+        "y": 70
       },
       "id": 102,
       "interval": "1m",
@@ -3174,7 +3273,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 64
+        "y": 70
       },
       "id": 103,
       "interval": "1m",
@@ -3272,7 +3371,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 70
+        "y": 76
       },
       "id": 104,
       "options": {
@@ -3369,7 +3468,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 70
+        "y": 76
       },
       "id": 105,
       "interval": "1m",
@@ -3522,7 +3621,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 70
+        "y": 76
       },
       "id": 106,
       "interval": "1m",
@@ -3620,7 +3719,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 76
+        "y": 82
       },
       "id": 107,
       "options": {
@@ -3717,7 +3816,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 76
+        "y": 82
       },
       "id": 108,
       "interval": "1m",
@@ -3870,7 +3969,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 76
+        "y": 82
       },
       "id": 109,
       "interval": "1m",
@@ -3968,7 +4067,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 82
+        "y": 88
       },
       "id": 110,
       "options": {
@@ -4065,7 +4164,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 82
+        "y": 88
       },
       "id": 111,
       "interval": "1m",
@@ -4218,7 +4317,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 82
+        "y": 88
       },
       "id": 112,
       "interval": "1m",
@@ -4316,7 +4415,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 88
+        "y": 94
       },
       "id": 113,
       "options": {
@@ -4413,7 +4512,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 88
+        "y": 94
       },
       "id": 114,
       "interval": "1m",
@@ -4566,7 +4665,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 88
+        "y": 94
       },
       "id": 115,
       "interval": "1m",
@@ -4664,7 +4763,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 94
+        "y": 100
       },
       "id": 119,
       "options": {
@@ -4686,7 +4785,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1h]))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\"}[1h]))",
           "format": "time_series",
           "hide": false,
           "interval": "1h",
@@ -4698,14 +4797,14 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1h] offset 1w))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\"}[1h] offset 1w))",
           "interval": "1h",
           "legendFormat": "Last Week",
           "refId": "B"
         }
       ],
       "timeFrom": "1d",
-      "title": "Trace Segment Received Count / Hour",
+      "title": "Trace Span Received Count / Hour",
       "type": "timeseries"
     },
     {
@@ -4772,7 +4871,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 94
+        "y": 100
       },
       "id": 120,
       "options": {
@@ -4794,7 +4893,7 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1d]))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\"}[1d]))",
           "format": "time_series",
           "hide": false,
           "interval": "1d",
@@ -4806,14 +4905,14 @@
           "datasource": {
             "uid": "$datasource"
           },
-          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\",protocol=~\"kafka-fetcher|grpc\"}[1d] offset 1w))",
+          "expr": "sum(increase(trace_in_latency_count{job=\"$job\",instance=\"$instance\"}[1d] offset 1w))",
           "interval": "1d",
           "legendFormat": "Last Week",
           "refId": "B"
         }
       ],
       "timeFrom": "7d",
-      "title": "Trace Segment Received Count / Day",
+      "title": "Trace Span Received Count / Day",
       "type": "timeseries"
     },
     {
@@ -4880,7 +4979,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 94
+        "y": 100
       },
       "id": 23,
       "interval": "1m",
@@ -4954,7 +5053,7 @@
         "h": 12,
         "w": 8,
         "x": 16,
-        "y": 100
+        "y": 106
       },
       "id": 121,
       "options": {
@@ -5051,7 +5150,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 118
+        "y": 124
       },
       "id": 18,
       "interval": "1m",
@@ -5150,7 +5249,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 118
+        "y": 124
       },
       "id": 98,
       "interval": "1m",
@@ -5303,7 +5402,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 124
+        "y": 130
       },
       "id": 97,
       "interval": "1m",
@@ -5402,7 +5501,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 124
+        "y": 130
       },
       "id": 99,
       "interval": "1m",
@@ -5555,7 +5654,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 124
+        "y": 130
       },
       "id": 100,
       "interval": "1m",
@@ -5653,7 +5752,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 130
+        "y": 136
       },
       "id": 134,
       "interval": "1m",
@@ -5754,7 +5853,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 130
+        "y": 136
       },
       "id": 135,
       "interval": "1m",
@@ -5906,7 +6005,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 130
+        "y": 136
       },
       "id": 136,
       "interval": "1m",
@@ -6007,7 +6106,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 136
+        "y": 142
       },
       "id": 137,
       "interval": "1m",
@@ -6159,7 +6258,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 136
+        "y": 142
       },
       "id": 138,
       "interval": "1m",
@@ -6183,7 +6282,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "increase(otel_spans_latency_count{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "sum(increase(trace_in_latency_count{instance=\"$instance\",job=\"$job\",protocol=~\"otlp-.*\"}[1m]))",
           "format": "time_series",
           "hide": false,
           "interval": "1m",
@@ -6198,12 +6297,25 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "increase(otel_spans_dropped{instance=\"$instance\",job=\"$job\"}[1m])",
+          "expr": "sum(increase(spans_dropped_count{instance=\"$instance\",job=\"$job\",protocol=~\"otlp-.*\"}[1m]))",
           "hide": false,
           "instant": false,
           "legendFormat": "Dropped",
           "range": true,
           "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(otel_spans_rejected{instance=\"$instance\",job=\"$job\"}[1m]))",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "Rejected",
+          "range": true,
+          "refId": "C"
         }
       ],
       "title": "Otel Spans Received Count (Increment) / Minute",
@@ -6273,7 +6385,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 136
+        "y": 142
       },
       "id": 139,
       "interval": "1m",
@@ -6297,7 +6409,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.50, increase(otel_spans_latency_bucket{instance=\"$instance\",job=\"$job\"}[5m]))",
+          "expr": "histogram_quantile(0.50, sum by(le)(increase(trace_in_latency_bucket{instance=\"$instance\",job=\"$job\",protocol=~\"otlp-.*\"}[5m])))",
           "format": "time_series",
           "hide": false,
           "interval": "",
@@ -6312,7 +6424,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.75, increase(otel_spans_latency_bucket{instance=\"$instance\",job=\"$job\"}[5m]))",
+          "expr": "histogram_quantile(0.75, sum by(le)(increase(trace_in_latency_bucket{instance=\"$instance\",job=\"$job\",protocol=~\"otlp-.*\"}[5m])))",
           "hide": false,
           "instant": false,
           "legendFormat": "P75",
@@ -6325,7 +6437,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.90, increase(otel_spans_latency_bucket{instance=\"$instance\",job=\"$job\"}[5m]))",
+          "expr": "histogram_quantile(0.90, sum by(le)(increase(trace_in_latency_bucket{instance=\"$instance\",job=\"$job\",protocol=~\"otlp-.*\"}[5m])))",
           "hide": false,
           "instant": false,
           "legendFormat": "P90",
@@ -6338,7 +6450,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, increase(otel_spans_latency_bucket{instance=\"$instance\",job=\"$job\"}[5m]))",
+          "expr": "histogram_quantile(0.95, sum by(le)(increase(trace_in_latency_bucket{instance=\"$instance\",job=\"$job\",protocol=~\"otlp-.*\"}[5m])))",
           "hide": false,
           "instant": false,
           "legendFormat": "P95",
@@ -6351,7 +6463,7 @@
             "uid": "$datasource"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, increase(otel_spans_latency_bucket{instance=\"$instance\",job=\"$job\"}[5m]))",
+          "expr": "histogram_quantile(0.99, sum by(le)(increase(trace_in_latency_bucket{instance=\"$instance\",job=\"$job\",protocol=~\"otlp-.*\"}[5m])))",
           "hide": false,
           "instant": false,
           "legendFormat": "P99",
@@ -6359,7 +6471,7 @@
           "refId": "E"
         }
       ],
-      "title": "Otel Spans Received Latency",
+      "title": "Otel Spans Received Latency (per 1,000 spans)",
       "type": "timeseries"
     },
     {
@@ -6425,7 +6537,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 142
+        "y": 148
       },
       "id": 140,
       "interval": "1m",
@@ -6539,7 +6651,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 142
+        "y": 148
       },
       "id": 141,
       "interval": "1m",
@@ -6692,7 +6804,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 142
+        "y": 148
       },
       "id": 143,
       "interval": "1m",
@@ -6793,7 +6905,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 148
+        "y": 154
       },
       "id": 142,
       "interval": "1m",
@@ -6894,7 +7006,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 148
+        "y": 154
       },
       "id": 144,
       "interval": "1m",
@@ -6995,7 +7107,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 148
+        "y": 154
       },
       "id": 145,
       "interval": "1m",
@@ -7148,7 +7260,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 154
+        "y": 160
       },
       "id": 146,
       "interval": "1m",
@@ -7300,7 +7412,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 154
+        "y": 160
       },
       "id": 147,
       "interval": "1m",
@@ -7400,7 +7512,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 154
+        "y": 160
       },
       "id": 150,
       "interval": "1m",
@@ -7500,7 +7612,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 160
+        "y": 166
       },
       "id": 149,
       "interval": "1m",
@@ -7600,7 +7712,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 166
+        "y": 172
       },
       "id": 152,
       "interval": "1m",
@@ -7643,7 +7755,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 172
+        "y": 178
       },
       "id": 166,
       "panels": [],
@@ -7714,7 +7826,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 173
+        "y": 179
       },
       "id": 95,
       "options": {
@@ -7812,7 +7924,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 173
+        "y": 179
       },
       "id": 96,
       "options": {
@@ -7910,7 +8022,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 179
+        "y": 185
       },
       "id": 157,
       "options": {
@@ -8008,7 +8120,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 179
+        "y": 185
       },
       "id": 158,
       "options": {
@@ -8106,7 +8218,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 179
+        "y": 185
       },
       "id": 159,
       "options": {
@@ -8204,7 +8316,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 185
+        "y": 191
       },
       "id": 160,
       "options": {
@@ -8302,7 +8414,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 185
+        "y": 191
       },
       "id": 161,
       "options": {
@@ -8400,7 +8512,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 185
+        "y": 191
       },
       "id": 162,
       "options": {
@@ -8499,7 +8611,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 191
+        "y": 197
       },
       "id": 163,
       "options": {
@@ -8597,7 +8709,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 191
+        "y": 197
       },
       "id": 164,
       "options": {
@@ -8695,7 +8807,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 191
+        "y": 197
       },
       "id": 165,
       "options": {
@@ -8734,7 +8846,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 197
+        "y": 203
       },
       "id": 156,
       "panels": [],
@@ -8804,7 +8916,7 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 198
+        "y": 204
       },
       "id": 153,
       "interval": "1m",
@@ -8904,7 +9016,7 @@
         "h": 6,
         "w": 8,
         "x": 8,
-        "y": 198
+        "y": 204
       },
       "id": 154,
       "interval": "1m",
@@ -9005,7 +9117,7 @@
         "h": 6,
         "w": 8,
         "x": 16,
-        "y": 198
+        "y": 204
       },
       "id": 155,
       "interval": "1m",
