@@ -63,6 +63,9 @@ public class GrpcStubBuilder implements ClientBuilder {
 
         final URI url = new URI("gproto+" + proto, null, host, port, "/", null, null);
         return (T) clientFactory.newClient(ClientBuilderParams.of(url, stubClass, ClientOptions.of(
+            // Armeria builds a gRPC stub on the factory in its options, not the one newClient is called on;
+            // without this the stub uses the default factory and drops the TLS settings above.
+            ClientOptions.FACTORY.newValue(clientFactory),
             ClientOptions.RESPONSE_TIMEOUT_MILLIS.newValue(Long.MAX_VALUE), // For the cilium fetcher, we need to wait for the response(all the data from streaming)
             ClientOptions.MAX_RESPONSE_LENGTH.newValue(0L)  // For the cilium streaming fetcher, we should ignore the response length limit
         )));
