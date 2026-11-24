@@ -38,11 +38,11 @@ public final class TraceInLatency {
     public static final String HELP = "The process latency of trace data, by protocol: one observation per span, the "
         + "span's seconds times " + SPAN_LATENCY_SCALE + ", i.e. the time " + SPAN_LATENCY_SCALE + " such spans take, "
         + "so the count is spans. grpc, http and kafka (SkyWalking agent): a segment is processed as a whole, so each "
-        + "of its spans is observed at the segment's latency divided by its span count, and a segment without spans "
-        + "counts once. zipkin-http and zipkin-kafka: each span on its own; sampled-out spans are not included. "
-        + "otlp-grpc and otlp-http: each span on its own, covering the span listeners, the TAL rules and the native "
-        + "store or the conversion to Zipkin; spans of a resource without a service name are not included. Decoding "
-        + "the request or message is not included.";
+        + "of its spans is observed at the segment's latency divided by its span count; a segment without spans, which "
+        + "the analysis discards, is not counted. zipkin-http and zipkin-kafka: each span on its own; sampled-out "
+        + "spans are not included. otlp-grpc and otlp-http: each span on its own, covering the span listeners, the "
+        + "TAL rules and the native store or the conversion to Zipkin; spans of a resource without a service name "
+        + "are not included. Decoding the request or message is not included.";
 
     private TraceInLatency() {
     }
@@ -50,16 +50,19 @@ public final class TraceInLatency {
     /**
      * Observe {@code spanCount} spans processed together since {@code startNanos}, each at their average latency
      * times {@link #SPAN_LATENCY_SCALE}. One observation per span keeps the histogram's count in spans and its sum
-     * the real time; a {@code spanCount} below 1 is observed as one span.
+     * the real time. Nothing is observed for no spans: the analysis discards a segment without spans
+     * ({@code SwNativeRuleRunner#send}), so it is neither received nor exported as a span.
      *
      * @param histogram  the {@code trace_in_latency} histogram of the receiving protocol.
      * @param startNanos the {@link System#nanoTime()} taken before the spans were processed.
      * @param spanCount  the number of spans processed.
      */
     public static void observeSpans(final HistogramMetrics histogram, final long startNanos, final int spanCount) {
-        final int spans = Math.max(spanCount, 1);
-        final double perSpan = (System.nanoTime() - startNanos) / 1.0E9D / spans * SPAN_LATENCY_SCALE;
-        for (int i = 0; i < spans; i++) {
+        if (spanCount <= 0) {
+            return;
+        }
+        final double perSpan = (System.nanoTime() - startNanos) / 1.0E9D / spanCount * SPAN_LATENCY_SCALE;
+        for (int i = 0; i < spanCount; i++) {
             histogram.observe(perSpan);
         }
     }

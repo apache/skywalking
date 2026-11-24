@@ -68,13 +68,14 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
         MetricsCreator metricsCreator = moduleManager.find(TelemetryModule.NAME)
                                                      .provider()
                                                      .getService(MetricsCreator.class);
+        // Both count spans, as trace_in_latency_count does, so the exported spans compare with the received ones.
         successCounter = metricsCreator.createCounter(
-            "kafka_exporter_trace_success_count", "The success number of traces exported by kafka exporter.",
+            "kafka_exporter_trace_success_count", "The number of spans exported by kafka exporter.",
             new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("kafka")
         );
         errorCounter = metricsCreator.createCounter(
-            "kafka_exporter_trace_error_count", "The error number of traces exported by kafka exporter",
+            "kafka_exporter_trace_error_count", "The number of spans kafka exporter failed to export.",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("kafka")
         );
     }
@@ -103,12 +104,13 @@ public class KafkaTraceExporter extends KafkaExportProducer implements TraceExpo
                         segmentObject.getTraceSegmentId(),
                         Bytes.wrap(segmentObject.toByteArray())
                     );
+                    final int spans = segmentObject.getSpansCount();
                     super.getProducer().send(record, (metadata, ex) -> {
                         if (ex != null) {
-                            errorCounter.inc();
+                            errorCounter.inc(spans);
                             log.error("Failed to export Trace.", ex);
                         } else {
-                            successCounter.inc();
+                            successCounter.inc(spans);
                         }
                     });
                 } catch (InvalidProtocolBufferException e) {
