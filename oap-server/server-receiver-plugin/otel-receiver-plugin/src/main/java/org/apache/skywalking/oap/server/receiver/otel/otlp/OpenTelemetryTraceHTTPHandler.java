@@ -29,17 +29,39 @@ import com.linecorp.armeria.server.annotation.ConsumesJson;
 import com.linecorp.armeria.server.annotation.Post;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceRequest;
 import io.opentelemetry.proto.collector.trace.v1.ExportTraceServiceResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.oap.server.core.trace.TraceAnalysisError;
+import org.apache.skywalking.oap.server.core.trace.TraceInLatency;
+import org.apache.skywalking.oap.server.core.trace.TraceSpansDropped;
+import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsCreator;
+import org.apache.skywalking.oap.server.telemetry.api.MetricsTag;
 
 /**
  * OTLP/HTTP handler for trace data. Supports both protobuf and JSON encoding.
  * Delegates processing to {@link OpenTelemetryTraceHandler#processExport}.
  */
 @Slf4j
-@RequiredArgsConstructor
 public class OpenTelemetryTraceHTTPHandler {
     private final OpenTelemetryTraceHandler traceHandler;
+    private final HistogramMetrics latency;
+    private final TraceSpansDropped droppedSpans;
+    private final CounterMetrics errors;
+
+    public OpenTelemetryTraceHTTPHandler(final OpenTelemetryTraceHandler traceHandler,
+                                         final MetricsCreator metricsCreator) {
+        this.traceHandler = traceHandler;
+        this.latency = metricsCreator.createHistogramMetric(
+            TraceInLatency.NAME, TraceInLatency.HELP,
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values(OpenTelemetryTraceHandler.PROTOCOL_HTTP)
+        );
+        this.droppedSpans = new TraceSpansDropped(metricsCreator, OpenTelemetryTraceHandler.PROTOCOL_HTTP);
+        this.errors = metricsCreator.createCounter(
+            TraceAnalysisError.NAME, TraceAnalysisError.HELP,
+            new MetricsTag.Keys("protocol"), new MetricsTag.Values(OpenTelemetryTraceHandler.PROTOCOL_HTTP)
+        );
+    }
 
     @Blocking
     @Post("/v1/traces")
@@ -48,12 +70,14 @@ public class OpenTelemetryTraceHTTPHandler {
         try {
             final ExportTraceServiceRequest exportRequest =
                 ExportTraceServiceRequest.parseFrom(request.content().array());
-            final ExportTraceServiceResponse response = traceHandler.processExport(exportRequest);
+            final ExportTraceServiceResponse response = traceHandler.processExport(exportRequest, latency, droppedSpans);
             return HttpResponse.of(HttpStatus.OK, MediaType.PROTOBUF, response.toByteArray());
         } catch (InvalidProtocolBufferException e) {
+            errors.inc();
             log.warn("Failed to parse OTLP/HTTP trace request", e);
             return HttpResponse.of(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            errors.inc();
             log.error("Failed to process OTLP/HTTP trace request", e);
             return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -69,15 +93,17 @@ public class OpenTelemetryTraceHTTPHandler {
             // OTLP/JSON spells ids in hex, which protobuf's JSON mapping would read as base64.
             JsonFormat.parser().ignoringUnknownFields().merge(
                 OTLPValues.hexIdsToBase64(request.contentUtf8()), builder);
-            final ExportTraceServiceResponse response = traceHandler.processExport(builder.build());
+            final ExportTraceServiceResponse response = traceHandler.processExport(builder.build(), latency, droppedSpans);
             // An empty response prints as `{}`, which is what this endpoint always answered before.
             return HttpResponse.of(
                 HttpStatus.OK, MediaType.JSON_UTF_8,
                 JsonFormat.printer().omittingInsignificantWhitespace().print(response));
         } catch (InvalidProtocolBufferException e) {
+            errors.inc();
             log.warn("Failed to parse OTLP/HTTP JSON trace request", e);
             return HttpResponse.of(HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
+            errors.inc();
             log.error("Failed to process OTLP/HTTP JSON trace request", e);
             return HttpResponse.of(HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -75,6 +75,15 @@ public class OTLPSpanForward {
     public static final String INSTANCE_TAG = OTLPSpanRecord.RESOURCE_TAG_PREFIX + "service.instance.id";
     private static final int TRACE_ID_LENGTH = 16;
 
+    /**
+     * What {@link #send} did with a span; the caller counts the two drops apart in {@code spans_dropped_count}.
+     */
+    public enum Outcome {
+        STORED,
+        RATE_LIMITED,
+        SAMPLED_OUT
+    }
+
     private final ModuleManager moduleManager;
     private final Set<String> searchableTagKeys;
     private final long samplerBoundary;
@@ -107,9 +116,9 @@ public class OTLPSpanForward {
      *                       one way the stored span itself differs from the wire span
      * @param enforced       whether a rule's {@code enforcer {}} kept this span; it skips the trace-id head
      *                       sampling but still takes a permit from the rate limiter
-     * @return false when head sampling or the rate limit dropped the span
+     * @return {@code STORED}, or which of the rate limit and head sampling dropped the span
      */
-    public boolean send(final Resource resource,
+    public Outcome send(final Resource resource,
                         final String resourceSchemaUrl,
                         final InstrumentationScope scope,
                         final String scopeSchemaUrl,
@@ -118,8 +127,9 @@ public class OTLPSpanForward {
                         final Map<String, String> resourceTags,
                         final Map<String, String> additionalTags,
                         final boolean enforced) {
-        if (!sampled(span, enforced)) {
-            return false;
+        final Outcome admission = admit(span, enforced);
+        if (admission != Outcome.STORED) {
+            return admission;
         }
         final Span stored = appendAttributes(span, additionalTags);
         final String formattedServiceName = getNamingControl().formatServiceName(serviceName);
@@ -190,7 +200,7 @@ public class OTLPSpanForward {
             relation.setTimeBucket(minuteTimeBucket);
             getReceiver().receive(relation);
         }
-        return true;
+        return Outcome.STORED;
     }
 
     /**
@@ -255,22 +265,22 @@ public class OTLPSpanForward {
      * Head sampling on the low 64 bits of the trace id, the arithmetic {@code SpanForward.getSampledTraces} uses,
      * so a trace is kept or dropped as a whole on every OAP node. The rate limit is applied first.
      */
-    private boolean sampled(final Span span, final boolean enforced) {
+    private Outcome admit(final Span span, final boolean enforced) {
         if (rateLimiter != null && !rateLimiter.tryAcquire()) {
             log.debug("Span dropped due to the maximum spans per second limit: {}", OTLPValues.hexId(span.getSpanId()));
-            return false;
+            return Outcome.RATE_LIMITED;
         }
         if (sampleAll || enforced) {
-            return true;
+            return Outcome.STORED;
         }
         final byte[] traceId = span.getTraceId().toByteArray();
         if (traceId.length < 8) {
-            return true;
+            return Outcome.STORED;
         }
         final int lowOffset = traceId.length >= TRACE_ID_LENGTH ? 8 : traceId.length - 8;
         long low = ByteBuffer.wrap(traceId, lowOffset, 8).getLong();
         low = low == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(low);
-        return low <= samplerBoundary;
+        return low <= samplerBoundary ? Outcome.STORED : Outcome.SAMPLED_OUT;
     }
 
     private static Span appendAttributes(final Span span, final Map<String, String> additionalTags) {

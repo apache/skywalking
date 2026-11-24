@@ -18,12 +18,13 @@
 
 package org.apache.skywalking.oap.server.analyzer.agent.kafka.provider.handler;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.utils.Bytes;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
 import org.apache.skywalking.oap.server.analyzer.agent.kafka.module.KafkaFetcherConfig;
+import org.apache.skywalking.oap.server.core.trace.TraceAnalysisError;
+import org.apache.skywalking.oap.server.core.trace.TraceInLatency;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -54,14 +55,14 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
                                                      .provider().getService(MetricsCreator.class);
 
         histogram = metricsCreator.createHistogramMetric(
-            "trace_in_latency",
-            "The process latency of trace data",
+            TraceInLatency.NAME,
+            TraceInLatency.HELP,
             new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("kafka")
         );
         errorCounter = metricsCreator.createCounter(
-            "trace_analysis_error_count",
-            "The error number of trace analysis",
+            TraceAnalysisError.NAME,
+            TraceAnalysisError.HELP,
             new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("kafka")
         );
@@ -69,8 +70,8 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
 
     @Override
     public void handle(final ConsumerRecord<String, Bytes> record) {
-        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-            SegmentObject segment = SegmentObject.parseFrom(record.value().get());
+        try {
+            final SegmentObject segment = SegmentObject.parseFrom(record.value().get());
             if (log.isDebugEnabled()) {
                 log.debug(
                     "Fetched a tracing segment[{}] from service instance[{}].",
@@ -78,8 +79,15 @@ public class TraceSegmentHandler extends AbstractKafkaHandler {
                     segment.getServiceInstance()
                 );
             }
-            segmentParserService.send(segment);
-        } catch (InvalidProtocolBufferException e) {
+            final long startNanos = System.nanoTime();
+            try {
+                segmentParserService.send(segment);
+            } finally {
+                TraceInLatency.observeSpans(histogram, startNanos, segment.getSpansCount());
+            }
+        } catch (Exception e) {
+            // Counted here: the record runs on an executor whose Future nobody reads, so an escaping exception
+            // would be lost without a log.
             errorCounter.inc();
             log.error("handle record failed", e);
         }

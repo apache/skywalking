@@ -24,6 +24,8 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.apm.network.common.v3.Commands;
 import org.apache.skywalking.apm.network.language.agent.v3.SegmentObject;
+import org.apache.skywalking.oap.server.core.trace.TraceAnalysisError;
+import org.apache.skywalking.oap.server.core.trace.TraceInLatency;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.telemetry.api.CounterMetrics;
@@ -48,35 +50,36 @@ public class TraceSegmentReportHandler {
                                                      .provider()
                                                      .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "trace_in_latency", "The process latency of trace data",
+            TraceInLatency.NAME, TraceInLatency.HELP,
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
         errorCounter = metricsCreator.createCounter(
-            "trace_analysis_error_count", "The error number of trace analysis",
+            TraceAnalysisError.NAME, TraceAnalysisError.HELP,
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("http")
         );
     }
 
     @Post("/v3/segment")
     public Commands collectSegment(final SegmentObject segment) {
-        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-            segmentParserService.send(segment);
-        } catch (Exception e) {
-            errorCounter.inc();
-            throw e;
-        }
+        send(segment);
         return Commands.newBuilder().build();
     }
 
     @Post("/v3/segments")
     public Commands collectSegments(final List<SegmentObject> segments) {
-        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
-            segments.forEach(segmentParserService::send);
+        segments.forEach(this::send);
+        return Commands.newBuilder().build();
+    }
+
+    private void send(final SegmentObject segment) {
+        final long startNanos = System.nanoTime();
+        try {
+            segmentParserService.send(segment);
         } catch (Exception e) {
             errorCounter.inc();
             throw e;
+        } finally {
+            TraceInLatency.observeSpans(histogram, startNanos, segment.getSpansCount());
         }
-
-        return Commands.newBuilder().build();
     }
 }

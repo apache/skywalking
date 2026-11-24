@@ -31,6 +31,7 @@ import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryLogHandl
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryMetricRequestProcessor;
 import org.apache.skywalking.oap.server.receiver.otel.otlp.OpenTelemetryTraceHandler;
 import org.apache.skywalking.oap.server.receiver.zipkin.ZipkinReceiverModule;
+import org.apache.skywalking.oap.server.telemetry.TelemetryModule;
 import org.apache.skywalking.oap.server.receiver.sharing.server.SharingServerModule;
 
 import java.util.ArrayList;
@@ -132,8 +133,10 @@ public class OtelMetricReceiverProvider extends ModuleProvider {
         // silently no-op at boot, and DB overrides would only take effect on the
         // reconciler's next tick.
         // CoreModule: the trace handler reaches SourceReceiver, NamingControl and SpanListenerManager through the
-        // module manager, which is only legal for a declared dependency.
-        final List<String> required = new ArrayList<>(List.of(SharingServerModule.NAME, StorageModule.NAME, CoreModule.NAME));
+        // module manager, which is only legal for a declared dependency; TelemetryModule likewise for every
+        // handler's self-observability metrics.
+        final List<String> required = new ArrayList<>(
+            List.of(SharingServerModule.NAME, StorageModule.NAME, CoreModule.NAME, TelemetryModule.NAME));
         // TraceAnalyzerModule: the trace handler calls ITraceAnalyzerService per span, so the module must start
         // before this one and every moduleManager.find needs it declared. It is declared only when the operator
         // loaded it: with `trace-analyzer.selector: -` the handler finds no module and stores the spans without

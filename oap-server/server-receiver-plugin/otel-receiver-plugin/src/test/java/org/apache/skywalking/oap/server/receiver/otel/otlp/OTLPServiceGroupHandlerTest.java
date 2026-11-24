@@ -35,6 +35,7 @@ import org.apache.skywalking.oap.server.core.trace.SpanAnalysisResult;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerManager;
 import org.apache.skywalking.oap.server.core.trace.SpanListenerResult;
 import org.apache.skywalking.oap.server.core.trace.SpanMetadata;
+import org.apache.skywalking.oap.server.core.trace.TraceSpansDropped;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleProviderHolder;
 import org.apache.skywalking.oap.server.library.module.ModuleServiceHolder;
@@ -71,7 +72,7 @@ class OTLPServiceGroupHandlerTest {
         handler.processExport(request(
             Map.of("service.name", "cart", "service.namespace", "opentelemetry-demo", "k8s.namespace.name", "otel-demo"),
             Map.of("service.name", "billing", "k8s.namespace.name", "finance"),
-            Map.of("service.name", "legacy")));
+            Map.of("service.name", "legacy")), mock(HistogramMetrics.class), mock(TraceSpansDropped.class));
 
         assertEquals(List.of("opentelemetry-demo::cart", "finance::billing", "legacy"),
             analyzed.stream().map(SpanMetadata::getService).collect(Collectors.toList()));
@@ -82,7 +83,7 @@ class OTLPServiceGroupHandlerTest {
         final List<SpanMetadata> analyzed = new ArrayList<>();
         final OpenTelemetryTraceHandler handler = handler("", analyzed, false);
 
-        handler.processExport(request(Map.of("service.name", "cart", "service.namespace", "opentelemetry-demo")));
+        handler.processExport(request(Map.of("service.name", "cart", "service.namespace", "opentelemetry-demo")), mock(HistogramMetrics.class), mock(TraceSpansDropped.class));
 
         assertEquals("cart", analyzed.get(0).getService());
     }
@@ -92,12 +93,14 @@ class OTLPServiceGroupHandlerTest {
     void theStoreFilesTheSpanUnderTheGroupedServiceAndKeepsItsAttributes() throws Exception {
         final OpenTelemetryTraceHandler handler = handler("service.namespace", new ArrayList<>(), true);
         final OTLPSpanForward forward = mock(OTLPSpanForward.class);
-        when(forward.send(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(true);
-        final Field field = OpenTelemetryTraceHandler.class.getDeclaredField("otlpSpanForward");
+        when(forward.send(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(OTLPSpanForward.Outcome.STORED);
+        final Field storageField = OpenTelemetryTraceHandler.class.getDeclaredField("storage");
+        storageField.setAccessible(true);
+        final Field field = OTLPNativeTraceStorage.class.getDeclaredField("otlpSpanForward");
         field.setAccessible(true);
-        field.set(handler, forward);
+        field.set(storageField.get(handler), forward);
 
-        handler.processExport(request(Map.of("service.name", "cart", "service.namespace", "opentelemetry-demo")));
+        handler.processExport(request(Map.of("service.name", "cart", "service.namespace", "opentelemetry-demo")), mock(HistogramMetrics.class), mock(TraceSpansDropped.class));
 
         final ArgumentCaptor<String> service = ArgumentCaptor.forClass(String.class);
         final ArgumentCaptor<Map<String, String>> resourceTags = ArgumentCaptor.forClass(Map.class);
@@ -111,10 +114,12 @@ class OTLPServiceGroupHandlerTest {
     void theSpanListenersSeeTheGroupedServiceAndTheAttributesAsSent() throws Exception {
         final OpenTelemetryTraceHandler handler = handler("service.namespace", new ArrayList<>(), true);
         final OTLPSpanForward forward = mock(OTLPSpanForward.class);
-        when(forward.send(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(true);
-        final Field forwardField = OpenTelemetryTraceHandler.class.getDeclaredField("otlpSpanForward");
+        when(forward.send(any(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(OTLPSpanForward.Outcome.STORED);
+        final Field storageField = OpenTelemetryTraceHandler.class.getDeclaredField("storage");
+        storageField.setAccessible(true);
+        final Field forwardField = OTLPNativeTraceStorage.class.getDeclaredField("otlpSpanForward");
         forwardField.setAccessible(true);
-        forwardField.set(handler, forward);
+        forwardField.set(storageField.get(handler), forward);
         final SpanListenerManager listeners = mock(SpanListenerManager.class);
         when(listeners.notifyOTLPPhase(any(), any(), any(), any(), any())).thenReturn(SpanListenerResult.CONTINUE);
         when(listeners.notifyNativeOTLPPhase(any(), any(), any(), any(), any())).thenReturn(SpanListenerResult.CONTINUE);
@@ -122,7 +127,7 @@ class OTLPServiceGroupHandlerTest {
         listenersField.setAccessible(true);
         listenersField.set(handler, listeners);
 
-        handler.processExport(request(Map.of("service.name", "cart", "service.namespace", "opentelemetry-demo")));
+        handler.processExport(request(Map.of("service.name", "cart", "service.namespace", "opentelemetry-demo")), mock(HistogramMetrics.class), mock(TraceSpansDropped.class));
 
         verify(listeners).notifyOTLPPhase(
             any(), eq("opentelemetry-demo::cart"), argThat(tags -> "cart".equals(tags.get("service.name"))), any(), any());

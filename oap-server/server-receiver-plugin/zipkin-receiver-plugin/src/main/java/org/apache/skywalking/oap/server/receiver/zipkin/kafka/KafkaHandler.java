@@ -32,6 +32,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.ByteArrayDeserializer;
+import org.apache.skywalking.oap.server.core.trace.TraceAnalysisError;
+import org.apache.skywalking.oap.server.core.trace.TraceInLatency;
+import org.apache.skywalking.oap.server.core.trace.TraceSpansDropped;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
 import org.apache.skywalking.oap.server.library.server.pool.CustomThreadFactory;
@@ -57,6 +60,7 @@ public class KafkaHandler {
     private final CounterMetrics msgDroppedIncr;
     private final CounterMetrics errorCounter;
     private final HistogramMetrics histogram;
+    private final TraceSpansDropped droppedSpans;
 
     public KafkaHandler(final ZipkinReceiverConfig config, SpanForward forward, ModuleManager manager) {
         this.config = config;
@@ -91,8 +95,8 @@ public class KafkaHandler {
                                                .provider()
                                                .getService(MetricsCreator.class);
         histogram = metricsCreator.createHistogramMetric(
-            "trace_in_latency",
-            "The process latency of trace data",
+            TraceInLatency.NAME,
+            TraceInLatency.HELP,
             new MetricsTag.Keys("protocol"),
             new MetricsTag.Values("zipkin-kafka")
         );
@@ -100,9 +104,10 @@ public class KafkaHandler {
             "trace_dropped_count", "The dropped number of traces",
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-kafka"));
         errorCounter = metricsCreator.createCounter(
-            "trace_analysis_error_count", "The error number of trace analysis",
+            TraceAnalysisError.NAME, TraceAnalysisError.HELP,
             new MetricsTag.Keys("protocol"), new MetricsTag.Values("zipkin-kafka")
         );
+        droppedSpans = new TraceSpansDropped(metricsCreator, "zipkin-kafka");
     }
 
     public void start() throws ModuleStartException {
@@ -148,11 +153,17 @@ public class KafkaHandler {
         }
     }
 
+    /**
+     * Runs on the executor, whose Future nobody reads, so a failure is logged and counted here or it would be lost.
+     */
     private void handleRecord(byte[] bytes) {
-        try (HistogramMetrics.Timer ignored = histogram.createTimer()) {
+        try {
             BytesDecoder<Span> decoder = SpanBytesDecoderDetector.decoderForListMessage(bytes);
             final List<Span> spanList = decoder.decodeList(bytes);
-            spanForward.send(spanList);
+            spanForward.send(spanList, histogram, droppedSpans);
+        } catch (Exception e) {
+            log.error("Handling a Zipkin Kafka message failed", e);
+            errorCounter.inc();
         }
     }
 }

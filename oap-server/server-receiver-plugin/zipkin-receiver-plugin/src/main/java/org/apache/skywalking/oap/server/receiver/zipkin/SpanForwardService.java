@@ -18,16 +18,24 @@
 
 package org.apache.skywalking.oap.server.receiver.zipkin;
 
+import org.apache.skywalking.oap.server.core.trace.TraceInLatency;
+import org.apache.skywalking.oap.server.core.trace.TraceSpansDropped;
 import org.apache.skywalking.oap.server.library.module.Service;
+import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
 import zipkin2.Span;
 
 import java.util.List;
 
 public interface SpanForwardService extends Service {
     /**
-     * Forward and process zipkin span.
+     * Sample, rate-limit and process Zipkin spans. One span that fails to be processed is dropped alone; the rest
+     * are processed.
      *
-     * @return the spans that are successfully processed.
+     * @param spanLatency  observes each span processed or failed, in seconds times
+     *                     {@link TraceInLatency#SPAN_LATENCY_SCALE}; a span dropped by sampling or the rate limit is
+     *                     not observed
+     * @param droppedSpans counts the spans dropped by sampling, the rate limit or a processing error, for the
+     *                     protocol the spans came in on
      */
-    List<Span> send(List<Span> spanList);
+    void send(List<Span> spanList, HistogramMetrics spanLatency, TraceSpansDropped droppedSpans);
 }

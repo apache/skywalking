@@ -25,7 +25,7 @@ Self observability monitoring provides monitoring of the status and resources of
 | ms / min | meter_oap_instance_jvm_old_gc_time                | GC Time (ms / min) | oap self observability |
 | Count Per Minute | meter_oap_instance_mesh_count                     | Mesh Analysis Count (Per Minute) | oap self observability |
 | Count Per Minute | meter_oap_instance_mesh_analysis_error_count      | Mesh Analysis Count (Per Minute) | oap self observability |
-| ms | meter_oap_instance_trace_latency_percentile       | Trace Analysis Latency (ms) | oap self observability |
+| ms | meter_oap_instance_trace_latency_percentile       | Trace Analysis Latency (ms) per 1,000 spans, by `protocol` (`grpc`, `http`, `kafka`, `zipkin-http`, `zipkin-kafka`, `otlp-grpc`, `otlp-http`), observed as each span's latency × 1,000. An agent segment is processed as a whole, so its spans share the segment's average | oap self observability |
 | Count | meter_oap_jvm_class_loaded_count                  | Class Count | oap self observability |
 | Count | meter_oap_jvm_class_total_unloaded_count          | Class Count | oap self observability |
 | Count | meter_oap_jvm_class_total_loaded_count            | Class Count | oap self observability |
@@ -42,8 +42,11 @@ Self observability monitoring provides monitoring of the status and resources of
 | Count | meter_oap_jvm_thread_waiting_count                | Thread State Count | oap self observability |
 | Count per minute | meter_oap_instance_metrics_aggregation            | Aggregation (Per Minute) | oap self observability |
 | ms | meter_oap_instance_mesh_latency_percentile        | Mesh Analysis Latency (ms) | oap self observability |
-| Count per minute | meter_oap_instance_trace_count                    | Trace Analysis Count (Per Minute) | oap self observability |
+| Count per minute | meter_oap_instance_trace_count                    | Trace Analysis Count (Per Minute): spans, by `protocol` | oap self observability |
 | Count per minute | meter_oap_instance_trace_analysis_error_count     | Trace Analysis Count (Per Minute) | oap self observability |
+| Count per minute | meter_oap_otel_spans_rejected | OTLP spans rejected for a resource without a service name (Per Minute) | oap self observability |
+| Count per minute | meter_oap_instance_spans_dropped_count | Trace spans received but not stored (Per Minute), by `protocol` (`zipkin-http`, `zipkin-kafka`, `otlp-grpc`, `otlp-http`) | oap self observability |
+| Count per minute | meter_oap_instance_spans_dropped_by_reason | Trace spans received but not stored (Per Minute), by `protocol` and `reason` (`sampled`, `rate_limited`, `store_failed`, `process_failed`), see [OTLP trace self-observability](otlp-trace.md#self-observability) | oap self observability |
 | Percentage | meter_oap_instance_cpu_percentage                 | CPU (%) | oap self observability |
 | Count | meter_oap_instance_metrics_persistent_cache       | count of metrics cache hit and no-hit |oap self observability|
 | Count per minute | meter_oap_instance_alarm_http_delivery_count | Alarm hook deliveries by `hook_type` and `result` (Per Minute), including `gRPC` | oap self observability |
