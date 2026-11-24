@@ -154,7 +154,7 @@
         <byte-buddy.version>1.18.7</byte-buddy.version>
 
         <!-- core lib dependency -->
-        <grpc.version>1.80.0</grpc.version>
+        <grpc.version>1.85.1</grpc.version>
         <protobuf-java.version>4.33.1</protobuf-java.version>
         <netty.version>4.2.19.Final</netty.version>
         <netty-tcnative-boringssl-static.version>2.0.84.Final</netty-tcnative-boringssl-static.version>
