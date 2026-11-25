@@ -79,8 +79,8 @@ public class BanyanDBConfigDumpExtension implements ConfigDumpExtension {
     }
 
     private void flattenGlobal(final String p, final Global g, final Map<String, String> dump) {
-        // getTargets()/getCompatibleServerApiVersions() split the backing String into an array;
-        // join them back so the dump shows the raw comma-separated form the operator configured.
+        // getTargets() splits the backing String into an array;
+        // join it back so the dump shows the raw comma-separated form the operator configured.
         dump.put(p + ".targets", String.join(",", g.getTargets()));
         dump.put(p + ".maxBulkSize", String.valueOf(g.getMaxBulkSize()));
         dump.put(p + ".flushInterval", String.valueOf(g.getFlushInterval()));
@@ -95,7 +95,6 @@ public class BanyanDBConfigDumpExtension implements ConfigDumpExtension {
         dump.put(p + ".profileDataQueryBatchSize", String.valueOf(g.getProfileDataQueryBatchSize()));
         dump.put(p + ".cleanupUnusedTopNRules", String.valueOf(g.isCleanupUnusedTopNRules()));
         dump.put(p + ".namespace", Strings.nullToEmpty(g.getNamespace()));
-        dump.put(p + ".compatibleServerApiVersions", String.join(",", g.getCompatibleServerApiVersions()));
         dump.put(p + ".user", Strings.nullToEmpty(g.getUser()));
         dump.put(p + ".password", Strings.nullToEmpty(g.getPassword()));
         dump.put(p + ".sslTrustCAPath", Strings.nullToEmpty(g.getSslTrustCAPath()));

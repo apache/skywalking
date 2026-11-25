@@ -60,7 +60,7 @@ public class BanyanDBSecretsConfigTest {
      */
     @Test
     public void shouldAcceptAConfigWithNeitherCredentialHalfSet() {
-        final BanyanDBStorageConfig config = newConnectableConfig();
+        final BanyanDBStorageConfig config = new BanyanDBStorageConfig();
         config.getGlobal().setUser(null);
         config.getGlobal().setPassword(null);
 
@@ -69,27 +69,17 @@ public class BanyanDBSecretsConfigTest {
 
     @Test
     public void shouldRejectAConfigWithOnlyOneCredentialHalfSet() {
-        final BanyanDBStorageConfig withUserOnly = newConnectableConfig();
+        final BanyanDBStorageConfig withUserOnly = new BanyanDBStorageConfig();
         withUserOnly.getGlobal().setUser("admin");
         assertThrows(
             IllegalArgumentException.class,
             () -> new BanyanDBStorageClient(mock(ModuleManager.class), withUserOnly));
 
-        final BanyanDBStorageConfig withPasswordOnly = newConnectableConfig();
+        final BanyanDBStorageConfig withPasswordOnly = new BanyanDBStorageConfig();
         withPasswordOnly.getGlobal().setPassword("admin");
         assertThrows(
             IllegalArgumentException.class,
             () -> new BanyanDBStorageClient(mock(ModuleManager.class), withPasswordOnly));
-    }
-
-    /**
-     * compatibleServerApiVersions has no default and its getter splits the raw string, so a config built in
-     * code rather than loaded from bydb.yml has to set it before the client can be constructed.
-     */
-    private BanyanDBStorageConfig newConnectableConfig() {
-        final BanyanDBStorageConfig config = new BanyanDBStorageConfig();
-        config.getGlobal().setCompatibleServerApiVersions("0.10");
-        return config;
     }
 
     private BanyanDBConfigLoader newLoader() {

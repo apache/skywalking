@@ -20,11 +20,8 @@ You should set up the database ready before starting the backend. We recommend t
 If you want to use other databases, please read the [storage document](backend-storage.md).
 
 Use the docker mode to run BanyanDB containerized. 
-The compatible BanyanDB API version number could be found in `/config/bydb.yml`
-```
-${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS}
-```
-The compatible BanyanDB Server version number can be found via the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
+The BanyanDB API versions this OAP release works with are listed in [BanyanDB storage](storages/banyandb.md), and the
+BanyanDB Server versions of each API version in the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
 
 ```shell
 export BYDB_VERSION=xxx
