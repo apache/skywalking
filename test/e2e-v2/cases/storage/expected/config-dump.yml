@@ -278,5 +278,6 @@
   "trace-analyzer.default.pairingSamplePercent": "25",
   "trace-analyzer.default.talFiles": "otlp-general,otlp-ai-evaluation",
   "trace-analyzer.provider": "default",
+  "trace-pairing-debugging.provider": "default",
   "ui-management.provider": "default"
 }

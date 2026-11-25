@@ -24,8 +24,7 @@ import io.grpc.inprocess.InProcessChannelBuilder;
 import io.grpc.inprocess.InProcessServerBuilder;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterRuleKey;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterSessionLimits;
-import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugSamplesAck;
-import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugSamplesRequest;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugRecordsRequest;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.DSLDebuggingClusterServiceGrpc;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.InstallDebugSessionAck;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.InstallDebugSessionRequest;
@@ -192,14 +191,14 @@ public class DSLDebuggingClusterServiceImplTest {
             .setSessionId("session-C").setRuleKey(ruleKey(RULE))
             .setLimits(defaultLimits()).build());
 
-        final CollectDebugSamplesAck local = stub.collectDebugSamples(
-            CollectDebugSamplesRequest.newBuilder().setSessionId("session-C").build());
-        assertEquals("ok", local.getStatus());
-        assertEquals(0, local.getRecordsCount(), "no records yet — no probe has fired in unit test");
+        final PeerPage local = DSLDebuggingClusterClient.assemble(stub.collectDebugRecords(
+            CollectDebugRecordsRequest.newBuilder().setSessionId("session-C").setMaxRecords(100).build()));
+        assertEquals("ok", local.getSummary().getStatus());
+        assertEquals(0, local.getRecords().size(), "no records yet — no probe has fired in unit test");
 
-        final CollectDebugSamplesAck unknown = stub.collectDebugSamples(
-            CollectDebugSamplesRequest.newBuilder().setSessionId("never-installed").build());
-        assertEquals("not_local", unknown.getStatus());
+        final PeerPage unknown = DSLDebuggingClusterClient.assemble(stub.collectDebugRecords(
+            CollectDebugRecordsRequest.newBuilder().setSessionId("never-installed").setMaxRecords(100).build()));
+        assertEquals("not_local", unknown.getSummary().getStatus());
     }
 
     private static ClusterRuleKey ruleKey(final RuleKey key) {

@@ -17,7 +17,9 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.compiler.rt;
 
+import com.google.gson.JsonObject;
 import lombok.Getter;
+import org.apache.skywalking.oap.server.core.dsl.debug.ToJson;
 import org.apache.skywalking.oap.server.library.util.genai.GenAIModelMatcher;
 import org.apache.skywalking.oap.server.library.util.genai.GenAIPricingConfig;
 
@@ -26,12 +28,24 @@ import org.apache.skywalking.oap.server.library.util.genai.GenAIPricingConfig;
  * matching prefix, {@code unknown} when none, and the matched model's prices, null when no model matches.
  */
 @Getter
-public class GenAIModelMatch {
+public class GenAIModelMatch implements ToJson {
     private final String provider;
     private final GenAIPricingConfig.Model pricing;
 
     public GenAIModelMatch(final GenAIModelMatcher.MatchResult result) {
         this.provider = result.getProvider();
         this.pricing = result.getModelConfig();
+    }
+
+    @Override
+    public String toJson() {
+        final JsonObject json = new JsonObject();
+        json.addProperty("provider", provider);
+        if (pricing != null) {
+            json.addProperty("model", pricing.getName());
+            json.addProperty("inputEstimatedCostPerM", pricing.getInputEstimatedCostPerM());
+            json.addProperty("outputEstimatedCostPerM", pricing.getOutputEstimatedCostPerM());
+        }
+        return json.toString();
     }
 }

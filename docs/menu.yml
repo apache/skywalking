@@ -460,6 +460,10 @@ catalog:
             path: "/en/setup/backend/admin-api/dsl-debugging-oal"
           - name: "LAL"
             path: "/en/setup/backend/admin-api/dsl-debugging-lal"
+          - name: "TAL"
+            path: "/en/setup/backend/admin-api/dsl-debugging-tal"
+      - name: "Trace Pairing Debugging API"
+        path: "/en/setup/backend/admin-api/trace-pairing-debugging"
       - name: "Status API"
         catalog:
           - name: "Overview"

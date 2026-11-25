@@ -15,6 +15,7 @@ appends one **sample**. The wire shape is:
 nodes[]
   records[]
     startedAtMs                  — record boundary timestamp (ms)
+    captureTime                  — when the node captured it, `<millis>.<six-digit nanos>`, which pages the read
     dsl                          — verbatim per-rule DSL text
     rule                         — { ruleName, sourceLine }
     samples[]
@@ -120,7 +121,7 @@ Examples:
 
 ## Granularity
 
-LAL is the only DSL with **per-statement** capture. Operators choose the mode
+LAL, like TAL, has **per-statement** capture. Operators choose the mode
 at install time:
 
 | `granularity`  | Behaviour                                                                                                                       |
@@ -168,6 +169,7 @@ A trimmed slice (one record = one log):
   "nodes": [{
     "records": [{
       "startedAtMs": 1778114804604,
+      "captureTime": "1778114804605.418226",
       "dsl": "filter {\n  sink {\n  }\n}\n",
       "rule": { "ruleName": "default", "sourceLine": "3" },
       "samples": [
@@ -279,7 +281,10 @@ curl -s -X POST 'http://OAP:17128/dsl-debugging/session/SESSION_ID/stop'
 
 - **Install** broadcasts to every reachable peer; each peer binds its own
   recorder on its own holder.
-- **Collect** broadcasts and concatenates per-node slices.
+- **Collect** reads one page from every node: each other node streams the
+  records it captured at or after the client's point, and the response holds
+  every node's records before the point all of them are complete before; see
+  [Reading the records page by page](dsl-debugging.md#reading-the-records-page-by-page).
 - **Stop** broadcasts; missed acks fall out via retention timeout.
 
 No cross-node merge — each peer's slice is self-contained.
@@ -299,7 +304,7 @@ No cross-node merge — each peer's slice is self-contained.
 |-------------------|---------------|-----------------|--------------------------------------------------|
 | `recordCap`       | `100`         | `100`           | Max records before the recorder refuses appends. |
 | `retentionMillis` | `300000` (5m) | `3600000` (1h)  | Wall-clock retention.                            |
-| `granularity`     | `block`       | n/a             | `block` or `statement` (LAL only).               |
+| `granularity`     | `block`       | n/a             | `block` or `statement` (LAL and TAL).            |
 
 Out-of-range values return `400 invalid_limits`. Override per-session (within
 the caps above) in the install body:
@@ -312,5 +317,6 @@ the caps above) in the install body:
 
 - [DSL Debug API — MAL](dsl-debugging-mal.md)
 - [DSL Debug API — OAL](dsl-debugging-oal.md)
+- [DSL Debug API — TAL](dsl-debugging-tal.md)
 - [Runtime Rule Hot-Update API](runtime-rule.md) — apply / inactivate / delete LAL rules.
 - [SWIP-13](../../../swip/SWIP-13.md) — full design.

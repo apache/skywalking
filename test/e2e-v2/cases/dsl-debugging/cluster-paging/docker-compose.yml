@@ -1,0 +1,91 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# DSL Debug API — paging across OAP nodes. Two OAPs in a ZooKeeper cluster, BanyanDB, and an OTLP span emitter that
+# sends to oap1 only, so a session read through oap2 gets oap1's records over the admin bus's streamed collect.
+services:
+  zk:
+    image: zookeeper:3.9
+    expose:
+      - 2181
+    networks:
+      - e2e
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/127.0.0.1/2181" ]
+      interval: 5s
+      timeout: 60s
+      retries: 120
+
+  banyandb:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: banyandb
+
+  oap1:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment: &oap
+      SW_CLUSTER: zookeeper
+      SW_CLUSTER_ZK_HOST_PORT: zk:2181
+      SW_CLUSTER_INTERNAL_COM_HOST: oap1
+      SW_CLUSTER_INTERNAL_COM_PORT: 11800
+      SW_STORAGE: banyandb
+      SW_OTEL_TRACE_STORAGE: otlp
+      SW_ADMIN_SERVER: default
+      SW_DSL_DEBUGGING: default
+      SW_DSL_DEBUGGING_INJECTION_ENABLED: "true"
+      SW_TRACE_TAL_PAIRING_SAMPLE_PERCENT: 100
+    ports:
+      - "17128:17128"
+    networks:
+      - e2e
+    depends_on:
+      zk:
+        condition: service_healthy
+      banyandb:
+        condition: service_healthy
+
+  oap2:
+    extends:
+      file: ../../../script/docker-compose/base-compose.yml
+      service: oap
+    environment:
+      <<: *oap
+      SW_CLUSTER_INTERNAL_COM_HOST: oap2
+    ports:
+      - "27128:17128"
+    networks:
+      - e2e
+    depends_on:
+      zk:
+        condition: service_healthy
+      banyandb:
+        condition: service_healthy
+
+  span-emitter:
+    build:
+      context: ../tal-otlp/span-emitter
+    networks:
+      - e2e
+    environment:
+      OTLP_ENDPOINT: http://oap1:11800
+      EMITTER_INTERVAL_S: "0.2"
+    depends_on:
+      oap1:
+        condition: service_healthy
+
+networks:
+  e2e:

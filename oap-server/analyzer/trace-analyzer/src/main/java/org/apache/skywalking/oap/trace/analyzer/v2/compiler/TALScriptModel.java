@@ -80,31 +80,52 @@ public final class TALScriptModel {
     }
 
     /**
+     * Where a statement stands in the rule's text: its first line, 1-based within the DSL, and its verbatim text. The
+     * parser stamps every statement once; the dsl-debugging probes the generator emits carry both.
+     */
+    public abstract static class Located {
+        private int sourceLine;
+        private String sourceText = "";
+
+        public int getSourceLine() {
+            return sourceLine;
+        }
+
+        public String getSourceText() {
+            return sourceText;
+        }
+
+        /**
+         * Stamp the location, unless the statement has one already: each {@code if} of an else-if chain is stamped
+         * with its own condition before the chain is stamped as a whole.
+         */
+        void locate(final int line, final String text) {
+            if (sourceLine > 0) {
+                return;
+            }
+            this.sourceLine = line;
+            this.sourceText = text == null ? "" : text;
+        }
+    }
+
+    /**
      * {@code abort {}} — stop the rule for this span. Legal at filter level and inside every block.
      */
-    public static final class AbortStatement
+    public static final class AbortStatement extends Located
         implements FilterStatement, ExtractorStatement, VoteStatement {
     }
 
     @Getter
-    public static final class DefStatement
+    public static final class DefStatement extends Located
         implements FilterStatement, ExtractorStatement, TALDefStatement {
         private final String varName;
         private final ValueAccess initializer;
         private final String castType;
-        private int sourceLine;
-        private String sourceText = "";
 
         public DefStatement(final String varName, final ValueAccess initializer, final String castType) {
             this.varName = varName;
             this.initializer = initializer;
             this.castType = castType;
-        }
-
-        public DefStatement withSource(final int line, final String text) {
-            this.sourceLine = line;
-            this.sourceText = text == null ? "" : text;
-            return this;
         }
     }
 
@@ -113,24 +134,16 @@ public final class TALScriptModel {
      * {@code segmentDef}, declared. It shares the def's codegen contract, without the right to declare.
      */
     @Getter
-    public static final class AssignStatement
+    public static final class AssignStatement extends Located
         implements FilterStatement, ExtractorStatement, TALDefStatement {
         private final String varName;
         private final ValueAccess initializer;
         private final String castType;
-        private int sourceLine;
-        private String sourceText = "";
 
         public AssignStatement(final String varName, final ValueAccess initializer, final String castType) {
             this.varName = varName;
             this.initializer = initializer;
             this.castType = castType;
-        }
-
-        public AssignStatement withSource(final int line, final String text) {
-            this.sourceLine = line;
-            this.sourceText = text == null ? "" : text;
-            return this;
         }
     }
 
@@ -139,7 +152,7 @@ public final class TALScriptModel {
      * declared inside the body belongs to one iteration.
      */
     @Getter
-    public static final class ForeachBlock
+    public static final class ForeachBlock extends Located
         implements FilterStatement, ExtractorStatement, VoteStatement, SamplerContent {
         private final String varName;
         private final ValueAccess list;
@@ -156,7 +169,7 @@ public final class TALScriptModel {
      * {@code log <level> "<message>" [, <expr>, ...]}: one SLF4J line under the script's logger.
      */
     @Getter
-    public static final class LogStatement
+    public static final class LogStatement extends Located
         implements FilterStatement, ExtractorStatement, VoteStatement, SamplerContent {
         private final String level;
         private final String message;
@@ -174,7 +187,7 @@ public final class TALScriptModel {
      * that span, with its own {@code def} values.
      */
     @Getter
-    public static final class FirstBlock implements FilterStatement {
+    public static final class FirstBlock extends Located implements FilterStatement {
         private final List<FilterStatement> statements;
 
         public FirstBlock(final List<FilterStatement> statements) {
@@ -187,7 +200,7 @@ public final class TALScriptModel {
      * segment's last span.
      */
     @Getter
-    public static final class BuildBlock implements FilterStatement, ExtractorStatement {
+    public static final class BuildBlock extends Located implements FilterStatement, ExtractorStatement {
         private final List<ExtractorStatement> statements;
 
         public BuildBlock(final List<ExtractorStatement> statements) {
@@ -199,7 +212,7 @@ public final class TALScriptModel {
      * {@code source <Name> {}}: one source, made and sent at the statement.
      */
     @Getter
-    public static final class SourceBlock implements FilterStatement, ExtractorStatement {
+    public static final class SourceBlock extends Located implements FilterStatement, ExtractorStatement {
         private final String name;
         private final List<SourceField> fields;
 
@@ -229,7 +242,7 @@ public final class TALScriptModel {
      * {@code segmentDef <name> = <expr>}: declares a variable of the rule that lives for one segment, and assigns it.
      */
     @Getter
-    public static final class SegmentDefStatement
+    public static final class SegmentDefStatement extends Located
         implements FilterStatement, ExtractorStatement, TALDefStatement {
         private final String varName;
         private final ValueAccess initializer;
@@ -246,7 +259,8 @@ public final class TALScriptModel {
      * {@code writeNetworkAlias <address>}: the alias row of an entry span's reference, sent at the statement.
      */
     @Getter
-    public static final class WriteNetworkAliasStatement implements FilterStatement, ExtractorStatement {
+    public static final class WriteNetworkAliasStatement extends Located
+        implements FilterStatement, ExtractorStatement {
         private final ValueAccess value;
         private final String castType;
 
@@ -257,7 +271,7 @@ public final class TALScriptModel {
     }
 
     @Getter
-    public static final class ExtractorBlock implements FilterStatement {
+    public static final class ExtractorBlock extends Located implements FilterStatement {
         private final List<ExtractorStatement> statements;
 
         public ExtractorBlock(final List<ExtractorStatement> statements) {
@@ -273,23 +287,15 @@ public final class TALScriptModel {
     }
 
     @Getter
-    public static final class FieldAssignment implements ExtractorStatement, FilterStatement {
+    public static final class FieldAssignment extends Located implements ExtractorStatement, FilterStatement {
         private final FieldType fieldType;
         private final ValueAccess value;
         private final String castType;
-        private int sourceLine;
-        private String sourceText = "";
 
         public FieldAssignment(final FieldType fieldType, final ValueAccess value, final String castType) {
             this.fieldType = fieldType;
             this.value = value;
             this.castType = castType;
-        }
-
-        public FieldAssignment withSource(final int line, final String text) {
-            this.sourceLine = line;
-            this.sourceText = text == null ? "" : text;
-            return this;
         }
     }
 
@@ -300,23 +306,15 @@ public final class TALScriptModel {
      * the span's rules have run; the {@code ExecutionContext} methods of the same names say what each records.
      */
     @Getter
-    public static final class NetworkAliasStatement implements ExtractorStatement, FilterStatement {
+    public static final class NetworkAliasStatement extends Located implements ExtractorStatement, FilterStatement {
         private final ValueAccess value;
         private final String castType;
         private final boolean build;
-        private int sourceLine;
-        private String sourceText = "";
 
         public NetworkAliasStatement(final ValueAccess value, final String castType, final boolean build) {
             this.value = value;
             this.castType = castType;
             this.build = build;
-        }
-
-        public NetworkAliasStatement withSource(final int line, final String text) {
-            this.sourceLine = line;
-            this.sourceText = text == null ? "" : text;
-            return this;
         }
     }
 
@@ -324,19 +322,11 @@ public final class TALScriptModel {
      * {@code tag 'key': value} — appended to the persisted span as a string attribute.
      */
     @Getter
-    public static final class TagAssignment implements ExtractorStatement, FilterStatement {
+    public static final class TagAssignment extends Located implements ExtractorStatement, FilterStatement {
         private final Map<String, TagValue> tags;
-        private int sourceLine;
-        private String sourceText = "";
 
         public TagAssignment(final Map<String, TagValue> tags) {
             this.tags = Collections.unmodifiableMap(tags);
-        }
-
-        public TagAssignment withSource(final int line, final String text) {
-            this.sourceLine = line;
-            this.sourceText = text == null ? "" : text;
-            return this;
         }
     }
 
@@ -357,7 +347,7 @@ public final class TALScriptModel {
      * compile time, so the compiler knows every metric a rule declares before a span arrives.
      */
     @Getter
-    public static final class MetricsBlock implements ExtractorStatement, FilterStatement {
+    public static final class MetricsBlock extends Located implements ExtractorStatement, FilterStatement {
         private final String name;
         private final ValueAccess scope;
         private final String function;
@@ -390,8 +380,6 @@ public final class TALScriptModel {
          * The {@code as} cast written after {@code timestamp}, or null.
          */
         private final String timestampCast;
-        private int sourceLine;
-        private String sourceText = "";
 
         public MetricsBlock(final String name,
                             final ValueAccess scope,
@@ -420,19 +408,13 @@ public final class TALScriptModel {
             this.timestamp = timestamp;
             this.timestampCast = timestampCast;
         }
-
-        public MetricsBlock withSource(final int line, final String text) {
-            this.sourceLine = line;
-            this.sourceText = text == null ? "" : text;
-            return this;
-        }
     }
 
     /**
      * {@code persist { }} — the span's own fate. A rule without this block abstains.
      */
     @Getter
-    public static final class PersistBlock implements FilterStatement {
+    public static final class PersistBlock extends Located implements FilterStatement {
         private final List<VoteStatement> statements;
 
         public PersistBlock(final List<VoteStatement> statements) {
@@ -441,7 +423,7 @@ public final class TALScriptModel {
     }
 
     @Getter
-    public static final class SamplerBlock implements VoteStatement, FilterStatement {
+    public static final class SamplerBlock extends Located implements VoteStatement, FilterStatement {
         private final List<SamplerContent> contents;
 
         public SamplerBlock(final List<SamplerContent> contents) {
@@ -453,7 +435,7 @@ public final class TALScriptModel {
     }
 
     @Getter
-    public static final class RateLimitBlock implements SamplerContent {
+    public static final class RateLimitBlock extends Located implements SamplerContent {
         private final String id;
         private final List<InterpolationPart> idParts;
         private final int rpm;
@@ -501,10 +483,10 @@ public final class TALScriptModel {
      * Vote keep regardless of the samplers in the same rule, and, in a {@code persist} block, ask the forward to
      * skip the receiver's trace-id head sampling for this span.
      */
-    public static final class EnforcerStatement implements VoteStatement, FilterStatement {
+    public static final class EnforcerStatement extends Located implements VoteStatement, FilterStatement {
     }
 
-    public static final class DropperStatement implements VoteStatement, FilterStatement {
+    public static final class DropperStatement extends Located implements VoteStatement, FilterStatement {
     }
 
     /**
@@ -512,7 +494,7 @@ public final class TALScriptModel {
      * next, so the generator emits one shape rather than two.
      */
     @Getter
-    public static final class IfBlock
+    public static final class IfBlock extends Located
         implements FilterStatement, ExtractorStatement, VoteStatement, SamplerContent {
         private final Condition condition;
         private final List<FilterStatement> thenStatements;
@@ -539,15 +521,21 @@ public final class TALScriptModel {
         private final String leftCast;
         private final CompareOp op;
         private final ConditionValue right;
+        private final String leftText;
+        private final String rightText;
 
         public ComparisonCondition(final ValueAccess left,
                                    final String leftCast,
                                    final CompareOp op,
-                                   final ConditionValue right) {
+                                   final ConditionValue right,
+                                   final String leftText,
+                                   final String rightText) {
             this.left = left;
             this.leftCast = leftCast;
             this.op = op;
             this.right = right;
+            this.leftText = leftText;
+            this.rightText = rightText;
         }
     }
 
@@ -577,10 +565,12 @@ public final class TALScriptModel {
     public static final class ExprCondition implements Condition, TALExprCondition {
         private final ValueAccess expr;
         private final String castType;
+        private final String text;
 
-        public ExprCondition(final ValueAccess expr, final String castType) {
+        public ExprCondition(final ValueAccess expr, final String castType, final String text) {
             this.expr = expr;
             this.castType = castType;
+            this.text = text;
         }
     }
 

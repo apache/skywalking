@@ -84,6 +84,14 @@ public interface TalExpression {
     }
 
     /**
+     * @return the {@code segmentDef} names in slot order, which a debug capture shows a run's state by; empty when
+     * the rule has none or dsl-debugging injection was off at compile time
+     */
+    default String[] segmentDefNames() {
+        return new String[0];
+    }
+
+    /**
      * @return the per-rule capture binding the generated probes read, or null when dsl-debugging injection was
      * off at compile time
      */

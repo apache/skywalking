@@ -482,6 +482,12 @@ jobs:
             config: test/e2e-v2/cases/dsl-debugging/lal-block/e2e.yaml
           - name: DSL Debug API — LAL statement
             config: test/e2e-v2/cases/dsl-debugging/lal-statement/e2e.yaml
+          - name: DSL Debug API — TAL native
+            config: test/e2e-v2/cases/dsl-debugging/tal-native/e2e.yaml
+          - name: DSL Debug API — TAL OTLP
+            config: test/e2e-v2/cases/dsl-debugging/tal-otlp/e2e.yaml
+          - name: DSL Debug API — paging across nodes
+            config: test/e2e-v2/cases/dsl-debugging/cluster-paging/e2e.yaml
 
           - name: Alarm ES 8.18.8
             config: test/e2e-v2/cases/alarm/es/e2e.yaml

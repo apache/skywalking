@@ -348,6 +348,13 @@ same attributes and fallbacks as `otlp-general`, and the two are kept in step; a
 span behind the record past the receiver's head sampling. The threshold is in the rule file; the agent path keys it by database
 type through `slowDBAccessThreshold`, and a deployment edits the rule to match.
 
+## Debugging a rule
+
+The [DSL Debug API](admin-api/dsl-debugging-tal.md) captures how a rule runs on live spans: for each span the
+statements the rule executed, the metrics and sources it wrote, its persist vote, and whether the network-alias half
+it asked for was sent. What the OAP node that owns the trace then did with the halves, which matched and the alias
+each match built, is shown by the [Trace Pairing Debugging API](admin-api/trace-pairing-debugging.md).
+
 ## Turning the analysis off
 
 A deployment that wants the OTLP traces stored and queried, and nothing derived from them, empties the rule file
@@ -368,9 +375,10 @@ running.
 
 Removing the module altogether, with `selector: -` or `SW_TRACE_ANALYZER=-`, stops the boot whenever a module that
 requires it is loaded: the native trace receiver, `receiver-trace`, which is loaded by default, or the Kafka fetcher,
-since they hand it the agents' segments. With neither loaded, removing it works for OTLP alone: the OpenTelemetry trace
-receiver declares the module as a requirement only when it is loaded, and without it the receiver stores every span
-and analyzes none.
+since they hand it the agents' segments, or `trace-pairing-debugging`, also loaded by default, which captures its
+pairing (`SW_TRACE_PAIRING_DEBUGGING=-` removes it). With none of them loaded, removing it works for OTLP alone: the
+OpenTelemetry trace receiver declares the module as a requirement only when it is loaded, and without it the receiver
+stores every span and analyzes none.
 
 To keep part of the analysis, put the rules you want in a file of your own under `config/tal/` and list only that
 file. The two shipped rules are independent: `otlp-slow-sql` alone writes the slow statement records and keeps the

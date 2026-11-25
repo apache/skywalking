@@ -193,7 +193,8 @@ public class AdminServerModuleProvider extends ModuleProvider {
                               .getService(ClusterNodesQuery.class),
             moduleConfig.getGRPCPort(),
             moduleConfig.getInternalCommunicationTimeout(),
-            clientSslContext);
+            clientSslContext,
+            moduleConfig.getGRPCMaxMessageSize());
         registerServiceImplementation(AdminClusterChannelManager.class, peerChannelManager);
     }
 

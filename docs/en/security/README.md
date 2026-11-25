@@ -84,8 +84,9 @@ the operator team. The feature modules mounted on it serve these routes:
 | `/inspect/*` | `inspect` | Browse the metric catalog, the entities holding values, and the metric values. |
 | `/ui-management/*` | `ui-management` | Read, add, update, and disable UI dashboard templates. |
 | `/runtime/rule`, `/runtime/rule/*`, `/runtime/mal/*`, `/runtime/lal/*` | `receiver-runtime-rule` | List, dump, add, override, inactivate, and delete MAL/LAL rule files, which are compiled and loaded into the OAP JVM on the fly. |
-| `/dsl-debugging/*` | `dsl-debugging` | Start, read, and stop sampling sessions that capture live MAL/LAL/OAL rule executions, including the payloads each sampled rule processed. |
-| `/runtime/oal/*` | `dsl-debugging` | List the loaded OAL files and read their rules. |
+| `/dsl-debugging/*` | `dsl-debugging` | Start, read, and stop sampling sessions that capture live MAL/LAL/OAL/TAL rule executions, including the payloads each sampled rule processed. |
+| `/runtime/oal/*`, `/runtime/tal/*` | `dsl-debugging` | List the loaded OAL and TAL files and read their rules. |
+| `/trace-pairing-debugging/*` | `trace-pairing-debugging` | Start, read, and stop the capture of how OTLP calls are paired into network aliases, including the services and peers of the calls and the trace ids of those left unmatched. |
 
 Of these routes, only `/status/config/ttl` is also served next to the GraphQL API on the query
 port (see [Query and Receiver Ports](#query-and-receiver-ports)), and it returns the TTL settings only. The admin port also
@@ -106,7 +107,7 @@ variable to `-` if it is not needed.
 
 `admin-server` also opens an **admin-internal gRPC bus** (default `17129`) for peer-to-peer
 cluster RPCs between OAP nodes — runtime-rule `Suspend / Resume / Forward`, DSL debug
-`install / collect / stop`. This is intentionally a **separate transport** from the public
+`install / collect / stop`, trace pairing debug `start / stop / collect`. This is intentionally a **separate transport** from the public
 agent / cluster gRPC port (`core.gRPCPort`, default `11800`). An attacker who reaches `11800`
 to submit telemetry MUST NOT be able to invoke privileged admin RPCs.
 
@@ -119,7 +120,7 @@ To remove a feature, set its module variable to `-`, such as `SW_STATUS=-` for t
 debugging routes (including `/status/config/ttl` on the query port). An empty value does not
 remove a module: OAP fails to start with a `ProviderNotFoundException`. To close the admin
 port entirely, set `SW_ADMIN_SERVER=-` together with `SW_STATUS=-`, `SW_INSPECT=-`,
-`SW_UI_MANAGEMENT=-`, `SW_RECEIVER_RUNTIME_RULE=-`, and `SW_DSL_DEBUGGING=-`, as a feature
+`SW_UI_MANAGEMENT=-`, `SW_RECEIVER_RUNTIME_RULE=-`, `SW_DSL_DEBUGGING=-`, and `SW_TRACE_PAIRING_DEBUGGING=-`, as a feature
 module left on without `admin-server` stops OAP from starting. Horizon UI reads `/status/*`
 and the configuration dump, so keep `status` when Horizon UI is deployed, and restrict the
 port instead.

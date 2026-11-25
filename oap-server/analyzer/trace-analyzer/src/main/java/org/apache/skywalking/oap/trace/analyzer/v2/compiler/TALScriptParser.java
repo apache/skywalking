@@ -121,6 +121,10 @@ public final class TALScriptParser {
     }
 
     private static FilterStatement visitFilterStatement(final TALParser.FilterStatementContext ctx) {
+        return located(filterStatementOf(ctx), ctx);
+    }
+
+    private static FilterStatement filterStatementOf(final TALParser.FilterStatementContext ctx) {
         if (ctx.extractorBlock() != null) {
             return visitExtractorBlock(ctx.extractorBlock());
         }
@@ -134,7 +138,7 @@ public final class TALScriptParser {
             return visitDefStatement(ctx.defStatement());
         }
         if (ctx.assignStatement() != null) {
-            return visitAssignStatement(ctx.assignStatement()).withSource(ctx.getStart().getLine(), rawTextOf(ctx));
+            return visitAssignStatement(ctx.assignStatement());
         }
         if (ctx.logStatement() != null) {
             return visitLogStatement(ctx.logStatement());
@@ -143,12 +147,10 @@ public final class TALScriptParser {
             return visitForeachStatement(ctx.foreachStatement());
         }
         if (ctx.prepareNetworkAliasStatement() != null) {
-            return visitPrepareNetworkAlias(ctx.prepareNetworkAliasStatement())
-                .withSource(ctx.getStart().getLine(), rawTextOf(ctx));
+            return visitPrepareNetworkAlias(ctx.prepareNetworkAliasStatement());
         }
         if (ctx.buildNetworkAliasStatement() != null) {
-            return visitBuildNetworkAlias(ctx.buildNetworkAliasStatement())
-                .withSource(ctx.getStart().getLine(), rawTextOf(ctx));
+            return visitBuildNetworkAlias(ctx.buildNetworkAliasStatement());
         }
         if (ctx.firstBlock() != null) {
             final List<FilterStatement> stmts = new ArrayList<>();
@@ -202,16 +204,15 @@ public final class TALScriptParser {
     }
 
     private static ExtractorStatement visitExtractorStatement(final TALParser.ExtractorStatementContext ctx) {
-        // Capture (line, raw text) once at the statement boundary so every node below carries the same
-        // source-origin pair; dsl-debugging's per-line probe reads them back at codegen.
-        final int sourceLine = ctx.getStart().getLine();
-        final String sourceText = rawTextOf(ctx);
+        return located(extractorStatementOf(ctx), ctx);
+    }
 
+    private static ExtractorStatement extractorStatementOf(final TALParser.ExtractorStatementContext ctx) {
         if (ctx.defStatement() != null) {
-            return visitDefStatement(ctx.defStatement()).withSource(sourceLine, sourceText);
+            return visitDefStatement(ctx.defStatement());
         }
         if (ctx.assignStatement() != null) {
-            return visitAssignStatement(ctx.assignStatement()).withSource(sourceLine, sourceText);
+            return visitAssignStatement(ctx.assignStatement());
         }
         if (ctx.logStatement() != null) {
             return visitLogStatement(ctx.logStatement());
@@ -237,31 +238,31 @@ public final class TALScriptParser {
         }
         if (ctx.serviceStatement() != null) {
             return visitFieldAssignment(FieldType.SERVICE, ctx.serviceStatement().valueAccess(),
-                ctx.serviceStatement().typeCast()).withSource(sourceLine, sourceText);
+                ctx.serviceStatement().typeCast());
         }
         if (ctx.instanceStatement() != null) {
             return visitFieldAssignment(FieldType.INSTANCE, ctx.instanceStatement().valueAccess(),
-                ctx.instanceStatement().typeCast()).withSource(sourceLine, sourceText);
+                ctx.instanceStatement().typeCast());
         }
         if (ctx.endpointStatement() != null) {
             return visitFieldAssignment(FieldType.ENDPOINT, ctx.endpointStatement().valueAccess(),
-                ctx.endpointStatement().typeCast()).withSource(sourceLine, sourceText);
+                ctx.endpointStatement().typeCast());
         }
         if (ctx.layerStatement() != null) {
             return visitFieldAssignment(FieldType.LAYER, ctx.layerStatement().valueAccess(),
-                ctx.layerStatement().typeCast()).withSource(sourceLine, sourceText);
+                ctx.layerStatement().typeCast());
         }
         if (ctx.tagStatement() != null) {
-            return visitTagStatement(ctx.tagStatement()).withSource(sourceLine, sourceText);
+            return visitTagStatement(ctx.tagStatement());
         }
         if (ctx.prepareNetworkAliasStatement() != null) {
-            return visitPrepareNetworkAlias(ctx.prepareNetworkAliasStatement()).withSource(sourceLine, sourceText);
+            return visitPrepareNetworkAlias(ctx.prepareNetworkAliasStatement());
         }
         if (ctx.buildNetworkAliasStatement() != null) {
-            return visitBuildNetworkAlias(ctx.buildNetworkAliasStatement()).withSource(sourceLine, sourceText);
+            return visitBuildNetworkAlias(ctx.buildNetworkAliasStatement());
         }
         if (ctx.metricsBlock() != null) {
-            return visitMetricsBlock(ctx.metricsBlock()).withSource(sourceLine, sourceText);
+            return visitMetricsBlock(ctx.metricsBlock());
         }
         if (ctx.abortBlock() != null) {
             return new AbortStatement();
@@ -272,7 +273,17 @@ public final class TALScriptParser {
         // Every alternative of the grammar's extractorStatement rule has a branch above; falling through means a
         // grammar change landed without one, and a named error beats a NullPointerException in the next visitor.
         throw new IllegalArgumentException(
-            "Unsupported extractor statement in TAL rule at line " + sourceLine + ": " + sourceText);
+            "Unsupported extractor statement in TAL rule at line " + ctx.getStart().getLine() + ": " + rawTextOf(ctx));
+    }
+
+    /**
+     * Stamp a statement with where it stands in the rule's text, see {@link TALScriptModel.Located}.
+     */
+    private static <T> T located(final T stmt, final ParserRuleContext ctx) {
+        if (stmt instanceof TALScriptModel.Located) {
+            ((TALScriptModel.Located) stmt).locate(ctx.getStart().getLine(), rawTextOf(ctx));
+        }
+        return stmt;
     }
 
     /**
@@ -452,9 +463,9 @@ public final class TALScriptParser {
     private static PersistBlock visitPersistBlock(final TALParser.PersistBlockContext ctx) {
         final List<VoteStatement> stmts = new ArrayList<>();
         for (final TALParser.PersistStatementContext psc : ctx.persistContent().persistStatement()) {
-            stmts.add(visitVoteStatement(
+            stmts.add(located(visitVoteStatement(
                 psc.samplerBlock(), psc.enforcerStatement(), psc.dropperStatement(),
-                psc.abortBlock(), psc.ifStatement(), psc.foreachStatement(), psc.logStatement()));
+                psc.abortBlock(), psc.ifStatement(), psc.foreachStatement(), psc.logStatement()), psc));
         }
         return new PersistBlock(stmts);
     }
@@ -507,13 +518,17 @@ public final class TALScriptParser {
         for (int i = 0; i < ctx.getChildCount(); i++) {
             final ParseTree child = ctx.getChild(i);
             if (child instanceof TALParser.RateLimitBlockContext) {
-                contents.add(visitRateLimitBlock((TALParser.RateLimitBlockContext) child));
+                final TALParser.RateLimitBlockContext rateLimit = (TALParser.RateLimitBlockContext) child;
+                contents.add(located(visitRateLimitBlock(rateLimit), rateLimit));
             } else if (child instanceof TALParser.IfStatementContext) {
-                contents.add(visitIfStatement((TALParser.IfStatementContext) child));
+                final TALParser.IfStatementContext ifStatement = (TALParser.IfStatementContext) child;
+                contents.add(located(visitIfStatement(ifStatement), ifStatement));
             } else if (child instanceof TALParser.ForeachStatementContext) {
-                contents.add(visitForeachStatement((TALParser.ForeachStatementContext) child));
+                final TALParser.ForeachStatementContext foreach = (TALParser.ForeachStatementContext) child;
+                contents.add(located(visitForeachStatement(foreach), foreach));
             } else if (child instanceof TALParser.LogStatementContext) {
-                contents.add(visitLogStatement((TALParser.LogStatementContext) child));
+                final TALParser.LogStatementContext logStatement = (TALParser.LogStatementContext) child;
+                contents.add(located(visitLogStatement(logStatement), logStatement));
             } else if (!(child instanceof TerminalNode)) {
                 throw new IllegalArgumentException("Unsupported sampler statement in TAL rule: " + child.getText());
             }
@@ -546,10 +561,22 @@ public final class TALScriptParser {
         for (int i = condCount - 1; i >= 1; i--) {
             final List<FilterStatement> elsePart = nested != null ? List.of(nested) : trailingElse;
             nested = new IfBlock(visitCondition(ctx.condition(i)), visitIfBody(ctx.ifBody(i)), elsePart);
+            locateCondition(nested, "else if", ctx.IF(i), ctx.condition(i));
         }
 
         final List<FilterStatement> topElse = nested != null ? List.of(nested) : trailingElse;
-        return new IfBlock(visitCondition(ctx.condition(0)), visitIfBody(ctx.ifBody(0)), topElse);
+        final IfBlock top = new IfBlock(visitCondition(ctx.condition(0)), visitIfBody(ctx.ifBody(0)), topElse);
+        locateCondition(top, "if", ctx.IF(0), ctx.condition(0));
+        return top;
+    }
+
+    /**
+     * An {@code if} reads as its keyword and condition, the part a debugger shows beside the result it evaluated to,
+     * on the line of its keyword, as the condition may open on the next.
+     */
+    private static void locateCondition(final IfBlock block, final String keyword, final TerminalNode ifToken,
+                                        final TALParser.ConditionContext condition) {
+        block.locate(ifToken.getSymbol().getLine(), keyword + " (" + rawTextOf(condition) + ")");
     }
 
     private static List<FilterStatement> visitIfBody(final TALParser.IfBodyContext ctx) {
@@ -561,9 +588,9 @@ public final class TALScriptParser {
             stmts.add((FilterStatement) visitExtractorStatement(esc));
         }
         for (final TALParser.PersistStatementContext psc : ctx.persistStatement()) {
-            stmts.add((FilterStatement) visitVoteStatement(
+            stmts.add((FilterStatement) located(visitVoteStatement(
                 psc.samplerBlock(), psc.enforcerStatement(), psc.dropperStatement(),
-                psc.abortBlock(), psc.ifStatement(), psc.foreachStatement(), psc.logStatement()));
+                psc.abortBlock(), psc.ifStatement(), psc.foreachStatement(), psc.logStatement()), psc));
         }
         final TALParser.SamplerContentContext sc = ctx.samplerContent();
         if (sc != null) {
@@ -626,13 +653,14 @@ public final class TALScriptParser {
             final TALParser.CondValueAccessContext lva = (TALParser.CondValueAccessContext) leftCtx;
             return new TALScriptModel.ComparisonCondition(
                 visitValueAccess(lva.valueAccess()), extractCastType(lva.typeCast()), op,
-                visitConditionExprAsValue(rightCtx));
+                visitConditionExprAsValue(rightCtx), rawTextOf(leftCtx), rawTextOf(rightCtx));
         }
         if (leftCtx instanceof TALParser.CondFunctionCallContext) {
             final TALParser.FunctionInvocationContext fi =
                 ((TALParser.CondFunctionCallContext) leftCtx).functionInvocation();
             return new TALScriptModel.ComparisonCondition(
-                functionCallAccess(fi), null, op, visitConditionExprAsValue(rightCtx));
+                functionCallAccess(fi), null, op, visitConditionExprAsValue(rightCtx), rawTextOf(leftCtx),
+                rawTextOf(rightCtx));
         }
         throw notAValue(leftCtx);
     }
@@ -698,11 +726,12 @@ public final class TALScriptParser {
         if (ctx instanceof TALParser.CondValueAccessContext) {
             final TALParser.CondValueAccessContext va = (TALParser.CondValueAccessContext) ctx;
             return new TALScriptModel.ExprCondition(
-                visitValueAccess(va.valueAccess()), extractCastType(va.typeCast()));
+                visitValueAccess(va.valueAccess()), extractCastType(va.typeCast()), rawTextOf(ctx));
         }
         if (ctx instanceof TALParser.CondFunctionCallContext) {
             return new TALScriptModel.ExprCondition(
-                functionCallAccess(((TALParser.CondFunctionCallContext) ctx).functionInvocation()), null);
+                functionCallAccess(((TALParser.CondFunctionCallContext) ctx).functionInvocation()), null,
+                rawTextOf(ctx));
         }
         if (ctx instanceof TALParser.CondParenGroupContext) {
             return visitCondition(((TALParser.CondParenGroupContext) ctx).condition());

@@ -17,6 +17,7 @@
 
 package org.apache.skywalking.oap.trace.analyzer.v2.provider.span.listener;
 
+import com.google.common.io.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import javassist.ClassPool;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.dsl.DslSourceRef;
+import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.source.TALFunctionProvider;
 import org.apache.skywalking.oap.server.library.module.ModuleManager;
 import org.apache.skywalking.oap.server.library.module.ModuleStartException;
@@ -40,6 +42,8 @@ import org.apache.skywalking.oap.server.library.module.Service;
 import org.apache.skywalking.oap.server.library.util.StringUtil;
 import org.apache.skywalking.oap.trace.analyzer.v2.compiler.TALMetricShapes;
 import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalDSL;
+import org.apache.skywalking.oap.trace.analyzer.v2.dsl.TalExpression;
+import org.apache.skywalking.oap.trace.analyzer.v2.dsl.debug.TalStaticBindingHook;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfig;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TALConfigs;
 import org.apache.skywalking.oap.trace.analyzer.v2.provider.TraceAnalyzerModuleConfig;
@@ -155,6 +159,7 @@ public class SpanFilterListener {
                                 + "; a rule's name is unique within its layer");
                     }
                     addOrReplace(compiled);
+                    publishBinding(rule, compiled, TalStaticBindingHook.LIST_TAL_FILES, -1);
                 }
             }
             log.info("TAL loaded {} rule file(s) from {}", files.size(), config.getTalPath());
@@ -189,11 +194,26 @@ public class SpanFilterListener {
                         throw new ModuleStartException("two native TAL rules are named " + rule.getName() + ", in "
                             + earlier + " and " + rule.getSourcePath());
                     }
+                    publishBinding(rule, compiled, TalStaticBindingHook.LIST_NATIVE_TAL_FILES, rules.size());
                     rules.add(compiled.dsl);
                 }
             }
             log.info("TAL loaded {} native rule(s) from {}", rules.size(), config.getTalPath());
             return rules;
+        }
+
+        /**
+         * Tell dsl-debugging about a loaded rule, for its rule listing and its capture sessions.
+         *
+         * @param order the rule's position in the native run order; -1 for a rule of {@code talFiles}
+         */
+        private static void publishBinding(final TALConfig rule, final CompiledTAL compiled, final String list,
+                                           final int order) {
+            final TalExpression expression = compiled.dsl.getExpression();
+            // The name TALConfigs files the rule file's content under, whatever its extension's case.
+            TalStaticBindingHook.publish(new TalStaticBindingHook.Binding(
+                rule.getSourceName(), Files.getNameWithoutExtension(rule.getSourceName()), compiled.ruleName, compiled.provider.alias(), compiled.layer.name(), list,
+                order, rule.getLineNo(), expression.segmentDefNames(), expression.debugHolder()));
         }
 
         /**
@@ -375,10 +395,17 @@ public class SpanFilterListener {
     public static final class RuleBinding {
         public final TalDSL dsl;
         public final TALSourceTypeProvider provider;
+        /**
+         * The rule's dsl-debugging capture binding; null when the probes were not compiled in.
+         */
+        public final GateHolder debugHolder;
 
         public RuleBinding(final TalDSL dsl, final TALSourceTypeProvider provider) {
             this.dsl = dsl;
             this.provider = provider;
+            // A rule stubbed without its compiled expression, as the runner's tests build one, records nothing.
+            final TalExpression expression = dsl.getExpression();
+            this.debugHolder = expression == null ? null : expression.debugHolder();
         }
     }
 }

@@ -20,6 +20,7 @@ appends one **sample**:
 nodes[]
   records[]
     startedAtMs                  — record boundary timestamp (ms)
+    captureTime                  — when the node captured it, `<millis>.<six-digit nanos>`, which pages the read
     dsl                          — verbatim per-metric `.oal` line
     rule                         — { ruleName, sourceLine }
     samples[]
@@ -149,6 +150,7 @@ A trimmed slice (one record = one source event):
     "status": "ok",
     "records": [{
       "startedAtMs": 1778115085149,
+      "captureTime": "1778115085150.213904",
       "dsl": "service_relation_server_cpm = from(ServiceRelation.*).filter(detectPoint == DetectPoint.SERVER).cpm();",
       "rule": { "ruleName": "service_relation_server_cpm", "sourceLine": "30" },
       "samples": [
@@ -201,7 +203,10 @@ curl -s -X POST 'http://OAP:17128/dsl-debugging/session/SESSION_ID/stop'
 
 - **Install** broadcasts to every reachable peer; each peer attaches its own
   recorder to its dispatcher.
-- **Collect** broadcasts and concatenates per-node slices.
+- **Collect** reads one page from every node: each other node streams the
+  records it captured at or after the client's point, and the response holds
+  every node's records before the point all of them are complete before; see
+  [Reading the records page by page](dsl-debugging.md#reading-the-records-page-by-page).
 - **Stop** broadcasts; missed acks fall out via retention timeout.
 
 No cross-node merge — each peer's slice is self-contained.
@@ -233,4 +238,5 @@ the caps above) in the install body:
 
 - [DSL Debug API — MAL](dsl-debugging-mal.md)
 - [DSL Debug API — LAL](dsl-debugging-lal.md)
+- [DSL Debug API — TAL](dsl-debugging-tal.md)
 - [SWIP-13](../../../swip/SWIP-13.md) — full design.

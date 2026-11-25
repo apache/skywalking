@@ -19,14 +19,19 @@
 package org.apache.skywalking.oap.server.admin.dsl.debugging.cluster;
 
 import io.grpc.stub.StreamObserver;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterExecutionRecord;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterRuleKey;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterSample;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.ClusterSessionLimits;
-import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugSamplesAck;
-import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugSamplesRequest;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugRecordsPart;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugRecordsRequest;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.CollectDebugRecordsSummary;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.DSLDebuggingClusterServiceGrpc;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.InstallDebugSessionAck;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.InstallDebugSessionRequest;
@@ -35,6 +40,8 @@ import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopByCli
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopByClientIdRequest;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopDebugSessionAck;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.cluster.v1.StopDebugSessionRequest;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.session.CapturePage;
+import org.apache.skywalking.oap.server.admin.dsl.debugging.session.CaptureTime;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.DebugSession;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.DebugSessionRegistry;
 import org.apache.skywalking.oap.server.admin.dsl.debugging.session.ExecutionRecord;
@@ -54,7 +61,7 @@ import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
  * <h2>Workflow per RPC</h2>
  * <pre>
  *   InstallDebugSession  ─► registry.installWithId(...)       ─► INSTALLED | NOT_LOCAL | REJECTED
- *   CollectDebugSamples  ─► registry.find(sessionId).snapshot ─► records[] + captured + bytes
+ *   CollectDebugRecords  ─► registry.find(sessionId).page     ─► record, ..., record, summary
  *   StopDebugSession     ─► registry.uninstall(sessionId)     ─► stopped: true|false
  *   StopByClientId       ─► registry.stopByClientId(clientId) ─► count + ids[]
  * </pre>
@@ -115,24 +122,49 @@ public final class DSLDebuggingClusterServiceImpl
         responseObserver.onCompleted();
     }
 
+    /**
+     * The page one record a message, then its summary, so only a single record has to fit one message.
+     */
     @Override
-    public void collectDebugSamples(final CollectDebugSamplesRequest request,
-                                    final StreamObserver<CollectDebugSamplesAck> responseObserver) {
-        final CollectDebugSamplesAck.Builder ack = CollectDebugSamplesAck.newBuilder()
-            .setNodeId(selfNodeId);
+    public void collectDebugRecords(final CollectDebugRecordsRequest request,
+                                    final StreamObserver<CollectDebugRecordsPart> responseObserver) {
+        final CollectDebugRecordsSummary.Builder summary = CollectDebugRecordsSummary.newBuilder()
+                                                                                     .setNodeId(selfNodeId)
+                                                                                     .setInstanceId(
+                                                                                         sessionRegistry.getInstanceId());
+        for (final ClusterExecutionRecord record : page(request, summary)) {
+            responseObserver.onNext(CollectDebugRecordsPart.newBuilder().setRecord(record).build());
+        }
+        responseObserver.onNext(CollectDebugRecordsPart.newBuilder().setSummary(summary).build());
+        responseObserver.onCompleted();
+    }
+
+    /**
+     * @return the records the request's page holds, its summary set on {@code summary}
+     */
+    private List<ClusterExecutionRecord> page(final CollectDebugRecordsRequest request,
+                                              final CollectDebugRecordsSummary.Builder summary) {
         final DebugSession session = sessionRegistry.find(request.getSessionId());
         if (session == null) {
-            ack.setStatus("not_local");
-        } else {
-            ack.setStatus(session.getRecorder().isCaptured() ? "captured" : "ok");
-            ack.setCaptured(session.getRecorder().isCaptured());
-            ack.setTotalBytes(session.getRecorder().totalBytes());
-            for (final ExecutionRecord r : session.getRecorder().snapshotRecords()) {
-                ack.addRecords(toClusterRecord(r));
-            }
+            summary.setStatus("not_local");
+            return Collections.emptyList();
         }
-        responseObserver.onNext(ack.build());
-        responseObserver.onCompleted();
+        // The page is measured in the bytes the messages carry, converting each record once.
+        final Map<ExecutionRecord, ClusterExecutionRecord> converted = new IdentityHashMap<>();
+        final CapturePage page = session.getRecorder().page(
+            request.hasCapturedSince() ? CaptureTimeCodec.decode(request.getCapturedSince()) : CaptureTime.EARLIEST,
+            Math.max(1, request.getMaxRecords()), request.getMaxBytes(),
+            r -> converted.computeIfAbsent(r, DSLDebuggingClusterServiceImpl::toClusterRecord).getSerializedSize());
+        final List<ClusterExecutionRecord> records = new ArrayList<>(page.getRecords().size());
+        for (final ExecutionRecord r : page.getRecords()) {
+            records.add(fitMessage(converted.computeIfAbsent(r, DSLDebuggingClusterServiceImpl::toClusterRecord),
+                request.getMaxRecordBytes()));
+        }
+        summary.setStatus(page.isCaptured() ? "captured" : "ok")
+               .setCaptured(page.isCaptured())
+               .setTotalBytes(page.getTotalBytes())
+               .setCompleteBefore(CaptureTimeCodec.encode(page.getCompleteBefore()));
+        return records;
     }
 
     @Override
@@ -175,15 +207,38 @@ public final class DSLDebuggingClusterServiceImpl
         return new SessionLimits(recordCap, retention, granularity);
     }
 
+    /**
+     * A record larger than the caller's channel takes in one message goes as a stub holding its size, so the read,
+     * and with it the page, still moves on; read on its own node, it is whole.
+     *
+     * @param maxRecordBytes the largest record the caller takes; 0 takes every record whole
+     */
+    static ClusterExecutionRecord fitMessage(final ClusterExecutionRecord record, final long maxRecordBytes) {
+        final int size = record.getSerializedSize();
+        if (maxRecordBytes <= 0 || size <= maxRecordBytes) {
+            return record;
+        }
+        return ClusterExecutionRecord.newBuilder()
+                                     .setStartedAtMs(record.getStartedAtMs())
+                                     .setCapturedAt(record.getCapturedAt())
+                                     .putAllMetadata(record.getMetadataMap())
+                                     .setOversizedBytes(size)
+                                     .build();
+    }
+
     private static ClusterExecutionRecord toClusterRecord(final ExecutionRecord r) {
         final ClusterExecutionRecord.Builder builder = ClusterExecutionRecord.newBuilder()
             .setStartedAtMs(r.getStartedAtMillis())
+            .setCapturedAt(CaptureTimeCodec.encode(r.getCapturedAt()))
             .setDsl(r.getDsl() == null ? "" : r.getDsl());
         if (r.getMetadata() != null && !r.getMetadata().isEmpty()) {
             builder.putAllMetadata(r.getMetadata());
         }
         for (final Sample s : r.getSamples()) {
             builder.addSamples(toClusterSample(s));
+        }
+        if (r.getBodyJson() != null) {
+            builder.setBodyJson(r.getBodyJson());
         }
         return builder.build();
     }

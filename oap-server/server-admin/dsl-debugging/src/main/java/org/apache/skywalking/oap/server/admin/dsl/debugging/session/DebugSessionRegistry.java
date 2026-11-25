@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.skywalking.oap.server.core.dsl.debug.GateHolder;
 import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
@@ -44,7 +45,7 @@ import org.apache.skywalking.oap.server.core.dsl.debug.RuleKey;
  *                      ▼
  *                  active session  ─►  probes fan out into recorder
  *
- *   REST handler ─►  poll(sessionId)            ─►  recorder.snapshotRecords()
+ *   REST handler ─►  poll(sessionId)            ─►  recorder.page(point, ...)
  *
  *   stop / retention  ─►  uninstall(sessionId)
  *                            │
@@ -80,6 +81,12 @@ public final class DebugSessionRegistry {
      */
     public static final int MAX_ACTIVE_SESSIONS = 200;
 
+    /**
+     * Tells this OAP process apart from every other, a restarted one included: node ids do not, as every node that
+     * binds 0.0.0.0 reports the same one. A session read names each node's slice with it.
+     */
+    @Getter
+    private final String instanceId = UUID.randomUUID().toString();
     private final ConcurrentHashMap<String, DebugSession> sessions = new ConcurrentHashMap<>();
     private final CopyOnWriteArrayList<DebugHolderLookup> lookups = new CopyOnWriteArrayList<>();
     private final CopyOnWriteArrayList<DebugRecorderFactory> factories = new CopyOnWriteArrayList<>();

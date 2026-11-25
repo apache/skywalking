@@ -80,6 +80,7 @@ public class AdminClusterChannelManagerImpl implements AdminClusterChannelManage
     private final int adminGrpcPort;
     private final long internalCommunicationTimeoutMs;
     private final SslContext clientSslContext;
+    private final int maxMessageSize;
 
     /** Indexed by {@code host:adminPort}; access guarded by {@code synchronized(this)}. */
     private final Map<String, ManagedChannel> channels = new HashMap<>();
@@ -96,16 +97,23 @@ public class AdminClusterChannelManagerImpl implements AdminClusterChannelManage
     public AdminClusterChannelManagerImpl(final Supplier<ClusterNodesQuery> clusterNodesQuerySupplier,
                                           final int adminGrpcPort,
                                           final long internalCommunicationTimeoutMs,
-                                          final SslContext clientSslContext) {
+                                          final SslContext clientSslContext,
+                                          final int maxMessageSize) {
         this.clusterNodesQuerySupplier = clusterNodesQuerySupplier;
         this.adminGrpcPort = adminGrpcPort;
         this.internalCommunicationTimeoutMs = internalCommunicationTimeoutMs;
         this.clientSslContext = clientSslContext;
+        this.maxMessageSize = maxMessageSize;
     }
 
     @Override
     public long getInternalCommunicationTimeoutMs() {
         return internalCommunicationTimeoutMs;
+    }
+
+    @Override
+    public int getMaxMessageSize() {
+        return maxMessageSize;
     }
 
     /** Build the TLS context callers need to pass when {@code admin-server.gRPCSslEnabled=true}. */
@@ -210,6 +218,10 @@ public class AdminClusterChannelManagerImpl implements AdminClusterChannelManage
     private ManagedChannel buildChannel(final String host, final int port) {
         try {
             final NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
+            // A peer's reply is bounded as the admin gRPC server bounds a request, not by gRPC's 4 MiB default.
+            if (maxMessageSize > 0) {
+                builder.maxInboundMessageSize(maxMessageSize);
+            }
             if (clientSslContext != null) {
                 builder.useTransportSecurity().sslContext(clientSslContext);
             } else {

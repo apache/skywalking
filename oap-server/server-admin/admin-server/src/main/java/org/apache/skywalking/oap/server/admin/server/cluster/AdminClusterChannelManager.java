@@ -72,6 +72,12 @@ public interface AdminClusterChannelManager extends Service {
     long getInternalCommunicationTimeoutMs();
 
     /**
+     * The largest message a peer channel takes, {@code admin-server.gRPCMaxMessageSize}, as the admin gRPC server
+     * takes; 0 leaves gRPC's default of 4 MiB.
+     */
+    int getMaxMessageSize();
+
+    /**
      * Per-peer view consumed by RPC fan-out helpers (dsl-debugging
      * {@code ClusterPeerCaller}, runtime-rule {@code RuntimeRuleClusterClient}).
      * The {@link #getChannel} return is {@code null} when the channel hasn't
