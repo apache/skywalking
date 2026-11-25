@@ -33,7 +33,7 @@ cilium-fetcher:
    2. `sslConnection`: should be set to `true`.
    3. `sslPrivateKeyFile`: the path of the private key file.
    4. `sslCertChainFile`: the path of the certificate chain file.
-   5. `sslCaFile`: the path of the CA file.
+   5. `sslCaFile`: the path of the CA file. The OAP verifies Hubble's certificates against this CA, without checking their host names (Hubble names its certificates `*.<cluster name>.hubble-grpc.cilium.io`, not the address the OAP connects to), so it must be the CA that signs Hubble's server certificates, e.g. the `ca.crt` of the `hubble-server-certs` secret.
 3. Configure the cilium rules please configure the following configuration:
    1. `cilium-rules/exclude.yaml`: Configure the which endpoint should be excluded from the monitoring, Please read [exclude rules selection](#exclude-rules) for more detail.
    2. `cilium-rules/metadata-service-mapping.yaml`: Configure the service name and endpoint mapping.

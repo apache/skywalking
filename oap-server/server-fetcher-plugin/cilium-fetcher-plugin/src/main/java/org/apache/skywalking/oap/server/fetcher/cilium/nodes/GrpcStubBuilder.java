@@ -41,11 +41,13 @@ public class GrpcStubBuilder implements ClientBuilder {
         final ClientFactoryBuilder builder = ClientFactory.builder();
         if (config.isSslConnection()) {
             builder
-                .tlsNoVerify()  // skip the verification of the server's certificate(for the host checker)
                 .useHttp2WithoutAlpn(true) // use HTTP/2 without ALPN(cilium not support for now)
                 .tlsCustomizer(ctx -> {
                     ctx.keyManager(new File(config.getSslCertChainFile()), new File(config.getSslPrivateKeyFile()));
                     ctx.trustManager(new File(config.getSslCaFile()));
+                    // Hubble's certificates name *.<cluster>.hubble-grpc.cilium.io, not the address the fetcher dials,
+                    // so verify the chain against the CA but not the host name.
+                    ctx.endpointIdentificationAlgorithm(null);
             });
         }
 
