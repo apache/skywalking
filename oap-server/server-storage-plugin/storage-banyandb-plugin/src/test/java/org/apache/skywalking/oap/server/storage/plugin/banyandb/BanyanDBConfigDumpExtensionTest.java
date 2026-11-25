@@ -35,7 +35,6 @@ public class BanyanDBConfigDumpExtensionTest {
         config.getGlobal().setTargets("a:1,b:2");
         config.getGlobal().setUser("admin");
         config.getGlobal().setPassword("admin");
-        config.getGlobal().setCompatibleServerApiVersions("0.10");
         config.getGlobal().setNamespace("sw");
         config.getGlobal().setSecretsManagementFile("/etc/skywalking/bydb-secrets.properties");
 
@@ -64,7 +63,6 @@ public class BanyanDBConfigDumpExtensionTest {
         // Raw values; masking is the dump's responsibility, not the extension's.
         assertEquals("admin", dump.get("storage.banyandb.global.user"));
         assertEquals("admin", dump.get("storage.banyandb.global.password"));
-        assertEquals("0.10", dump.get("storage.banyandb.global.compatibleServerApiVersions"));
         assertEquals(
             "/etc/skywalking/bydb-secrets.properties",
             dump.get("storage.banyandb.global.secretsManagementFile"));

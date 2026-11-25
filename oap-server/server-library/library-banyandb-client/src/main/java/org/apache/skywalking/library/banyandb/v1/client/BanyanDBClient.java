@@ -166,6 +166,12 @@ public class BanyanDBClient implements Closeable {
      * Null until {@link #connect()} runs, and for the test-only channel injection.
      */
     private volatile ChannelManager channelManager;
+    /**
+     * The API version this client works as with the connected server: the one the server reported, or the one
+     * {@link #verifyServerAPIVersion(String)} was told to force. Null until that method succeeds.
+     */
+    @Getter
+    private volatile String serverAPIVersion;
 
     /**
      * Create a BanyanDB client instance with a default options.
@@ -1301,6 +1307,35 @@ public class BanyanDBClient implements Closeable {
             BanyandbCommon.GetAPIVersionResponse resp = stub.getAPIVersion(BanyandbCommon.GetAPIVersionRequest.getDefaultInstance());
             return resp.getVersion();
         });
+    }
+
+    /**
+     * Read the server's API version, check that this client supports it, and record it as
+     * {@link #getServerAPIVersion()}.
+     *
+     * @param forcedAPIVersion when not empty, the API version to work as instead of the one the server reports, for
+     *                         debugging; it must be a version this client supports as well
+     * @return the API version and revision the server reported
+     * @throws BanyanDBException     if the server is not reachable or rejects the call
+     * @throws IllegalStateException if this client does not support the version it would work as
+     */
+    public BanyandbCommon.APIVersion verifyServerAPIVersion(final String forcedAPIVersion) throws BanyanDBException {
+        final BanyandbCommon.APIVersion reported = getAPIVersion();
+        final boolean forced = !Strings.isNullOrEmpty(forcedAPIVersion);
+        final String version = forced ? forcedAPIVersion : reported.getVersion();
+        final BanyanDBAPIVersion oldest = BanyanDBAPIVersion.oldest();
+        if (!oldest.isCompatibleWith(version)) {
+            final String supported = String.join(", ", oldest.getCompatibleServerVersions());
+            if (forced) {
+                throw new IllegalStateException(
+                    "Incompatible BanyanDB API version: " + version + ", forced in place of the server's "
+                        + reported.getVersion() + ". Supported versions: " + supported);
+            }
+            throw new IllegalStateException(
+                "Incompatible BanyanDB server API version: " + version + ". Supported versions: " + supported);
+        }
+        this.serverAPIVersion = version;
+        return reported;
     }
 
     @Override

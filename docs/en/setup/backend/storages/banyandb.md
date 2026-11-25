@@ -2,18 +2,19 @@
 
 [BanyanDB](https://github.com/apache/skywalking-banyandb) is a dedicated storage implementation developed by the SkyWalking Team and the community. Activate BanyanDB as the storage by setting the storage provider to **banyandb**.
 
-The BanyanDB server compatibility relies on API and release versions,
-The compatible BanyanDB API version number could be found in `/config/bydb.yml` 
-```
-${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS}
-```
-The compatible BanyanDB Server version number can be found via the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
+The BanyanDB server compatibility relies on API versions. A BanyanDB server reports its API version, and several BanyanDB
+releases share one API version. This OAP release works with BanyanDB servers reporting API version `0.11` or `0.13`. The
+BanyanDB releases of each API version are listed in the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
 
 If the BanyanDB server API version is not compatible with the OAP server, the OAP server will not start, and the following error message will be displayed:
 ```shell
-... ERROR [] - ... Incompatible BanyanDB server API version: 0.x. But accepted versions: 0.y
+... ERROR [] - ... Incompatible BanyanDB server API version: 0.x. Supported versions: 0.11, 0.13
 org.apache.skywalking.oap.server.library.module.ModuleStartException: Incompatible BanyanDB server API version...
 ```
+
+For debugging only, the environment variable `SW_STORAGE_BANYANDB_FORCE_SERVER_API_VERSION` makes the OAP work as the
+API version it names, whatever version the server reports. The version must be one this OAP release works with, or the
+OAP does not start. It is not a `bydb.yml` setting, and the OAP logs a warning at boot while it is set.
 
 ### Configuration
 In the `application.yml` file, select the BanyanDB storage provider:
@@ -71,9 +72,6 @@ global:
   # The namespace in BanyanDB to store the data of OAP, if not set, the default is "sw".
   # OAP will create BanyanDB Groups using the format of "{namespace}_{group name}", such as "sw_records".
   namespace: ${SW_NAMESPACE:"sw"}
-  # The compatible server API versions of BanyanDB.
-  # The compatible BanyanDB Server version number can be found via the [API versions mapping](https://skywalking.apache.org/docs/skywalking-banyandb/latest/installation/versions/).
-  compatibleServerApiVersions: ${SW_STORAGE_BANYANDB_COMPATIBLE_SERVER_API_VERSIONS:"0.11"}
 
 groups:
   # The group settings of record.

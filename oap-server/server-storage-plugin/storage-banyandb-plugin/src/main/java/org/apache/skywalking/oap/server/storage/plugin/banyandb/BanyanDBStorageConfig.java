@@ -120,16 +120,10 @@ public class BanyanDBStorageConfig extends ModuleConfig {
         private int profileDataQueryBatchSize = 100;
         private boolean cleanupUnusedTopNRules = true;
         private String namespace = "sw";
-        private String compatibleServerApiVersions;
 
         public String[] getTargets() {
             return Iterables.toArray(
                 Splitter.on(",").omitEmptyStrings().trimResults().split(this.targets), String.class);
-        }
-
-        public String[] getCompatibleServerApiVersions() {
-            return Iterables.toArray(
-                Splitter.on(",").omitEmptyStrings().trimResults().split(this.compatibleServerApiVersions), String.class);
         }
     }
 

@@ -22,7 +22,6 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -76,7 +75,11 @@ import static com.google.common.base.Preconditions.checkState;
  */
 @Slf4j
 public class BanyanDBStorageClient implements Client, HealthCheckable {
-    private final String[] compatibleServerApiVersions;
+    /**
+     * A debugging override for special cases, deliberately not in bydb.yml: the BanyanDB API version the OAP works as,
+     * instead of the one the server reports. It must be a version the OAP supports.
+     */
+    private static final String FORCE_SERVER_API_VERSION_ENV = "SW_STORAGE_BANYANDB_FORCE_SERVER_API_VERSION";
     final BanyanDBClient client;
     private final DelegatedHealthChecker healthChecker = new DelegatedHealthChecker();
     private final int flushTimeout;
@@ -118,16 +121,17 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
         this.resultWindowMaxSize = config.getGlobal().getResultWindowMaxSize();
         this.options = options;
         this.moduleManager = moduleManager;
-        this.compatibleServerApiVersions = config.getGlobal().getCompatibleServerApiVersions();
     }
 
     @Override
     public void connect() throws Exception {
         initTelemetry();
         this.client.connect();
-        BanyandbCommon.APIVersion apiVersion;
+        // Read at connect, not in a static field, so a native image does not keep the value of its build machine.
+        final String forcedAPIVersion = System.getenv(FORCE_SERVER_API_VERSION_ENV);
+        final BanyandbCommon.APIVersion apiVersion;
         try {
-            apiVersion = this.client.getAPIVersion();
+            apiVersion = this.client.verifyServerAPIVersion(forcedAPIVersion);
         } catch (BanyanDBException e) {
             final Throwable cause = e.getCause();
             if (cause instanceof StatusRuntimeException) {
@@ -138,16 +142,11 @@ public class BanyanDBStorageClient implements Client, HealthCheckable {
             }
             throw e;
         }
-        final boolean isCompatible = Arrays.stream(compatibleServerApiVersions)
-                                           .anyMatch(v -> v.equals(apiVersion.getVersion()));
-        final String revision = apiVersion.getRevision();
-        log.info("BanyanDB server API version: {}, revision: {}", apiVersion.getVersion(), revision);
-        if (!isCompatible) {
-            throw new IllegalStateException(
-                "Incompatible BanyanDB server API version: " + apiVersion.getVersion() + ". But accepted versions: "
-                    + String.join(", ", compatibleServerApiVersions));
+        log.info("BanyanDB server API version: {}, revision: {}", apiVersion.getVersion(), apiVersion.getRevision());
+        if (StringUtil.isNotEmpty(forcedAPIVersion)) {
+            log.warn("{} is set: working as BanyanDB API version {} instead of the server's {}. Use it for debugging only.",
+                     FORCE_SERVER_API_VERSION_ENV, forcedAPIVersion, apiVersion.getVersion());
         }
-
     }
 
     @Override
