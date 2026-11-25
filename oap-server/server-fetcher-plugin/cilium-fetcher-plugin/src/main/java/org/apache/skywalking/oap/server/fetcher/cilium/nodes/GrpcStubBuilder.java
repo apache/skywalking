@@ -41,11 +41,13 @@ public class GrpcStubBuilder implements ClientBuilder {
         final ClientFactoryBuilder builder = ClientFactory.builder();
         if (config.isSslConnection()) {
             builder
-                .tlsNoVerify()  // skip the verification of the server's certificate(for the host checker)
                 .useHttp2WithoutAlpn(true) // use HTTP/2 without ALPN(cilium not support for now)
                 .tlsCustomizer(ctx -> {
                     ctx.keyManager(new File(config.getSslCertChainFile()), new File(config.getSslPrivateKeyFile()));
                     ctx.trustManager(new File(config.getSslCaFile()));
+                    // Hubble's certificates name *.<cluster>.hubble-grpc.cilium.io, not the address the fetcher dials,
+                    // so verify the chain against the CA but not the host name.
+                    ctx.endpointIdentificationAlgorithm(null);
             });
         }
 
@@ -63,6 +65,9 @@ public class GrpcStubBuilder implements ClientBuilder {
 
         final URI url = new URI("gproto+" + proto, null, host, port, "/", null, null);
         return (T) clientFactory.newClient(ClientBuilderParams.of(url, stubClass, ClientOptions.of(
+            // Armeria builds a gRPC stub on the factory in its options, not the one newClient is called on;
+            // without this the stub uses the default factory and drops the TLS settings above.
+            ClientOptions.FACTORY.newValue(clientFactory),
             ClientOptions.RESPONSE_TIMEOUT_MILLIS.newValue(Long.MAX_VALUE), // For the cilium fetcher, we need to wait for the response(all the data from streaming)
             ClientOptions.MAX_RESPONSE_LENGTH.newValue(0L)  // For the cilium streaming fetcher, we should ignore the response length limit
         )));

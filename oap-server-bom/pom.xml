@@ -49,8 +49,10 @@
         <kubernetes.version>6.7.1</kubernetes.version>
         <hikaricp.version>3.1.0</hikaricp.version>
         <zipkin.version>2.24.1</zipkin.version>
-        <jackson.version>2.18.12</jackson.version>
-        <jackson-databind.version>2.18.12</jackson-databind.version>
+        <jackson.version>2.22.4</jackson.version>
+        <jackson-databind.version>2.22.4</jackson-databind.version>
+        <!-- jackson-annotations has no patch versions since 2.20. -->
+        <jackson-annotations.version>2.22</jackson-annotations.version>
         <simpleclient.version>0.6.0</simpleclient.version>
         <apollo.version>1.8.0</apollo.version>
         <nacos.version>2.3.2</nacos.version>
@@ -68,7 +70,7 @@
         <mariadb-java-client.version>3.5.11</mariadb-java-client.version>
         <jetcd.version>0.6.1</jetcd.version>
         <testcontainers.version>1.17.6</testcontainers.version>
-        <armeria.version>1.34.2</armeria.version>
+        <armeria.version>1.43.1</armeria.version>
         <awaitility.version>3.0.0</awaitility.version>
         <httpcore.version>4.4.16</httpcore.version>
         <httpasyncclient.version>4.1.5</httpasyncclient.version>
@@ -82,7 +84,7 @@
         <commons-net.version>3.9.0</commons-net.version>
         <maven-core.version>3.9.0</maven-core.version>
         <async-profiler-converter.version>3.0</async-profiler-converter.version>
-        <micrometer.version>1.16.8</micrometer.version>
+        <micrometer.version>1.17.2</micrometer.version>
     </properties>
 
     <dependencyManagement>
@@ -346,7 +348,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson-annotations.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -364,6 +366,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-guava</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <!-- Armeria pulls jackson-datatype-jsr310; keep it on the managed version. -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
             <!-- graphql-java-tools pulls jackson-module-kotlin newer than the managed jackson; keep it on the managed version. -->
