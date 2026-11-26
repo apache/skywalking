@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toMap;
@@ -57,13 +58,41 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
      * The attributes {@link #extractMetrics} reads, copied out of a Zipkin span's tag object.
      */
     private static final String[] GEN_AI_KEYS = {
+        GenAISemanticAttributes.OPERATION_NAME,
         GenAISemanticAttributes.RESPONSE_MODEL,
+        GenAISemanticAttributes.REQUEST_MODEL,
         GenAISemanticAttributes.PROVIDER_NAME,
         GenAISemanticAttributes.SYSTEM_NAME,
         GenAISemanticAttributes.USAGE_INPUT_TOKENS,
         GenAISemanticAttributes.USAGE_OUTPUT_TOKENS,
-        GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN
+        GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK
     };
+    /**
+     * The {@code gen_ai.operation.name} values of the OpenTelemetry GenAI conventions that describe no model call of
+     * their own. Their spans can repeat the model and the token usage of the model calls under them, or of a call
+     * made earlier, so counting them counts the same tokens twice. A name outside the conventions is not listed and
+     * stays counted, since an instrumentation may have made it up for a model call.
+     */
+    private static final Set<String> NON_MODEL_CALL_OPERATIONS = Set.of(
+        "fetch_response",
+        "create_agent",
+        "execute_tool",
+        "plan",
+        "retrieval",
+        "user_speech",
+        "search_memory",
+        "create_memory",
+        "update_memory",
+        "upsert_memory",
+        "delete_memory",
+        "create_memory_store",
+        "delete_memory_store"
+    );
+    /**
+     * {@code invoke_agent}, {@code invoke_workflow}, {@code invoke_runner} and the conventions' open
+     * {@code invoke_{framework_entrypoint}} pattern.
+     */
+    private static final String INVOKE_OPERATION_PREFIX = "invoke_";
 
     private final GenAIProviderPrefixMatcher matcher;
 
@@ -114,7 +143,8 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
 
-        metrics.setTimeToFirstToken(parseSafeInt(tags.get(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN)));
+        metrics.setTimeToFirstToken(
+            parseSecondsAsMillis(tags.get(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK)));
         metrics.setTotalEstimatedCost(totalCost);
 
         long latency = span.getEndTime() - span.getStartTime();
@@ -161,18 +191,30 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
      * @param latencyMillis   the span's duration in milliseconds
      * @param status          true when the span did not fail
      * @param startTimeMillis the span's start in milliseconds since the epoch
-     * @return null when the span carries no {@code gen_ai.response.model}
+     * @return null when the span names no model, or when its operation is not a model call
      */
     private GenAIMetrics extractMetrics(final Map<String, String> attributes,
                                         final long latencyMillis,
                                         final boolean status,
                                         final long startTimeMillis) {
-        if (StringUtil.isBlank(attributes.get(GenAISemanticAttributes.RESPONSE_MODEL))) {
+        final String operationName = attributes.get(GenAISemanticAttributes.OPERATION_NAME);
+        if (StringUtil.isNotBlank(operationName)
+            && (operationName.startsWith(INVOKE_OPERATION_PREFIX)
+            || NON_MODEL_CALL_OPERATIONS.contains(operationName))) {
+            return null;
+        }
+
+        // A call that failed before the provider answered has no response model; the requested one still names it.
+        String calledModel = attributes.get(GenAISemanticAttributes.RESPONSE_MODEL);
+        if (StringUtil.isBlank(calledModel)) {
+            calledModel = attributes.get(GenAISemanticAttributes.REQUEST_MODEL);
+        }
+        if (StringUtil.isBlank(calledModel)) {
             return null;
         }
 
         final Map<String, String> contextTags = new HashMap<>();
-        putAttribute(contextTags, attributes, GenAISemanticAttributes.RESPONSE_MODEL);
+        contextTags.put(GenAISemanticAttributes.RESPONSE_MODEL, calledModel);
         putAttribute(contextTags, attributes, GenAISemanticAttributes.PROVIDER_NAME);
         putAttribute(contextTags, attributes, GenAISemanticAttributes.SYSTEM_NAME);
         final GenAIContextResolver.Result resolvedContext = GenAIContextResolver.resolve(contextTags);
@@ -194,7 +236,8 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setModelName(modelName);
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
-        metrics.setTimeToFirstToken(parseSafeInt(attributes.get(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN)));
+        metrics.setTimeToFirstToken(
+            parseSecondsAsMillis(attributes.get(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK)));
         metrics.setTotalEstimatedCost(totalCost);
         metrics.setLatency(latencyMillis);
         metrics.setStatus(status);
@@ -237,16 +280,25 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         }
     }
 
-    private int parseSafeInt(String value) {
-        if (StringUtil.isEmpty(value)) {
+    /**
+     * @param seconds a number of seconds, as text
+     * @return the whole milliseconds nearest the value; 0 for no value, and 0 after a warning for a value that does
+     *         not parse, is negative or is more milliseconds than an int holds
+     */
+    private int parseSecondsAsMillis(final String seconds) {
+        if (StringUtil.isEmpty(seconds)) {
             return 0;
         }
         try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
-            log.warn("Failed to parse value to int: {}", value);
-            return 0;
+            final double millis = Double.parseDouble(seconds) * 1000;
+            if (millis >= 0 && millis <= Integer.MAX_VALUE) {
+                return (int) Math.round(millis);
+            }
+        } catch (NumberFormatException ignored) {
+            // warned below, with the values that parse and are out of range
         }
+        log.warn("Failed to parse value to seconds: {}", seconds);
+        return 0;
     }
 
     private String getZipkinSpanTagValue(JsonObject tags, String key) {

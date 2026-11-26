@@ -305,6 +305,7 @@ its page lists, and a module can add more, see [Extension points](#extension-poi
 | `isEmpty(list)` | whether the list is `null` or holds nothing |
 | `parseJsonObject(text)` | the text parsed as a JSON object, `null` for blank text; malformed or non-object text fails the rule. The getters that follow are Gson's, so their coercions and failures are Gson's |
 | `parseLongOrZero(text)`, `parseIntOrZero(text)` | `0` for `null` or empty text; the number; or `0` after the warning `Failed to parse value to long: {}` (`to int` for the second) under the script's logger, for text that does not parse |
+| `parseSecondsAsMillisOrZero(text)` | a number of seconds as the whole milliseconds nearest it, an `int`; `0` for `null` or empty text; or `0` after the warning `Failed to parse value to seconds: {}` under the script's logger, for text that does not parse, is negative or is more milliseconds than an `int` holds |
 | `murmur3Hash(text)` | the first 64 bits of the murmur3-128 hash of the text's UTF-8 bytes, as a `long` |
 | `floorMod(x, y)` | the floor modulus of two `long` values, never negative for a positive `y` |
 | `parseStatusCode(text)` | the text as an `Integer`, or `null` after logging, under the script's logger, the warning `span {} has illegal status code {}` with the span and the text |
