@@ -23,20 +23,4 @@ import org.apache.skywalking.oap.server.core.storage.query.proto.SpanWrapper;
 public interface BanyanDBTrace {
 
     SpanWrapper getSpanWrapper();
-
-    interface MergeTable {
-        String getMergeTableName();
-
-        String getMergeTraceIdColumnName();
-
-        String getTraceIdColumnValue();
-
-        String getMergeTimestampColumnName();
-
-        long getTimestampColumnValue();
-
-        String getMergeSpanIdColumnName();
-
-        String getSpanIdColumnValue();
-    }
 }

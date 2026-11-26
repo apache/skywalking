@@ -191,7 +191,7 @@ class IndexNamesTest {
                                final boolean superDataset,
                                final Class<?> streamClass) {
         return new Model(
-            name, Collections.emptyList(), 0, downSampling, superDataset, streamClass, true, false,
+            name, Collections.emptyList(), 0, downSampling, superDataset, streamClass, true,
             new SQLDatabaseModelExtension(), new BanyanDBModelExtension(), new ElasticSearchModelExtension()
         );
     }

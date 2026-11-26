@@ -57,7 +57,7 @@ public abstract class PercentFunction extends Meter implements AcceptableValue<B
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Measure.SeriesID(index = 0)
     private String entityId;
 
     /**
@@ -71,18 +71,18 @@ public abstract class PercentFunction extends Meter implements AcceptableValue<B
     @Getter
     @Setter
     @Column(name = TOTAL, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected long total;
     @Getter
     @Setter
     @Column(name = MATCH, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected long match;
     @Getter
     @Setter
     @ElasticSearch.EnableDocValues
     @Column(name = PERCENTAGE, dataType = Column.ValueDataType.COMMON_VALUE)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private int percentage;
 
     @Override

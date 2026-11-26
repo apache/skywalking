@@ -55,8 +55,8 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @ScopeDeclaration(id = DefaultScopeDefine.AI_AGENT_SESSION_DATA, name = "AIAgentSessionData")
 @Stream(name = AIAgentSessionDataRecord.INDEX_NAME, scopeId = DefaultScopeDefine.AI_AGENT_SESSION_DATA,
     builder = AIAgentSessionDataRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(AIAgentSessionDataRecord.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_AI_AGENT)
+@BanyanDB.Stream.TimestampColumn(AIAgentSessionDataRecord.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_AI_AGENT)
 public class AIAgentSessionDataRecord extends Record {
     public static final String INDEX_NAME = "ai_agent_session_data";
     public static final String SERVICE_ID = "service_id";
@@ -71,13 +71,13 @@ public class AIAgentSessionDataRecord extends Record {
     public static final int BODY_MAX_LENGTH = 16 * 1024 * 1024;
 
     @Column(name = SERVICE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String serviceId;
     @Column(name = SERVICE_INSTANCE_ID, length = 512)
-    @BanyanDB.SeriesID(index = 1)
+    @BanyanDB.Stream.SeriesID(index = 1)
     private String serviceInstanceId;
     @Column(name = SESSION, length = 256)
-    @BanyanDB.SeriesID(index = 2)
+    @BanyanDB.Stream.SeriesID(index = 2)
     private String session;
     @ElasticSearch.EnableDocValues
     @Column(name = SEQ)

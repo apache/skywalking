@@ -42,8 +42,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 @Setter
 @ScopeDeclaration(id = PROFILE_TASK_SEGMENT_SNAPSHOT, name = "ProfileThreadSnapshot")
 @Stream(name = ProfileThreadSnapshotRecord.INDEX_NAME, scopeId = PROFILE_TASK_SEGMENT_SNAPSHOT, builder = ProfileThreadSnapshotRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(ProfileThreadSnapshotRecord.DUMP_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(ProfileThreadSnapshotRecord.DUMP_TIME)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class ProfileThreadSnapshotRecord extends Record {
 
     public static final String INDEX_NAME = "profile_task_segment_snapshot";
@@ -60,7 +60,7 @@ public class ProfileThreadSnapshotRecord extends Record {
     @Column(name = SEGMENT_ID)
     @SQLDatabase.CompositeIndex(withColumns = {SEQUENCE})
     @SQLDatabase.CompositeIndex(withColumns = {DUMP_TIME})
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String segmentId;
     @ElasticSearch.EnableDocValues
     @Column(name = DUMP_TIME)

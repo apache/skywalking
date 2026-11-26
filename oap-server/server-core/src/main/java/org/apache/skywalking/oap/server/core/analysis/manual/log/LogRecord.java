@@ -33,10 +33,11 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUCKET;
 
 @SuperDataset
-@Stream(name = LogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.LOG, builder = LogRecord.Builder.class, processor = RecordStreamProcessor.class, allowBootReshape = true)
+@Stream(name = LogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.LOG, builder = LogRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.Stream.AllowBootReshape
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AbstractLogRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
-@BanyanDB.TimestampColumn(AbstractLogRecord.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_LOG)
+@BanyanDB.Stream.TimestampColumn(AbstractLogRecord.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_LOG)
 public class LogRecord extends AbstractLogRecord {
 
     public static final String INDEX_NAME = "log";

@@ -54,13 +54,13 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @SuperDataset
 @Stream(name = ZipkinSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ZIPKIN_SPAN, builder = ZipkinSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = ZipkinSpanRecord.ADDITIONAL_QUERY_TABLE, parentColumn = TIME_BUCKET)
-@BanyanDB.TimestampColumn(ZipkinSpanRecord.TIMESTAMP_MILLIS)
+@BanyanDB.Trace.TimestampColumn(ZipkinSpanRecord.TIMESTAMP_MILLIS)
 @BanyanDB.Trace.TraceIdColumn(ZipkinSpanRecord.TRACE_ID)
 @BanyanDB.Trace.SpanIdColumn(ZipkinSpanRecord.SPAN_ID)
 @BanyanDB.Trace.IndexRule(name = ZipkinSpanRecord.TIMESTAMP_MILLIS, columns = {
     ZipkinSpanRecord.LOCAL_ENDPOINT_SERVICE_NAME,
 }, orderByColumn = ZipkinSpanRecord.TIMESTAMP_MILLIS)
-@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.ZIPKIN_TRACE)
+@BanyanDB.Trace.Group(BanyanDB.TraceGroup.ZIPKIN_TRACE)
 public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
     private static final Gson GSON = new Gson();
     public static final int QUERY_LENGTH = 256;
@@ -123,7 +123,7 @@ public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
     @Setter
     @Getter
     @Column(name = TIMESTAMP)
-    @BanyanDB.NoIndexing
+    @BanyanDB.Trace.InSpanPayloadOnly
     private long timestamp;
     @Setter
     @Getter
@@ -175,7 +175,8 @@ public class ZipkinSpanRecord extends Record implements BanyanDBTrace {
     private int shared;
     @Setter
     @Getter
-    @Column(name = QUERY, indexOnly = true, length = QUERY_LENGTH)
+    @Column(name = QUERY, length = QUERY_LENGTH)
+    @ElasticSearch.IndexOnly
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_QUERY_TABLE})
     private List<String> query;
 

@@ -41,17 +41,17 @@ public abstract class LabelAvgMetrics extends Metrics implements LabeledValueHol
     @Getter
     @Setter
     @Column(name = SUMMATION, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected DataTable summation;
     @Getter
     @Setter
     @Column(name = COUNT, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected DataTable count;
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private DataTable value;
 
     private boolean isCalculated;

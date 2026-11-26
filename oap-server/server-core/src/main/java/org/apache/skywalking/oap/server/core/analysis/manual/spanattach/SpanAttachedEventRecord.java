@@ -44,11 +44,11 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SP
 @Getter
 @ScopeDeclaration(id = SPAN_ATTACHED_EVENT, name = "SpanAttachedEvent")
 @Stream(name = SpanAttachedEventRecord.INDEX_NAME, scopeId = SPAN_ATTACHED_EVENT, builder = SpanAttachedEventRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(SpanAttachedEventRecord.TIMESTAMP)
+@BanyanDB.Trace.TimestampColumn(SpanAttachedEventRecord.TIMESTAMP)
 @BanyanDB.Trace.TraceIdColumn(SpanAttachedEventRecord.RELATED_TRACE_ID)
 @BanyanDB.Trace.SpanIdColumn(StorageData.ID)
-@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.ZIPKIN_TRACE)
-public class SpanAttachedEventRecord extends Record implements BanyanDBTrace, BanyanDBTrace.MergeTable {
+@BanyanDB.Trace.StoreAsAttachmentOf(ZipkinSpanRecord.class)
+public class SpanAttachedEventRecord extends Record implements BanyanDBTrace {
 
     public static final String INDEX_NAME = "span_attached_event_record";
     public static final String START_TIME_SECOND = "start_time_second";
@@ -108,41 +108,6 @@ public class SpanAttachedEventRecord extends Record implements BanyanDBTrace, Ba
         builder.setSpan(ByteString.copyFrom(dataBinary));
         builder.setSource(Source.ZIPKIN_EVENT);
         return builder.build();
-    }
-
-    @Override
-    public String getMergeTableName() {
-        return ZipkinSpanRecord.INDEX_NAME;
-    }
-
-    @Override
-    public String getMergeTraceIdColumnName() {
-        return ZipkinSpanRecord.TRACE_ID;
-    }
-
-    @Override
-    public String getTraceIdColumnValue() {
-        return relatedTraceId;
-    }
-
-    @Override
-    public String getMergeTimestampColumnName() {
-        return ZipkinSpanRecord.TIMESTAMP_MILLIS;
-    }
-
-    @Override
-    public long getTimestampColumnValue() {
-        return timestamp;
-    }
-
-    @Override
-    public String getMergeSpanIdColumnName() {
-        return ZipkinSpanRecord.SPAN_ID;
-    }
-
-    @Override
-    public String getSpanIdColumnValue() {
-        return id().build();
     }
 
     public static class Builder implements StorageBuilder<SpanAttachedEventRecord> {

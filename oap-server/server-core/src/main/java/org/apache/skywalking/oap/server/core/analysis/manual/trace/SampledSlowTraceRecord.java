@@ -40,8 +40,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SA
 @Getter
 @ScopeDeclaration(id = SAMPLED_SLOW_TRACE, name = "SampledTraceSlowRecord", catalog = PROCESS_RELATION_CATALOG_NAME)
 @Stream(name = SampledSlowTraceRecord.INDEX_NAME, scopeId = SAMPLED_SLOW_TRACE, builder = SampledSlowTraceRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(SampledSlowTraceRecord.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(SampledSlowTraceRecord.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class SampledSlowTraceRecord extends Record {
 
     public static final String INDEX_NAME = "sampled_slow_trace_record";
@@ -56,14 +56,14 @@ public class SampledSlowTraceRecord extends Record {
     private int scope;
     @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String entityId;
     @Column(name = TRACE_ID, storageOnly = true)
     private String traceId;
     @Column(name = URI, storageOnly = true)
     private String uri;
     @ElasticSearch.EnableDocValues
-    @BanyanDB.EnableSort
+    @BanyanDB.Stream.EnableSort
     @Column(name = LATENCY, dataType = Column.ValueDataType.SAMPLED_RECORD)
     private long latency;
     @Setter

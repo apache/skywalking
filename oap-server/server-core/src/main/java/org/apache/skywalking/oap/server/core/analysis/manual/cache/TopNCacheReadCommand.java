@@ -36,8 +36,8 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
  */
 @Stream(name = TopNCacheReadCommand.INDEX_NAME, scopeId = DefaultScopeDefine.CACHE_SLOW_ACCESS, builder = TopNCacheReadCommand.Builder.class, processor = TopNStreamProcessor.class)
-@BanyanDB.TimestampColumn(TopN.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(TopN.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class TopNCacheReadCommand extends TopN {
     public static final String INDEX_NAME = "top_n_cache_read_command";
 

@@ -39,18 +39,18 @@ public abstract class LongAvgMetrics extends Metrics implements LongValueHolder 
     @Getter
     @Setter
     @Column(name = SUMMATION, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected long summation;
     @Getter
     @Setter
     @Column(name = COUNT, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected long count;
     @Getter
     @Setter
     @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private long value;
 
     @Entrance

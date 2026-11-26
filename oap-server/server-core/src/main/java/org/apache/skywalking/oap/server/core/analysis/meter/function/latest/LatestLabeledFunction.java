@@ -53,7 +53,7 @@ public abstract class LatestLabeledFunction extends Meter implements AcceptableV
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Measure.SeriesID(index = 0)
     private String entityId;
 
     /**
@@ -67,7 +67,7 @@ public abstract class LatestLabeledFunction extends Meter implements AcceptableV
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private DataTable value = new DataTable(30);
 
     @Override

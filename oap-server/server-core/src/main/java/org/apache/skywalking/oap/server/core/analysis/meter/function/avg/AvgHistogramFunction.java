@@ -63,24 +63,24 @@ public abstract class AvgHistogramFunction extends Meter implements AcceptableVa
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Measure.SeriesID(index = 0)
     private String entityId;
     @Getter
     @Setter
     @Column(name = SUMMATION, storageOnly = true)
     @ElasticSearch.Column(legacyName = "summation")
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected DataTable summation = new DataTable(30);
     @Getter
     @Setter
     @Column(name = COUNT, storageOnly = true)
     @ElasticSearch.Column(legacyName = "count")
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected DataTable count = new DataTable(30);
     @Getter
     @Setter
     @Column(name = DATASET, dataType = Column.ValueDataType.HISTOGRAM, storageOnly = true, defaultValue = 0)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private DataTable dataset = new DataTable(30);
 
     @Override

@@ -379,7 +379,7 @@ public class StorageEsInstaller extends ModelInstaller {
             }
             properties.put(columnName, columnProperties);
 
-            if (columnDefine.isIndexOnly()) {
+            if (elasticSearchExtension.isIndexOnly()) {
                 source.getExcludes().add(columnName);
             }
         }

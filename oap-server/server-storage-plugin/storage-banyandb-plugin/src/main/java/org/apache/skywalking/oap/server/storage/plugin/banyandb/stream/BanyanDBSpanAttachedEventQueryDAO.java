@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The events are spans of the trace they attach to, in the {@code segment} or {@code zipkin_span} trace, where
- * {@code BanyanDBTrace.MergeTable} writes them: no stream of their own exists, and their spans carry only the event
+ * {@code @BanyanDB.Trace.StoreAsAttachmentOf} writes them: no stream of their own exists, and their spans carry only the event
  * itself, from which the record is rebuilt.
  */
 public class BanyanDBSpanAttachedEventQueryDAO extends AbstractBanyanDBDAO implements ISpanAttachedEventQueryDAO {

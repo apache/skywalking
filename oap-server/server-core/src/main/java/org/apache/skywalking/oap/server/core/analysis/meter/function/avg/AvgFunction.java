@@ -52,7 +52,7 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Measure.SeriesID(index = 0)
     private String entityId;
 
     /**
@@ -66,18 +66,18 @@ public abstract class AvgFunction extends Meter implements AcceptableValue<Long>
     @Getter
     @Setter
     @Column(name = SUMMATION, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected long summation;
     @Getter
     @Setter
     @Column(name = COUNT, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected long count;
     @Getter
     @Setter
     @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private long value;
 
     @Override

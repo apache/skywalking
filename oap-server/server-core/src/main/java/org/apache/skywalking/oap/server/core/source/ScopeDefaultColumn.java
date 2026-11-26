@@ -82,7 +82,7 @@ public class ScopeDefaultColumn {
     public @interface BanyanDB {
         /**
          * ShardingKey is used to group time series data per metric in one place. Optional. Only support Measure Tag.
-         * If ShardingKey is not set, the default ShardingKey is based on the combination of 'name' and 'entity' according to the {@link org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB.SeriesID}.
+         * If ShardingKey is not set, the default ShardingKey is based on the combination of 'name' and 'entity' according to the {@link org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB.Measure.SeriesID}.
          * <p>
          * The typical scenario to specify the ShardingKey to the Group tag when the metric generate a TopNAggregation:
          * If not set, the default data distribution based on the combination of 'name' and 'entity', can lead to performance issues when calculating the 'TopNAggregation'.

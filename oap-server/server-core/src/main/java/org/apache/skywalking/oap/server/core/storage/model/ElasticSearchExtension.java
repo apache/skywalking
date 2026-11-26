@@ -44,6 +44,11 @@ public class ElasticSearchExtension {
 
     private final boolean isDocValuesEnabled;
 
+    /**
+     * The column is indexed only, never stored in `_source`. See {@link ElasticSearch.IndexOnly}.
+     */
+    private final boolean isIndexOnly;
+
     public boolean needMatchQuery() {
         return analyzer != null;
     }

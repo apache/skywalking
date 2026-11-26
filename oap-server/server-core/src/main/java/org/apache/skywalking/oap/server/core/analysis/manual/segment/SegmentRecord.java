@@ -46,7 +46,7 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @SuperDataset
 @Stream(name = SegmentRecord.INDEX_NAME, scopeId = DefaultScopeDefine.SEGMENT, builder = SegmentRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = SegmentRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
-@BanyanDB.TimestampColumn(SegmentRecord.START_TIME)
+@BanyanDB.Trace.TimestampColumn(SegmentRecord.START_TIME)
 @BanyanDB.Trace.TraceIdColumn(SegmentRecord.TRACE_ID)
 @BanyanDB.Trace.SpanIdColumn(SegmentRecord.SEGMENT_ID)
 @BanyanDB.Trace.IndexRule(name = SegmentRecord.START_TIME, columns = {
@@ -57,7 +57,7 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
         SegmentRecord.SERVICE_ID,
         SegmentRecord.IS_ERROR,
 }, orderByColumn = SegmentRecord.LATENCY)
-@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.TRACE)
+@BanyanDB.Trace.Group(BanyanDB.TraceGroup.TRACE)
 public class SegmentRecord extends Record implements BanyanDBTrace {
 
     public static final String INDEX_NAME = "segment";
@@ -103,7 +103,6 @@ public class SegmentRecord extends Record implements BanyanDBTrace {
     @Setter
     @Getter
     @ElasticSearch.EnableDocValues
-    @BanyanDB.EnableSort
     @Column(name = LATENCY)
     private int latency;
     @Setter
@@ -116,7 +115,8 @@ public class SegmentRecord extends Record implements BanyanDBTrace {
     private byte[] dataBinary;
     @Setter
     @Getter
-    @Column(name = TAGS, indexOnly = true, length = Tag.TAG_LENGTH)
+    @Column(name = TAGS, length = Tag.TAG_LENGTH)
+    @ElasticSearch.IndexOnly
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tags;
 
