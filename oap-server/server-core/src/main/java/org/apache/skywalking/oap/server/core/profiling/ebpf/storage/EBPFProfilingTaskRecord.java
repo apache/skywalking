@@ -42,8 +42,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 @ScopeDeclaration(id = EBPF_PROFILING_TASK, name = "EBPFProfilingTask")
 @Stream(name = EBPFProfilingTaskRecord.INDEX_NAME, scopeId = EBPF_PROFILING_TASK,
     builder = EBPFProfilingTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
-@BanyanDB.TimestampColumn(EBPFProfilingTaskRecord.CREATE_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(EBPFProfilingTaskRecord.CREATE_TIME)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class EBPFProfilingTaskRecord extends NoneStream {
     public static final String INDEX_NAME = "ebpf_profiling_task";
     public static final String LOGICAL_ID = "logical_id";
@@ -66,7 +66,7 @@ public class EBPFProfilingTaskRecord extends NoneStream {
     @Column(name = LOGICAL_ID)
     private String logicalId;
     @Column(name = SERVICE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String serviceId;
     @Column(name = PROCESS_LABELS_JSON, length = PROCESS_LABELS_JSON_MAX_LENGTH)
     private String processLabelsJson;

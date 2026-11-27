@@ -259,7 +259,7 @@ public class OALClassGeneratorV2 {
 
                 if (field.isID()) {
                     // Add SeriesID annotation
-                    Annotation banyanSeriesIDAnnotation = new Annotation(BanyanDB.SeriesID.class.getName(), constPool);
+                    Annotation banyanSeriesIDAnnotation = new Annotation(BanyanDB.Measure.SeriesID.class.getName(), constPool);
                     banyanSeriesIDAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, 0));
                     annotationsAttribute.addAnnotation(banyanSeriesIDAnnotation);
 
@@ -269,7 +269,7 @@ public class OALClassGeneratorV2 {
                 }
 
                 if (field.isShardingKey()) {
-                    Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.ShardingKey.class.getName(), constPool);
+                    Annotation banyanShardingKeyAnnotation = new Annotation(BanyanDB.Measure.ShardingKey.class.getName(), constPool);
                     banyanShardingKeyAnnotation.addMemberValue("index", new IntegerMemberValue(constPool, field.getShardingKeyIdx()));
                     annotationsAttribute.addAnnotation(banyanShardingKeyAnnotation);
                 }

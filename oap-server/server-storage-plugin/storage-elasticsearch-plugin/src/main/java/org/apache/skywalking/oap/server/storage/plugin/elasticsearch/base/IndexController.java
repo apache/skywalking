@@ -263,7 +263,7 @@ public enum IndexController {
          * Check the columns conflicts when they in one physical index
          */
         private static void checkModelColumnConflicts(ModelColumn mc1, ModelColumn mc2, String physicalName) {
-            if (!(mc1.isIndexOnly() == mc2.isIndexOnly())) {
+            if (!(mc1.getElasticSearchExtension().isIndexOnly() == mc2.getElasticSearchExtension().isIndexOnly())) {
                 throw new IllegalArgumentException(mc1.getColumnName() + " and " + mc2.getColumnName() + " isIndexOnly conflict in index: " + physicalName);
             }
             if (!(mc1.isStorageOnly() == mc2.isStorageOnly())) {

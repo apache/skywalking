@@ -42,10 +42,11 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
 @Getter
 @Setter
 @ScopeDeclaration(id = ALARM, name = "Alarm")
-@Stream(name = AlarmRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM, builder = AlarmRecord.Builder.class, processor = RecordStreamProcessor.class, allowBootReshape = true)
+@Stream(name = AlarmRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM, builder = AlarmRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.Stream.AllowBootReshape
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AlarmRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
-@BanyanDB.TimestampColumn(AlarmRecord.START_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(AlarmRecord.START_TIME)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class AlarmRecord extends Record {
     public static final String INDEX_NAME = "alarm_record";
     public static final String ADDITIONAL_TAG_TABLE = "alarm_record_tag";
@@ -79,7 +80,7 @@ public class AlarmRecord extends Record {
     // (id1) IDs. Indexed (storageOnly removed in 11.0.0) so `queryAlarms` can
     // filter alarms by serviceId / instanceId / endpointId / relation ends.
     @Column(name = ID0, length = 512)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String id0;
     @Column(name = ID1)
     private String id1;
@@ -88,11 +89,12 @@ public class AlarmRecord extends Record {
     private long startTime;
     @Column(name = ALARM_MESSAGE, length = 512)
     @ElasticSearch.MatchQuery
-    @BanyanDB.MatchQuery(analyzer = BanyanDB.MatchQuery.AnalyzerType.SIMPLE)
+    @BanyanDB.Stream.MatchQuery(analyzer = BanyanDB.AnalyzerType.SIMPLE)
     private String alarmMessage;
     @Column(name = RULE_NAME)
     private String ruleName;
-    @Column(name = TAGS, indexOnly = true)
+    @Column(name = TAGS)
+    @ElasticSearch.IndexOnly
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
     @Column(name = TAGS_RAW_DATA, storageOnly = true, length = Tag.TAG_LENGTH)

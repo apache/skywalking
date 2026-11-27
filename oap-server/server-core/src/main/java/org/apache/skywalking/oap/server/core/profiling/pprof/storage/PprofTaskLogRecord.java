@@ -38,8 +38,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PP
 @Setter
 @ScopeDeclaration(id = PPROF_TASK_LOG, name = "PprofTaskLog")
 @Stream(name = PprofTaskLogRecord.INDEX_NAME, scopeId = PPROF_TASK_LOG, builder = PprofTaskLogRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(PprofTaskLogRecord.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(PprofTaskLogRecord.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class PprofTaskLogRecord extends Record {
     public static final String INDEX_NAME = "pprof_task_log";
     public static final String TASK_ID = "task_id";
@@ -51,7 +51,7 @@ public class PprofTaskLogRecord extends Record {
     @Column(name = TASK_ID)
     private String taskId;
     @Column(name = INSTANCE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String instanceId;
     @Column(name = OPERATION_TYPE, storageOnly = true)
     private int operationType;

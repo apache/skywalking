@@ -53,7 +53,6 @@ import org.apache.skywalking.library.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.oap.server.core.CoreModule;
 import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
-import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
@@ -190,7 +189,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             final ResourceExist resourceExist = checkResourceExistence(metadata, c, opt);
             installInfo.setGroupExist(resourceExist.isHasGroup());
             installInfo.setTableExist(resourceExist.isHasResource());
-            if (!resourceExist.isHasResource() && !BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
+            if (!resourceExist.isHasResource() && model.getBanyanDBModelExtension().getAttachmentTarget() == null) {
                 installInfo.setAllExist(false);
                 return installInfo;
             } else {
@@ -207,7 +206,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         if (BanyanDB.TraceGroup.NONE != model.getBanyanDBModelExtension().getTraceGroup()) {
                             // trace
                             TraceModel traceModel = MetadataRegistry.INSTANCE.registerTraceModel(model, config);
-                            if (BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
+                            if (model.getBanyanDBModelExtension().getAttachmentTarget() != null) {
                                 installInfo.setAllExist(true);
                                 return installInfo;
                             }
@@ -378,7 +377,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 if (model.isRecord()) {
                     if (BanyanDB.TraceGroup.NONE != model.getBanyanDBModelExtension().getTraceGroup()) {
                         TraceModel traceModel = MetadataRegistry.INSTANCE.registerTraceModel(model, config);
-                        if (BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
+                        if (model.getBanyanDBModelExtension().getAttachmentTarget() != null) {
                             return;
                         }
                         // trace
@@ -1003,15 +1002,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      * either update it (on-demand operator workflow — {@link StorageManipulationOpt#isWithSchemaChange()})
      * or skip the update and record {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}
      * (static boot workflow — {@link StorageManipulationOpt#isSchemaCreateIfAbsent()}). Boot MUST
-     * NOT reshape the backend by default — reshape is an explicit operator action.
-     *
-     * <p>Exception: when the model opts in via {@link Model#isAllowBootReshape()} and the diff
-     * is purely additive (new tag / new field, or tag relocation between families via a
-     * {@code storageOnly} toggle; no type changes, no drops, identity preserved), the init OAP
-     * is allowed to apply the additive update during boot. Non-init OAPs continue through the
-     * poll-and-wait loop in
-     * {@link org.apache.skywalking.oap.server.core.storage.model.ModelInstaller#whenCreating}
-     * so only one node races on the DDL.
+     * NOT reshape a measure — reshape is an explicit operator action.
      *
      * @return {@code true} when the live measure is now aligned with the declared shape
      *         (either it already matched, or the installer successfully applied an update);
@@ -1034,15 +1025,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                        .equals(measure.toBuilder().clearMetadata().build());
             if (!equals) {
                 if (!opt.getFlags().isUpdateOnMismatch()) {
-                    if (canBootReshape(model, opt) && isPurelyAdditiveMeasure(measure, hisMeasure)) {
-                        opt.recordModRevision(client.update(measure));
-                        log.info("boot reshape (additive) Measure: {} — applied @Stream(allowBootReshape=true). backend={}, declared={}",
-                            hisMeasure.getMetadata().getName(), hisMeasure, measure);
-                        opt.recordOutcome("measure", hisMeasure.getMetadata().getName(),
-                            StorageManipulationOpt.Outcome.UPDATED,
-                            "additive boot reshape: new tag / field added or tag relocated between families");
-                        return true;
-                    }
                     log.error("BanyanDB measure {} shape mismatch at boot — backend holds a "
                         + "different shape than the declared rule. SKIPPING metric; operator "
                         + "must reshape via POST /runtime/rule/addOrUpdate or align the rule "
@@ -1063,8 +1045,8 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
 
     /**
      * Check if the stream exists and update (or record shape mismatch) per mode. See
-     * {@link #checkMeasure} for the create-if-absent vs full-install contract, including the
-     * {@link Model#isAllowBootReshape()} additive opt-in.
+     * {@link #checkMeasure} for the create-if-absent vs full-install contract, and
+     * {@link #canBootReshape} for the {@link BanyanDB.Stream.AllowBootReshape} additive opt-in.
      *
      * @return {@code true} when the live stream is now aligned with the declared shape
      *         (already matched or successfully updated); {@code false} when the installer
@@ -1087,7 +1069,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 if (!opt.getFlags().isUpdateOnMismatch()) {
                     if (canBootReshape(model, opt) && isPurelyAdditiveStream(stream, hisStream)) {
                         opt.recordModRevision(client.update(stream));
-                        log.info("boot reshape (additive) Stream: {} — applied @Stream(allowBootReshape=true). backend={}, declared={}",
+                        log.info("boot reshape (additive) Stream: {} — applied @BanyanDB.Stream.AllowBootReshape. backend={}, declared={}",
                             hisStream.getMetadata().getName(), hisStream, stream);
                         opt.recordOutcome("stream", hisStream.getMetadata().getName(),
                             StorageManipulationOpt.Outcome.UPDATED,
@@ -1113,7 +1095,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     /**
      * Gate for boot-time reshape: three conditions, all required.
      * <ul>
-     *   <li>The model opts in via {@link Model#isAllowBootReshape()}.</li>
+     *   <li>The stream opts in via {@link BanyanDB.Stream.AllowBootReshape}.</li>
      *   <li>The opt is the static-boot policy ({@link StorageManipulationOpt#isSchemaCreateIfAbsent()}).
      *       Restricting the reshape branch to this single mode keeps the policy boundary
      *       explicit — {@code verifySchemaOnly()} must stay read-only even if a future
@@ -1125,7 +1107,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      * </ul>
      */
     private boolean canBootReshape(Model model, StorageManipulationOpt opt) {
-        return model.isAllowBootReshape()
+        return model.getBanyanDBModelExtension().isAllowBootReshape()
             && opt.isSchemaCreateIfAbsent()
             && !RunningMode.isNoInitMode();
     }
@@ -1182,44 +1164,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     }
 
     /**
-     * Purely-additive diff for a BanyanDB {@link Measure}: same tag-family and entity rules as
-     * {@link #isPurelyAdditiveStream}, plus fields may be added but no field name / type /
-     * encoding / compression may change, and the scalar properties (interval, index_mode,
-     * sharding_key) must match exactly.
-     */
-    private boolean isPurelyAdditiveMeasure(Measure declared, Measure live) {
-        if (!declared.getEntity().equals(live.getEntity())) {
-            return false;
-        }
-        if (!declared.getInterval().equals(live.getInterval())) {
-            return false;
-        }
-        if (declared.getIndexMode() != live.getIndexMode()) {
-            return false;
-        }
-        if (!declared.getShardingKey().equals(live.getShardingKey())) {
-            return false;
-        }
-        if (!isPurelyAdditiveTagFamilies(declared.getTagFamiliesList(), live.getTagFamiliesList())) {
-            return false;
-        }
-        final Map<String, BanyandbDatabase.FieldSpec> declaredFields = declared.getFieldsList().stream()
-            .collect(Collectors.toMap(BanyandbDatabase.FieldSpec::getName, f -> f, (a, b) -> a));
-        for (BanyandbDatabase.FieldSpec liveField : live.getFieldsList()) {
-            BanyandbDatabase.FieldSpec declaredField = declaredFields.get(liveField.getName());
-            if (declaredField == null) {
-                return false;
-            }
-            if (!declaredField.equals(liveField)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Tag-family compatibility check used by {@link #isPurelyAdditiveStream} /
-     * {@link #isPurelyAdditiveMeasure}. The check is name+type oriented, not family-position
+     * Tag-family compatibility check used by {@link #isPurelyAdditiveStream}. The check is name+type oriented, not family-position
      * oriented — a tag may move between families (e.g. a {@code @Column} flips from
      * {@code storageOnly = true} → {@code false}, which relocates it from the
      * {@code storage-only} family to {@code searchable}) and is still considered safe to

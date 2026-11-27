@@ -162,7 +162,7 @@ public abstract class Metrics extends StreamData implements StorageData, ToJson 
      * @return {@link StorageID} of this metrics to represent the unique identity in storage.
      * This ID doesn't have to match the physical storage primary key.
      * The storage could pick another way to indicate the unique identity, such as BanyanDB is using
-     * {@link BanyanDB.SeriesID}
+     * {@link BanyanDB.Measure.SeriesID}
      */
     protected abstract StorageID id0();
 

@@ -34,8 +34,8 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 
 @SuperDataset
 @Stream(name = BrowserErrorLogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.BROWSER_ERROR_LOG, builder = BrowserErrorLogRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(BrowserErrorLogRecord.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_BROWSER_ERROR_LOG)
+@BanyanDB.Stream.TimestampColumn(BrowserErrorLogRecord.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_BROWSER_ERROR_LOG)
 public class BrowserErrorLogRecord extends Record {
     public static final String INDEX_NAME = "browser_error_log";
     public static final String UNIQUE_ID = "unique_id";
@@ -59,7 +59,7 @@ public class BrowserErrorLogRecord extends Record {
     @Setter
     @Getter
     @Column(name = SERVICE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String serviceId;
 
     @Setter

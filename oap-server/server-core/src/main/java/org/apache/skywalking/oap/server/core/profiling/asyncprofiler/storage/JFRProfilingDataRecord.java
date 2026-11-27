@@ -39,8 +39,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.JF
 @Data
 @Stream(name = JFRProfilingDataRecord.INDEX_NAME, scopeId = JFR_PROFILING_DATA,
         builder = JFRProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(JFRProfilingDataRecord.UPLOAD_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(JFRProfilingDataRecord.UPLOAD_TIME)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class JFRProfilingDataRecord extends Record {
     public static final String INDEX_NAME = "jfr_profiling_data";
 
@@ -54,7 +54,7 @@ public class JFRProfilingDataRecord extends Record {
     private String taskId;
 
     @Column(name = INSTANCE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String instanceId;
 
     /**

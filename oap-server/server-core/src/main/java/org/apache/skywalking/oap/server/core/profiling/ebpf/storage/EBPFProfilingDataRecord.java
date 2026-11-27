@@ -39,8 +39,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EB
 @Data
 @Stream(name = EBPFProfilingDataRecord.INDEX_NAME, scopeId = EBPF_PROFILING_DATA,
     builder = EBPFProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(EBPFProfilingDataRecord.UPLOAD_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(EBPFProfilingDataRecord.UPLOAD_TIME)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class EBPFProfilingDataRecord extends Record {
 
     public static final String INDEX_NAME = "ebpf_profiling_data";
@@ -53,7 +53,7 @@ public class EBPFProfilingDataRecord extends Record {
 
     @Column(name = TASK_ID)
     private String taskId;
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     @Column(name = SCHEDULE_ID)
     private String scheduleId;
     @Column(name = STACK_ID_LIST)

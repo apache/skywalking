@@ -52,9 +52,10 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @SuperDataset
 @ScopeDeclaration(id = DefaultScopeDefine.AI_AGENT_SESSION_FLOW, name = "AIAgentSessionFlow")
 @Stream(name = AIAgentSessionFlowRecord.INDEX_NAME, scopeId = DefaultScopeDefine.AI_AGENT_SESSION_FLOW,
-    builder = AIAgentSessionFlowRecord.Builder.class, processor = RecordStreamProcessor.class, allowBootReshape = true)
-@BanyanDB.TimestampColumn(AIAgentSessionFlowRecord.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS_AI_AGENT)
+    builder = AIAgentSessionFlowRecord.Builder.class, processor = RecordStreamProcessor.class)
+@BanyanDB.Stream.AllowBootReshape
+@BanyanDB.Stream.TimestampColumn(AIAgentSessionFlowRecord.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_AI_AGENT)
 public class AIAgentSessionFlowRecord extends Record {
     public static final String INDEX_NAME = "ai_agent_session_flow";
     public static final String SERVICE_ID = "service_id";
@@ -83,16 +84,16 @@ public class AIAgentSessionFlowRecord extends Record {
     public static final int BODY_MAX_LENGTH = 16 * 1024 * 1024;
 
     @Column(name = SERVICE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String serviceId;
     @Column(name = SERVICE_INSTANCE_ID, length = 512)
-    @BanyanDB.SeriesID(index = 1)
+    @BanyanDB.Stream.SeriesID(index = 1)
     private String serviceInstanceId;
     @Column(name = CONVERSATION, length = 256)
     private String conversation;
     /** Sortable, so the head of a chain is one read of the highest round rather than a page of rows. */
     @ElasticSearch.EnableDocValues
-    @BanyanDB.EnableSort
+    @BanyanDB.Stream.EnableSort
     @Column(name = ROUND)
     private long round;
     @Column(name = SESSION_FROM_TIME, storageOnly = true)

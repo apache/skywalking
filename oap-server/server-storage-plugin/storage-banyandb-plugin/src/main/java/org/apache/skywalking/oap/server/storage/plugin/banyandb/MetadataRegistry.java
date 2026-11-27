@@ -54,7 +54,6 @@ import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.analysis.Layer;
 import org.apache.skywalking.oap.server.core.analysis.metrics.IntList;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
-import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.query.enumeration.Step;
@@ -168,7 +167,7 @@ public enum MetadataRegistry {
         String timestampColumn4Stream = model.getBanyanDBModelExtension().getTimestampColumn();
         if (StringUtil.isBlank(timestampColumn4Stream)) {
             throw new IllegalStateException(
-                    "Model[stream." + model.getName() + "] miss defined @BanyanDB.TimestampColumn");
+                    "Model[stream." + model.getName() + "] miss defined @BanyanDB.Stream.TimestampColumn");
         }
         schemaBuilder.timestampColumn(timestampColumn4Stream);
         List<IndexRule> indexRules = tags.stream()
@@ -302,7 +301,7 @@ public enum MetadataRegistry {
 
         List<TraceIndexRule> traceIndexRules = model.getBanyanDBModelExtension().getTraceIndexRules();
         List<IndexRule> indexRules = null;
-        if (!BanyanDBTrace.MergeTable.class.isAssignableFrom(model.getStreamClass())) {
+        if (model.getBanyanDBModelExtension().getAttachmentTarget() == null) {
             if (CollectionUtils.isEmpty(traceIndexRules)) {
                 throw new IllegalStateException(
                     "Model[trace." + model.getName() + "] miss defined @BanyanDB.Trace.IndexRuleColumns");
@@ -595,8 +594,8 @@ public enum MetadataRegistry {
     IndexRule indexRule(String group,
                         String tagName,
                         boolean enableSort,
-                        BanyanDB.MatchQuery.AnalyzerType analyzer,
-                        BanyanDB.IndexRule.IndexType type) {
+                        BanyanDB.AnalyzerType analyzer,
+                        BanyanDB.Stream.IndexRule.IndexType type) {
         IndexRule.Builder builder = IndexRule.newBuilder()
                                              .setMetadata(Metadata.newBuilder().setName(tagName).setGroup(group))
                                              .addTags(tagName);

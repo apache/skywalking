@@ -44,11 +44,11 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.SW
 @Getter
 @ScopeDeclaration(id = SW_SPAN_ATTACHED_EVENT, name = "SWSpanAttachedEvent")
 @Stream(name = SWSpanAttachedEventRecord.INDEX_NAME, scopeId = SW_SPAN_ATTACHED_EVENT, builder = SWSpanAttachedEventRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(SWSpanAttachedEventRecord.TIMESTAMP)
+@BanyanDB.Trace.TimestampColumn(SWSpanAttachedEventRecord.TIMESTAMP)
 @BanyanDB.Trace.TraceIdColumn(SWSpanAttachedEventRecord.RELATED_TRACE_ID)
 @BanyanDB.Trace.SpanIdColumn(StorageData.ID)
-@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.TRACE)
-public class SWSpanAttachedEventRecord extends Record implements BanyanDBTrace, BanyanDBTrace.MergeTable {
+@BanyanDB.Trace.StoreAsAttachmentOf(SegmentRecord.class)
+public class SWSpanAttachedEventRecord extends Record implements BanyanDBTrace {
 
     public static final String INDEX_NAME = "sw_span_attached_event_record";
     public static final String START_TIME_SECOND = "start_time_second";
@@ -108,43 +108,6 @@ public class SWSpanAttachedEventRecord extends Record implements BanyanDBTrace, 
         builder.setSpan(ByteString.copyFrom(dataBinary));
         builder.setSource(Source.SKYWALKING_EVENT);
         return builder.build();
-    }
-
-    // In BanyanDB, attached event share the same table with segment.
-    // So the table name is SegmentRecord.INDEX_NAME
-    @Override
-    public String getMergeTableName() {
-        return SegmentRecord.INDEX_NAME;
-    }
-
-    @Override
-    public String getMergeTraceIdColumnName() {
-        return SegmentRecord.TRACE_ID;
-    }
-
-    @Override
-    public String getTraceIdColumnValue() {
-        return relatedTraceId;
-    }
-
-    @Override
-    public String getMergeTimestampColumnName() {
-        return SegmentRecord.START_TIME;
-    }
-
-    @Override
-    public long getTimestampColumnValue() {
-        return timestamp;
-    }
-
-    @Override
-    public String getMergeSpanIdColumnName() {
-        return SegmentRecord.SEGMENT_ID;
-    }
-
-    @Override
-    public String getSpanIdColumnValue() {
-        return id().build();
     }
 
     public static class Builder implements StorageBuilder<SWSpanAttachedEventRecord> {

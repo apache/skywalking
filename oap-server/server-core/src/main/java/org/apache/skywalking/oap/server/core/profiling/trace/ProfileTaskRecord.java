@@ -41,8 +41,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PR
 @Setter
 @ScopeDeclaration(id = PROFILE_TASK, name = "ProfileTask")
 @Stream(name = ProfileTaskRecord.INDEX_NAME, scopeId = PROFILE_TASK, builder = ProfileTaskRecord.Builder.class, processor = NoneStreamProcessor.class)
-@BanyanDB.TimestampColumn(ProfileTaskRecord.START_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(ProfileTaskRecord.START_TIME)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class ProfileTaskRecord extends NoneStream {
 
     public static final String INDEX_NAME = "profile_task";
@@ -62,7 +62,7 @@ public class ProfileTaskRecord extends NoneStream {
     }
 
     @Column(name = SERVICE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String serviceId;
     @Column(name = ENDPOINT_NAME, length = 512)
     private String endpointName;

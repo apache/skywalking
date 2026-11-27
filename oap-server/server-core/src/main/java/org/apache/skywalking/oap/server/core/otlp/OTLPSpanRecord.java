@@ -55,7 +55,7 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 @Stream(name = OTLPSpanRecord.INDEX_NAME, scopeId = DefaultScopeDefine.OTLP_SPAN,
     builder = OTLPSpanRecord.Builder.class, processor = RecordStreamProcessor.class)
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = OTLPSpanRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
-@BanyanDB.TimestampColumn(OTLPSpanRecord.START_TIME)
+@BanyanDB.Trace.TimestampColumn(OTLPSpanRecord.START_TIME)
 @BanyanDB.Trace.TraceIdColumn(OTLPSpanRecord.TRACE_ID)
 @BanyanDB.Trace.SpanIdColumn(OTLPSpanRecord.SPAN_ID)
 // The BanyanDB trace model answers an equality on an int tag only through an index rule; string tags are
@@ -70,7 +70,7 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
     OTLPSpanRecord.STATUS_CODE,
     OTLPSpanRecord.KIND,
 }, orderByColumn = OTLPSpanRecord.DURATION)
-@BanyanDB.Group(traceGroup = BanyanDB.TraceGroup.OTLP_TRACE)
+@BanyanDB.Trace.Group(BanyanDB.TraceGroup.OTLP_TRACE)
 public class OTLPSpanRecord extends Record implements BanyanDBTrace {
     public static final String INDEX_NAME = "otlp_span";
     public static final String ADDITIONAL_TAG_TABLE = "otlp_span_tag";
@@ -193,7 +193,6 @@ public class OTLPSpanRecord extends Record implements BanyanDBTrace {
     @Setter
     @Getter
     @ElasticSearch.EnableDocValues
-    @BanyanDB.EnableSort
     @Column(name = DURATION)
     private long duration;
     /**
@@ -203,7 +202,8 @@ public class OTLPSpanRecord extends Record implements BanyanDBTrace {
      */
     @Setter
     @Getter
-    @Column(name = TAGS, indexOnly = true, length = Tag.TAG_LENGTH)
+    @Column(name = TAGS, length = Tag.TAG_LENGTH)
+    @ElasticSearch.IndexOnly
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tags;
     /**

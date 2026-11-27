@@ -93,11 +93,11 @@ class JDBCHistoryDeleteDAOIT {
         model = new Model(
             "service_traffic",
             Arrays.asList(
-                new ModelColumn(new ColumnName(serviceTrafficNameColumn), String.class, String.class, false, false, false, 100,
+                new ModelColumn(new ColumnName(serviceTrafficNameColumn), String.class, String.class, false, false, 100,
                     new SQLDatabaseExtension(), null, plainBanyanDBColumn()),
-                new ModelColumn(new ColumnName(timeBucketColumn), Long.class, Long.class, false, false, false, 0,
+                new ModelColumn(new ColumnName(timeBucketColumn), Long.class, Long.class, false, false, 0,
                     new SQLDatabaseExtension(), null, plainBanyanDBColumn())
-            ), 1, DownSampling.Minute, false, ServiceTraffic.class, false, false, new SQLDatabaseModelExtension(),
+            ), 1, DownSampling.Minute, false, ServiceTraffic.class, false, new SQLDatabaseModelExtension(),
             new BanyanDBModelExtension(), new ElasticSearchModelExtension());
 
         TableMetaInfo.addModel(model);
@@ -107,7 +107,7 @@ class JDBCHistoryDeleteDAOIT {
      * What {@code StorageModels} gives a column with no BanyanDB annotation; {@code ModelColumn} requires one.
      */
     private static BanyanDBExtension plainBanyanDBColumn() {
-        return new BanyanDBExtension(-1, -1, true, BanyanDB.IndexRule.IndexType.INVERTED, false, null, false);
+        return new BanyanDBExtension(-1, -1, true, BanyanDB.Stream.IndexRule.IndexType.INVERTED, false, null, false);
     }
 
     @Test

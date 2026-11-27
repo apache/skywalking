@@ -63,7 +63,7 @@ public abstract class ApdexFunction extends Meter implements AcceptableValue<Apd
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Measure.SeriesID(index = 0)
     private String entityId;
 
     /**
@@ -77,23 +77,23 @@ public abstract class ApdexFunction extends Meter implements AcceptableValue<Apd
     @Getter
     @Setter
     @Column(name = TOTAL_NUM, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected long totalNum;
     @Getter
     @Setter
     @Column(name = S_NUM, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected long sNum;
     @Getter
     @Setter
     @Column(name = T_NUM, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     protected long tNum;
     @Getter
     @Setter
     @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private long value;
 
     @Override

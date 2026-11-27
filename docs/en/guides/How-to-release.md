@@ -13,10 +13,13 @@ Add your GPG public key into the [SkyWalking GPG KEYS](https://dist.apache.org/r
 The release script [`tools/releasing/release.sh`](https://github.com/apache/skywalking/blob/master/tools/releasing/release.sh) automates the following steps:
 
 1. Verify GPG signer (`@apache.org` email required) and test GPG signing upfront
-2. Check required tools (`gpg`, `svn`, `shasum`, `git`, `yq`, `gh`)
+2. Check required tools (`gpg`, `svn`, `shasum`, `git`, `yq`, `gh`, `docker`), and that the Docker daemon is running
 3. Detect current version from `pom.xml`
 4. Calculate release version (strip `-SNAPSHOT`) and next version (bump minor)
-5. Clone the repository, build source and binary tarballs, GPG sign, SHA512 checksum
+5. Clone the repository, build source and binary tarballs, GPG sign, SHA512 checksum. The source tarball is packed with
+   GNU tar in a Linux container, not with the host's `tar`, so a release made on macOS carries no macOS metadata
+   (extended-attribute headers or AppleDouble `._*` entries). Both tarballs are then unpacked with GNU tar in the same
+   image, and the release stops before signing if tar prints any warning or finds a `._*` entry.
 6. Upload artifacts to SVN staging (`https://dist.apache.org/repos/dist/dev/skywalking/{version}`)
 7. Generate the vote email (with sha512 checksums, submodule commit IDs, and release tag link filled in)
 8. Prepare next version PR (bump version, rotate changelog, update `menu.yml`, push branch)

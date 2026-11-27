@@ -68,15 +68,14 @@ build_release_artifacts() {
            -DgenerateGitPropertiesFilename="$(pwd)/oap-server/server-starter/src/main/resources/version.properties" > ${log_file} 2>&1
 
     echo "Creating the release source artifacts..."
-    # Without these, macOS bsdtar stores every file's extended attributes (com.apple.provenance)
-    # as pax headers plus an AppleDouble `._*` entry, which extract as stray files on Linux.
-    COPYFILE_DISABLE=1 tar --no-xattrs -czf "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz \
+    bash "${SCRIPT_DIR}/linux-tar.sh" pack "${SCRIPT_DIR}" -czf ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz \
         --exclude .git \
         --exclude .DS_Store \
         --exclude .github \
         --exclude .gitignore \
         --exclude .gitmodules \
         --exclude .mvn/wrapper/maven-wrapper.jar \
+        -C "$(basename "${CLONE_DIR}")" \
         .
 
     log_file=$(mktemp)
@@ -92,6 +91,8 @@ build_release_artifacts() {
     mv dist/${PRODUCT_NAME}-bin.tar.gz "${SCRIPT_DIR}"/${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
 
     cd "${SCRIPT_DIR}"
+
+    bash "${SCRIPT_DIR}/linux-tar.sh" verify ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz ${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
 
     gpg --armor --detach-sig ${PRODUCT_NAME}-${RELEASE_VERSION}-src.tar.gz
     gpg --armor --detach-sig ${PRODUCT_NAME}-${RELEASE_VERSION}-bin.tar.gz
@@ -320,6 +321,9 @@ if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
     echo "ERROR: Missing required tools: ${MISSING_TOOLS[*]}"
     exit 1
 fi
+
+# Step 5 packs and checks the release tarballs in a Linux container.
+bash "${SCRIPT_DIR}/linux-tar.sh" check
 
 echo "All required tools are available."
 

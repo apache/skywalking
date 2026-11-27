@@ -36,8 +36,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.PP
 @Data
 @Stream(name = PprofProfilingDataRecord.INDEX_NAME, scopeId = PPROF_PROFILING_DATA,
     builder = PprofProfilingDataRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(PprofProfilingDataRecord.UPLOAD_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(PprofProfilingDataRecord.UPLOAD_TIME)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class PprofProfilingDataRecord extends Record {
     public static final String INDEX_NAME = "pprof_profiling_data";
     public static final String TASK_ID = "task_id";
@@ -49,7 +49,7 @@ public class PprofProfilingDataRecord extends Record {
     private String taskId;
 
     @Column(name = INSTANCE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String instanceId;
 
     @Column(name = UPLOAD_TIME)

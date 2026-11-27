@@ -37,7 +37,7 @@ public abstract class CountMetrics extends Metrics implements LongValueHolder {
     @Setter
     @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private long value;
 
     @Entrance

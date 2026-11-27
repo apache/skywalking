@@ -96,7 +96,7 @@ class EsReadIndexSelectionTest {
         }) {
             IndexController.LogicIndicesRegister.registerRelation(
                 new Model(
-                    table, Collections.emptyList(), 0, DownSampling.Second, true, Record.class, true, false,
+                    table, Collections.emptyList(), 0, DownSampling.Second, true, Record.class, true,
                     new SQLDatabaseModelExtension(), new BanyanDBModelExtension(), new ElasticSearchModelExtension()
                 ),
                 table

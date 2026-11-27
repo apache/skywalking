@@ -31,13 +31,13 @@ import org.apache.skywalking.oap.server.core.storage.annotation.ElasticSearch;
 @MetricsFunction(functionName = "minDouble")
 public abstract class MinDoubleMetrics extends Metrics implements DoubleValueHolder {
 
-    protected static final String VALUE = "value";
+    protected static final String VALUE = "double_value";
 
     @Getter
     @Setter
     @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private double value = Double.MAX_VALUE;
 
     @Entrance

@@ -63,7 +63,7 @@ public class EndpointTraffic extends Metrics {
     @Column(name = NAME)
     @ElasticSearch.Column(legacyName = "name")
     @ElasticSearch.MatchQuery
-    @BanyanDB.MatchQuery(analyzer = BanyanDB.MatchQuery.AnalyzerType.URL)
+    @BanyanDB.IndexMode.MatchQuery(analyzer = BanyanDB.AnalyzerType.URL)
     private String name = Const.EMPTY_STRING;
     @Setter
     @Getter

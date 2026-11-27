@@ -105,12 +105,18 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
                 }
             });
         }
-        //Add timestampColumn for BanyanDB
-        if (aClass.isAnnotationPresent(BanyanDB.TimestampColumn.class)) {
-            String timestampColumn = aClass.getAnnotation(BanyanDB.TimestampColumn.class).value();
+        // BanyanDB timestamp column of a stream or a trace
+        String timestampColumn = null;
+        if (aClass.isAnnotationPresent(BanyanDB.Stream.TimestampColumn.class)) {
+            timestampColumn = aClass.getAnnotation(BanyanDB.Stream.TimestampColumn.class).value();
+        } else if (aClass.isAnnotationPresent(BanyanDB.Trace.TimestampColumn.class)) {
+            timestampColumn = aClass.getAnnotation(BanyanDB.Trace.TimestampColumn.class).value();
+        }
+        if (timestampColumn != null) {
             if (StringUtil.isBlank(timestampColumn)) {
                 throw new IllegalStateException(
-                    "Model[" + storage.getModelName() + "] missing defined @BanyanDB.TimestampColumn");
+                    "Model[" + storage.getModelName() + "] missing defined @BanyanDB.Stream.TimestampColumn "
+                        + "or @BanyanDB.Trace.TimestampColumn");
             }
             banyanDBModelExtension.setTimestampColumn(timestampColumn);
         }
@@ -156,12 +162,27 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
             banyanDBModelExtension.setIndexMode(true);
         }
 
-        if (aClass.isAnnotationPresent(BanyanDB.Group.class)) {
-            BanyanDB.Group group = aClass.getAnnotation(BanyanDB.Group.class);
-            banyanDBModelExtension.setStreamGroup(group.streamGroup());
-            if (!group.traceGroup().equals(BanyanDB.TraceGroup.NONE)) {
-                banyanDBModelExtension.setTraceGroup(group.traceGroup());
+        if (aClass.isAnnotationPresent(BanyanDB.Stream.Group.class)) {
+            banyanDBModelExtension.setStreamGroup(aClass.getAnnotation(BanyanDB.Stream.Group.class).value());
+        }
+
+        if (aClass.isAnnotationPresent(BanyanDB.Trace.Group.class)) {
+            banyanDBModelExtension.setTraceGroup(aClass.getAnnotation(BanyanDB.Trace.Group.class).value());
+        }
+
+        if (aClass.isAnnotationPresent(BanyanDB.Stream.AllowBootReshape.class)) {
+            banyanDBModelExtension.setAllowBootReshape(true);
+        }
+
+        if (aClass.isAnnotationPresent(BanyanDB.Trace.StoreAsAttachmentOf.class)) {
+            if (aClass.isAnnotationPresent(BanyanDB.Trace.Group.class)) {
+                throw new IllegalStateException(
+                    "Model[" + storage.getModelName() + "] declares @BanyanDB.Trace.StoreAsAttachmentOf, so its group "
+                        + "comes from the target; remove its @BanyanDB.Trace.Group");
             }
+            final Class<?> target = aClass.getAnnotation(BanyanDB.Trace.StoreAsAttachmentOf.class).value();
+            banyanDBModelExtension.setAttachmentTarget(attachmentTarget(storage.getModelName(), target));
+            banyanDBModelExtension.setTraceGroup(target.getAnnotation(BanyanDB.Trace.Group.class).value());
         }
 
         // Set routing rules for ElasticSearch
@@ -169,9 +190,6 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
 
         seriesIDChecker.check(storage.getModelName());
         shardingKeyChecker.check(storage.getModelName());
-
-        final Stream streamAnnotation = aClass.getAnnotation(Stream.class);
-        final boolean allowBootReshape = streamAnnotation != null && streamAnnotation.allowBootReshape();
 
         Model model = new Model(
             storage.getModelName(),
@@ -181,7 +199,6 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
             isSuperDatasetModel(aClass),
             aClass,
             storage.isTimeRelativeID(),
-            allowBootReshape,
             sqlDBModelExtension,
             banyanDBModelExtension,
             elasticSearchModelExtension
@@ -407,38 +424,35 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
                 final var keywordColumn = field.getAnnotation(ElasticSearch.Keyword.class);
                 final var routingColumn = field.getAnnotation(ElasticSearch.Routing.class);
                 final var enableDocValues = field.getAnnotation(ElasticSearch.EnableDocValues.class);
+                final var indexOnly = field.getAnnotation(ElasticSearch.IndexOnly.class);
                 final var elasticSearchExtension = new ElasticSearchExtension(
                     elasticSearchAnalyzer == null ? null : elasticSearchAnalyzer.analyzer(),
                     elasticSearchColumn == null ? null : elasticSearchColumn.legacyName(),
                     keywordColumn != null,
                     routingColumn != null,
-                    enableDocValues != null
+                    enableDocValues != null,
+                    indexOnly != null
                 );
 
-                // BanyanDB extension
-                final BanyanDB.SeriesID banyanDBSeriesID = field.getAnnotation(
-                    BanyanDB.SeriesID.class);
-                final BanyanDB.ShardingKey banyanDBShardingKey = field.getAnnotation(
-                    BanyanDB.ShardingKey.class);
-                final BanyanDB.NoIndexing banyanDBNoIndex = field.getAnnotation(
-                    BanyanDB.NoIndexing.class);
-                final BanyanDB.IndexRule banyanDBIndexRule = field.getAnnotation(
-                    BanyanDB.IndexRule.class);
-                final BanyanDB.MeasureField banyanDBMeasureField = field.getAnnotation(
-                    BanyanDB.MeasureField.class);
-                final BanyanDB.MatchQuery analyzer = field.getAnnotation(
-                    BanyanDB.MatchQuery.class);
-                final BanyanDB.EnableSort enableSort = field.getAnnotation(
-                    BanyanDB.EnableSort.class);
-                final boolean shouldIndex = (banyanDBNoIndex == null) && !column.storageOnly();
+                // BanyanDB extension: each attribute is read from whichever engine group declares it
+                final BanyanDB.Measure.ShardingKey banyanDBShardingKey = field.getAnnotation(
+                    BanyanDB.Measure.ShardingKey.class);
+                final BanyanDB.Stream.IndexRule banyanDBIndexRule = field.getAnnotation(
+                    BanyanDB.Stream.IndexRule.class);
+                final boolean noIndexing = field.isAnnotationPresent(BanyanDB.Stream.NoIndexing.class)
+                    || field.isAnnotationPresent(BanyanDB.Trace.InSpanPayloadOnly.class);
+                final boolean enableSort = field.isAnnotationPresent(BanyanDB.Measure.EnableSort.class)
+                    || field.isAnnotationPresent(BanyanDB.IndexMode.EnableSort.class)
+                    || field.isAnnotationPresent(BanyanDB.Stream.EnableSort.class);
+                final boolean shouldIndex = !noIndexing && !column.storageOnly();
                 BanyanDBExtension banyanDBExtension = new BanyanDBExtension(
-                    banyanDBSeriesID == null ? -1 : banyanDBSeriesID.index(),
+                    banyanDBSeriesIDIndex(field),
                     banyanDBShardingKey == null ? -1 : banyanDBShardingKey.index(),
                     shouldIndex,
-                    banyanDBIndexRule == null ? BanyanDB.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType(),
-                    banyanDBMeasureField != null,
-                    analyzer == null ? null : analyzer.analyzer(),
-                    enableSort != null
+                    banyanDBIndexRule == null ? BanyanDB.Stream.IndexRule.IndexType.INVERTED : banyanDBIndexRule.indexType(),
+                    field.isAnnotationPresent(BanyanDB.Measure.Field.class),
+                    banyanDBAnalyzer(field),
+                    enableSort
                 );
 
                 final ModelColumn modelColumn = new ModelColumn(
@@ -446,7 +460,6 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
                     field.getType(),
                     field.getGenericType(),
                     column.storageOnly(),
-                    column.indexOnly(),
                     column.dataType().isValue(),
                     columnLength,
                     sqlDatabaseExtension,
@@ -539,6 +552,46 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
         } finally {
             lock.unlock();
         }
+    }
+
+    private static int banyanDBSeriesIDIndex(final Field field) {
+        if (field.isAnnotationPresent(BanyanDB.Measure.SeriesID.class)) {
+            return field.getAnnotation(BanyanDB.Measure.SeriesID.class).index();
+        }
+        if (field.isAnnotationPresent(BanyanDB.Stream.SeriesID.class)) {
+            return field.getAnnotation(BanyanDB.Stream.SeriesID.class).index();
+        }
+        return -1;
+    }
+
+    private static BanyanDB.AnalyzerType banyanDBAnalyzer(final Field field) {
+        if (field.isAnnotationPresent(BanyanDB.Measure.MatchQuery.class)) {
+            return field.getAnnotation(BanyanDB.Measure.MatchQuery.class).analyzer();
+        }
+        if (field.isAnnotationPresent(BanyanDB.IndexMode.MatchQuery.class)) {
+            return field.getAnnotation(BanyanDB.IndexMode.MatchQuery.class).analyzer();
+        }
+        if (field.isAnnotationPresent(BanyanDB.Stream.MatchQuery.class)) {
+            return field.getAnnotation(BanyanDB.Stream.MatchQuery.class).analyzer();
+        }
+        return null;
+    }
+
+    /**
+     * The trace an attached model's rows go into, read from the target model's own annotations.
+     */
+    private static BanyanDBModelExtension.AttachmentTarget attachmentTarget(final String modelName, final Class<?> target) {
+        final Stream stream = target.getAnnotation(Stream.class);
+        final BanyanDB.Trace.Group group = target.getAnnotation(BanyanDB.Trace.Group.class);
+        final BanyanDB.Trace.TraceIdColumn traceId = target.getAnnotation(BanyanDB.Trace.TraceIdColumn.class);
+        final BanyanDB.Trace.TimestampColumn timestamp = target.getAnnotation(BanyanDB.Trace.TimestampColumn.class);
+        final BanyanDB.Trace.SpanIdColumn spanId = target.getAnnotation(BanyanDB.Trace.SpanIdColumn.class);
+        if (stream == null || group == null || traceId == null || timestamp == null || spanId == null) {
+            throw new IllegalStateException(
+                "Model[" + modelName + "] is stored as an attachment of " + target.getName() + ", which is not a BanyanDB trace model: "
+                    + "@Stream, @BanyanDB.Trace.Group, TraceIdColumn, TimestampColumn and SpanIdColumn are required");
+        }
+        return new BanyanDBModelExtension.AttachmentTarget(stream.name(), traceId.value(), timestamp.value(), spanId.value());
     }
 
     private TraceIndexRule createTraceIndexRule(Class<?> aClass, BanyanDB.Trace.IndexRule indexRuleColumns) {

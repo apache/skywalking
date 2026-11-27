@@ -53,7 +53,7 @@ class StorageEsInstallerTest {
     void whenCreating_withoutSchemaChange_registersThePhysicalTableWithoutCallingElasticsearch() throws Exception {
         final String metric = "installer_test_metric";
         final Model model = new Model(
-            metric, Collections.emptyList(), 0, DownSampling.Minute, false, Metrics.class, true, false,
+            metric, Collections.emptyList(), 0, DownSampling.Minute, false, Metrics.class, true,
             new SQLDatabaseModelExtension(), new BanyanDBModelExtension(), new ElasticSearchModelExtension()
         );
 

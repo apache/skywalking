@@ -27,9 +27,12 @@ import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBE
 import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.IRecordDAO;
+import org.apache.skywalking.oap.server.core.storage.StorageData;
 import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBModelExtension;
 import org.apache.skywalking.oap.server.core.storage.model.Model;
 import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
+import org.apache.skywalking.oap.server.core.storage.type.HashMapConverter;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import org.apache.skywalking.oap.server.library.client.request.InsertRequest;
 import org.apache.skywalking.oap.server.storage.plugin.banyandb.BanyanDBConverter;
@@ -63,34 +66,45 @@ public class BanyanDBRecordDAO extends AbstractBanyanDBDAO implements IRecordDAO
         if (BanyanDB.TraceGroup.NONE != model.getBanyanDBModelExtension().getTraceGroup()) {
             TraceWrite traceWrite;
             if (record instanceof BanyanDBTrace) {
-                if (record instanceof BanyanDBTrace.MergeTable) {
-                    BanyanDBTrace.MergeTable mergeTable = (BanyanDBTrace.MergeTable) record;
-                    MetadataRegistry.Schema mergeTableSchema = MetadataRegistry.INSTANCE.findRecordMetadata(mergeTable.getMergeTableName());
-                    if (mergeTableSchema == null) {
-                        throw new IOException(mergeTable.getMergeTableName() + " is not registered");
+                final BanyanDBModelExtension extension = model.getBanyanDBModelExtension();
+                final BanyanDBModelExtension.AttachmentTarget target = extension.getAttachmentTarget();
+                if (target != null) {
+                    MetadataRegistry.Schema targetSchema = MetadataRegistry.INSTANCE.findRecordMetadata(target.getTargetName());
+                    if (targetSchema == null) {
+                        throw new IOException(target.getTargetName() + " is not registered");
                     }
+                    // This model's own trace columns hold the values written into the target's columns.
+                    final HashMapConverter.ToStorage columns = new HashMapConverter.ToStorage() {
+                        @Override
+                        public void accept(final String fieldName, final byte[] fieldValue) {
+                            // No trace column is binary; the payload goes in through getSpanWrapper(), unencoded.
+                        }
+                    };
+                    storageBuilder.entity2Storage(record, columns);
+                    final Map<String, Object> values = columns.obtain();
 
                     traceWrite = getClient().createTraceWrite(
                         schema.getMetadata().getGroup(),
-                        mergeTable.getMergeTableName()
+                        target.getTargetName()
                     );
                     try {
-                        for (Map.Entry<String, String> entry : mergeTableSchema.getTags().entrySet()) {
+                        for (Map.Entry<String, String> entry : targetSchema.getTags().entrySet()) {
                             String tag = entry.getKey();
-                            if (tag.equals(mergeTable.getMergeTraceIdColumnName())) {
+                            if (tag.equals(target.getTargetTraceIdColumn())) {
                                 traceWrite.tag(
                                     tag,
-                                    TagAndValue.stringTagValue(mergeTable.getTraceIdColumnValue())
+                                    TagAndValue.stringTagValue((String) columnValue(record, values, extension.getTraceIdColumn()))
                                 );
-                            } else if (tag.equals(mergeTable.getMergeTimestampColumnName())) {
+                            } else if (tag.equals(target.getTargetTimestampColumn())) {
                                 traceWrite.tag(
                                     tag,
-                                    TagAndValue.timestampTagValue(mergeTable.getTimestampColumnValue())
+                                    TagAndValue.timestampTagValue(
+                                        ((Number) columnValue(record, values, extension.getTimestampColumn())).longValue())
                                 );
-                            } else if (tag.equals(mergeTable.getMergeSpanIdColumnName())) {
+                            } else if (tag.equals(target.getTargetSpanIdColumn())) {
                                 traceWrite.tag(
                                     tag,
-                                    TagAndValue.stringTagValue(mergeTable.getSpanIdColumnValue())
+                                    TagAndValue.stringTagValue((String) columnValue(record, values, extension.getSpanIdColumn()))
                                 );
                             } else  {
                                 traceWrite.tag(tag, TagAndValue.nullTagValue());
@@ -127,5 +141,13 @@ public class BanyanDBRecordDAO extends AbstractBanyanDBDAO implements IRecordDAO
             storageBuilder.entity2Storage(record, convert2Storage);
             return new BanyanDBStreamInsertRequest(convert2Storage.obtain());
         }
+    }
+
+    /**
+     * The value of one of the record's own columns. The record ID is not among the columns a storage builder writes, so
+     * {@link StorageData#ID} reads it from {@link Record#id()}.
+     */
+    private static Object columnValue(final Record record, final Map<String, Object> values, final String column) {
+        return StorageData.ID.equals(column) ? record.id().build() : values.get(column);
     }
 }
