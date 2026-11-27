@@ -53,7 +53,6 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @ScopeDeclaration(id = DefaultScopeDefine.AI_AGENT_SESSION_FLOW, name = "AIAgentSessionFlow")
 @Stream(name = AIAgentSessionFlowRecord.INDEX_NAME, scopeId = DefaultScopeDefine.AI_AGENT_SESSION_FLOW,
     builder = AIAgentSessionFlowRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.Stream.AllowBootReshape
 @BanyanDB.Stream.TimestampColumn(AIAgentSessionFlowRecord.TIMESTAMP)
 @BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_AI_AGENT)
 public class AIAgentSessionFlowRecord extends Record {

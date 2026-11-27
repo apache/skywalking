@@ -107,7 +107,7 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.util.ContentHash;
  * only when a forwarded request arrives at a node that itself doesn't believe it's main
  * (split cluster view). The tick picks its storage opt via {@link #tickStorageOpt(boolean)};
  * the per-endpoint REST opts are routed by the handler ({@code /addOrUpdate} →
- * {@code withSchemaChange}, {@code /inactivate} → {@code withoutSchemaChange}, {@code /delete} →
+ * {@code runtimeApply}, {@code /inactivate} → {@code runtimeLocalOnly}, {@code /delete} →
  * dedicated {@link DSLRuntimeDelete} path).
  */
 @Slf4j
@@ -171,7 +171,7 @@ public final class DSLManager {
     private final DSLRuntimeApply dslRuntimeApply;
 
     /** Destructive {@code /delete} pipeline. Re-registers prototypes locally then tears down
-     *  under withSchemaChange so the backend cascade fires before the DAO row is deleted.
+     *  under runtimeApply so the backend cascade fires before the DAO row is deleted.
      *  Exposed via {@code @Getter}. */
     @Getter
     private final DSLRuntimeDelete dslRuntimeDelete;
@@ -239,16 +239,16 @@ public final class DSLManager {
     /**
      * Variant invoked once at boot from {@code RuntimeRuleModuleProvider.notifyAfterCompleted}
      * with {@code atBoot=true}. The boot pass on a cluster <em>peer</em> picks
-     * {@link StorageManipulationOpt#verifySchemaOnly()} so missing or shape-mismatched
-     * backend schema fails the bootstrap (k8s pod backloop) instead of silently
-     * proceeding; the <em>main</em> picks {@link StorageManipulationOpt#withSchemaChange()}
+     * {@link StorageManipulationOpt#runtimePeerVerify()} so a rule whose schema the main has not
+     * applied yet fails its apply on this node (logged, retried by the next tick) instead of
+     * silently registering against it; the <em>main</em> picks {@link StorageManipulationOpt#runtimeApply()}
      * so it re-creates any missing runtime schema. The scheduled executor calls the no-arg
-     * overload so subsequent peer ticks stay on the lenient {@code withoutSchemaChange}
+     * overload so subsequent peer ticks stay on the lenient {@code runtimeLocalOnly}
      * retry path.
      *
      * <p>The choice is by cluster main-ness, not running mode — no-init and default behave
      * identically (see {@link #tickStorageOpt}). Init mode is the one exception: the
-     * dedicated initialiser picks {@link StorageManipulationOpt#schemaCreateIfAbsent()}.
+     * dedicated initialiser picks {@link StorageManipulationOpt#bootInstall()}.
      */
     public void tick(final boolean atBoot) {
         try {
@@ -370,24 +370,24 @@ public final class DSLManager {
      */
     public DSLRuntimeState applyNowForRuleFile(final RuntimeRuleManagementDAO.RuntimeRuleFile ruleFile,
                                             final boolean deferCommit) {
-        return applyNowForRuleFile(ruleFile, deferCommit, StorageManipulationOpt.withSchemaChangeDeferredFence());
+        return applyNowForRuleFile(ruleFile, deferCommit, StorageManipulationOpt.runtimeApplyDeferredFence());
     }
 
     /**
      * Storage-opt overload of {@link #applyNowForRuleFile(RuntimeRuleManagementDAO.RuntimeRuleFile, boolean)}.
      *
-     * <p>The REST {@code /inactivate} path passes {@link StorageManipulationOpt#withoutSchemaChange()}
+     * <p>The REST {@code /inactivate} path passes {@link StorageManipulationOpt#runtimeLocalOnly()}
      * here so the OAP-internal teardown — MeterSystem prototypes, MetricsStreamProcessor
      * entry / persistent workers, BatchQueue handlers, retired RuleClassLoader — runs to
      * completion while the backend's measure / table / index, and the data already stored
      * under the pre-inactivate metric, are left intact. STRUCTURAL {@code /addOrUpdate}
-     * keeps {@code withSchemaChange()} so the listener chain reaches the backend for shape
+     * keeps {@code runtimeApply()} so the listener chain reaches the backend for shape
      * changes; {@code /delete} default mode does not run the apply pipeline at all (the
      * row is just removed), and {@code /delete?mode=revertToBundled} uses
-     * {@code withSchemaChange()} via {@link DSLRuntimeDelete#revertToBundled}.
+     * {@code runtimeApply()} via {@link DSLRuntimeDelete#revertToBundled}.
      *
      * <p>Other call sites should keep using the no-opt overload above so the documented
-     * "REST path = withSchemaChange, peer tick = withoutSchemaChange" routing rule is unchanged.
+     * "REST path = runtimeApply, peer tick = runtimeLocalOnly" routing rule is unchanged.
      */
     public DSLRuntimeState applyNowForRuleFile(final RuntimeRuleManagementDAO.RuntimeRuleFile ruleFile,
                                             final boolean deferCommit,
@@ -727,22 +727,23 @@ public final class DSLManager {
      * default therefore behave identically here.
      *
      * <p><b>init mode</b> — the one exception. The dedicated initialiser picks
-     * {@link StorageManipulationOpt#schemaCreateIfAbsent()}, matching the static-rule install
-     * path (create-if-absent, idempotent against a backend that already holds the resource).
+     * {@link StorageManipulationOpt#bootInstall()}, matching the static-rule install
+     * path (creates what is absent and applies additive changes only; idempotent against a backend that
+     * already holds the resource).
      *
      * <p><b>Everything else (no-init or default)</b> — branch on main-ness:
      * <ul>
-     *   <li>Self is main → {@link StorageManipulationOpt#withSchemaChange()}. The authority
+     *   <li>Self is main → {@link StorageManipulationOpt#runtimeApply()}. The authority
      *       creates / updates / drops backend schema. The boot pass uses this too, so a main
      *       re-creates any missing runtime schema at startup.
      *   <li>Peer (someone else is main):
      *     <ul>
      *       <li><b>Boot pass</b> ({@code atBoot=true}) →
-     *           {@link StorageManipulationOpt#verifySchemaOnly()}. Strict: refuse to start
-     *           against a backend the main hasn't prepared (k8s pod backloop until the main
-     *           converges).
+     *           {@link StorageManipulationOpt#runtimePeerVerify()}. Strict: a rule whose backend
+     *           the main hasn't prepared fails its apply on this node (logged); the next tick
+     *           loads it under {@code runtimeLocalOnly}.
      *       <li><b>Scheduled tick</b> ({@code atBoot=false}) →
-     *           {@link StorageManipulationOpt#withoutSchemaChange()}. Lenient: the timer
+     *           {@link StorageManipulationOpt#runtimeLocalOnly()}. Lenient: the timer
      *           retries without raising so transient absence (main still catching up between
      *           ticks) self-heals.
      *     </ul>
@@ -750,7 +751,7 @@ public final class DSLManager {
      *
      * <p>When the cluster module isn't wired (embedded / single-process topology),
      * {@link MainRouter#isSelfMain} returns {@code true} so we fall through to
-     * {@code withSchemaChange} — a single process is always its own main.
+     * {@code runtimeApply} — a single process is always its own main.
      *
      * @param atBoot true for the synchronous one-shot pass invoked from
      *               {@code RuntimeRuleModuleProvider.notifyAfterCompleted}; false for
@@ -758,7 +759,7 @@ public final class DSLManager {
      */
     private StorageManipulationOpt tickStorageOpt(final boolean atBoot) {
         if (RunningMode.isInitMode()) {
-            return StorageManipulationOpt.schemaCreateIfAbsent();
+            return StorageManipulationOpt.bootInstall();
         }
         final boolean selfMain;
         try {
@@ -768,13 +769,13 @@ public final class DSLManager {
             selfMain = MainRouter.isSelfMain(apm);
         } catch (final Throwable t) {
             // Cluster module not wired (embedded / single-process) — always main.
-            return StorageManipulationOpt.withSchemaChangeDeferredFence();
+            return StorageManipulationOpt.runtimeApplyDeferredFence();
         }
         if (selfMain) {
-            return StorageManipulationOpt.withSchemaChangeDeferredFence();
+            return StorageManipulationOpt.runtimeApplyDeferredFence();
         }
         return atBoot
-            ? StorageManipulationOpt.verifySchemaOnly()
-            : StorageManipulationOpt.withoutSchemaChange();
+            ? StorageManipulationOpt.runtimePeerVerify()
+            : StorageManipulationOpt.runtimeLocalOnly();
     }
 }

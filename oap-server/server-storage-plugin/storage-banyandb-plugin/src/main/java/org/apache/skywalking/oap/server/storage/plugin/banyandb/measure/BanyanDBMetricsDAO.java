@@ -66,7 +66,7 @@ public class BanyanDBMetricsDAO extends AbstractBanyanDBDAO implements IMetricsD
     /**
      * Resolve the model's BanyanDB schema, self-healing a missing local entry once before failing.
      * A null here means this node has a live persist worker for the model but its schema cache was
-     * never populated (or lost) — typically a {@code withoutSchemaChange} peer apply or a
+     * never populated (or lost) — typically a {@code runtimeLocalOnly} peer apply or a
      * runtime-rule bundled fall-over that rebuilt the worker without the populate. Re-derive the
      * schema locally with no server RPC and re-read; throw only if the entry is still absent, so
      * a genuinely unknown model still fails fast instead of flooding forever.

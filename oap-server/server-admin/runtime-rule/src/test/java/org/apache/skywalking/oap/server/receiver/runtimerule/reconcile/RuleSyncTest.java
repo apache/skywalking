@@ -154,7 +154,7 @@ public class RuleSyncTest {
                 tornDown.add(DSLScriptKey.key(catalog, name));
                 return bundledReloads;
             },
-            atBoot -> StorageManipulationOpt.withoutSchemaChange());
+            atBoot -> StorageManipulationOpt.runtimeLocalOnly());
     }
 
     private static void clearRegistry() throws Exception {

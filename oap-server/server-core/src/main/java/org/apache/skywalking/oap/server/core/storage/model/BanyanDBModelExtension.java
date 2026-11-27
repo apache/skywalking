@@ -88,14 +88,6 @@ public class BanyanDBModelExtension {
     private BanyanDB.TraceGroup traceGroup = BanyanDB.TraceGroup.NONE;
 
     /**
-     * The installer may apply purely additive shape changes to this stream at boot. See
-     * {@link BanyanDB.Stream.AllowBootReshape}.
-     */
-    @Setter
-    @Getter
-    private boolean allowBootReshape;
-
-    /**
      * Not null when the rows of this model are stored as an attachment of another model's trace. See
      * {@link BanyanDB.Trace.StoreAsAttachmentOf}.
      */

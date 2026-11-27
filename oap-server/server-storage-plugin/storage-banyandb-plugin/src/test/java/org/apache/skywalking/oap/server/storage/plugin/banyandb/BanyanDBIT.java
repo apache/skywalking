@@ -79,6 +79,7 @@ import org.testcontainers.utility.DockerImageName;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -159,10 +160,10 @@ public class BanyanDBIT {
         StorageModels models = new StorageModels();
         Model model = models.add(TestMetric.class, DefaultScopeDefine.SERVICE,
                                  new Storage("testMetric", true, DownSampling.Minute),
-                                 StorageManipulationOpt.withSchemaChange()
+                                 StorageManipulationOpt.runtimeApply()
         );
         BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
-        installer.isExists(model, StorageManipulationOpt.withSchemaChange());
+        installer.isExists(model, StorageManipulationOpt.runtimeApply());
         //test Group install
         String groupName = MetadataRegistry.convertGroupName(
             config.getGlobal().getNamespace(),
@@ -227,16 +228,16 @@ public class BanyanDBIT {
 
         // StorageModels.add now dedupes by (name, downsampling); evict the original
         // registration so the UpdateTestMetric registration takes effect.
-        models.remove(TestMetric.class, StorageManipulationOpt.withSchemaChange());
+        models.remove(TestMetric.class, StorageManipulationOpt.runtimeApply());
         Model updatedModel = models.add(UpdateTestMetric.class, DefaultScopeDefine.SERVICE,
                                         new Storage("testMetric", true, DownSampling.Minute),
-                                        StorageManipulationOpt.withSchemaChange()
+                                        StorageManipulationOpt.runtimeApply()
         );
         config.getMetricsMin().setShardNum(config.getMetricsMin().getShardNum() + 1);
         config.getMetricsMin().setSegmentInterval(config.getMetricsMin().getSegmentInterval() + 2);
         config.getMetricsMin().setTtl(config.getMetricsMin().getTtl() + 3);
         BanyanDBIndexInstaller newInstaller = new BanyanDBIndexInstaller(client, moduleManager, config);
-        newInstaller.isExists(updatedModel, StorageManipulationOpt.withSchemaChange());
+        newInstaller.isExists(updatedModel, StorageManipulationOpt.runtimeApply());
         //test Group update — assert the live group now reflects the values we set on config,
         //rather than hard-coding the post-mutation numbers (which would couple the test to the
         //defaults shipped in bydb.yml).
@@ -312,10 +313,10 @@ public class BanyanDBIT {
         StorageModels models = new StorageModels();
         Model model = models.add(TestStream.class, DefaultScopeDefine.SERVICE,
                                  new Storage("testStream", true, DownSampling.Second),
-                                 StorageManipulationOpt.withSchemaChange()
+                                 StorageManipulationOpt.runtimeApply()
         );
         BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
-        installer.isExists(model, StorageManipulationOpt.withSchemaChange());
+        installer.isExists(model, StorageManipulationOpt.runtimeApply());
         // test Group install
         String groupName = MetadataRegistry.convertGroupName(
             config.getGlobal().getNamespace(),
@@ -344,13 +345,13 @@ public class BanyanDBIT {
 
         // StorageModels.add now dedupes by (name, downsampling); evict the original
         // registration so the UpdateTestStream registration takes effect.
-        models.remove(TestStream.class, StorageManipulationOpt.withSchemaChange());
+        models.remove(TestStream.class, StorageManipulationOpt.runtimeApply());
         Model updatedModel = models.add(UpdateTestStream.class, DefaultScopeDefine.SERVICE,
                                         new Storage("testStream", true, DownSampling.Second),
-                                        StorageManipulationOpt.withSchemaChange()
+                                        StorageManipulationOpt.runtimeApply()
         );
         BanyanDBIndexInstaller newInstaller = new BanyanDBIndexInstaller(client, moduleManager, config);
-        newInstaller.isExists(updatedModel, StorageManipulationOpt.withSchemaChange());
+        newInstaller.isExists(updatedModel, StorageManipulationOpt.runtimeApply());
         // test Stream update
         BanyandbDatabase.Stream updatedStream = client.client.findStream(groupName, "testStream");
         assertEquals("entity=[service_id] tags=[storage-only/service_id:TAG_TYPE_STRING, storage-only/timestamp:TAG_TYPE_INT,"
@@ -367,12 +368,11 @@ public class BanyanDBIT {
     }
 
     /**
-     * Drive the boot-reshape path: install {@link TestStream} first under
-     * {@link StorageManipulationOpt#withSchemaChange()} so the stream lives on the backend
-     * with the original shape, then re-install a class that adds {@code new_tag} and opts in
-     * via {@code @BanyanDB.Stream.AllowBootReshape} under {@link StorageManipulationOpt#schemaCreateIfAbsent()}.
-     * The installer should apply the additive update during boot rather than recording
-     * {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}.
+     * Boot applies an additive change: install {@link TestStream} first under
+     * {@link StorageManipulationOpt#runtimeApply()} so the stream lives on the backend
+     * with the original shape, then re-install a class that adds {@code new_tag} under
+     * {@link StorageManipulationOpt#bootInstall()}. The installer applies the update and records
+     * {@link StorageManipulationOpt.Outcome#UPDATED}.
      */
     @Test
     public void testStreamAdditiveBootReshape() throws Exception {
@@ -387,9 +387,9 @@ public class BanyanDBIT {
         StorageModels models = new StorageModels();
         Model baseModel = models.add(TestStream.class, DefaultScopeDefine.SERVICE,
                                      new Storage("testStream", true, DownSampling.Second),
-                                     StorageManipulationOpt.withSchemaChange());
+                                     StorageManipulationOpt.runtimeApply());
         BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
-        installer.isExists(baseModel, StorageManipulationOpt.withSchemaChange());
+        installer.isExists(baseModel, StorageManipulationOpt.runtimeApply());
         installer.createTable(baseModel);
 
         String groupName = MetadataRegistry.convertGroupName(
@@ -398,12 +398,12 @@ public class BanyanDBIT {
         assertEquals("entity=[service_id] tags=[storage-only/service_id:TAG_TYPE_STRING, storage-only/timestamp:TAG_TYPE_INT,"
                 + " searchable/tag:TAG_TYPE_STRING]", describe(initial));
 
-        models.remove(TestStream.class, StorageManipulationOpt.withSchemaChange());
-        Model reshapedModel = models.add(TestStreamAdditiveReshapeOn.class, DefaultScopeDefine.SERVICE,
+        models.remove(TestStream.class, StorageManipulationOpt.runtimeApply());
+        Model reshapedModel = models.add(TestStreamAdditive.class, DefaultScopeDefine.SERVICE,
                                          new Storage("testStream", true, DownSampling.Second),
-                                         StorageManipulationOpt.withSchemaChange());
+                                         StorageManipulationOpt.runtimeApply());
 
-        StorageManipulationOpt bootOpt = StorageManipulationOpt.schemaCreateIfAbsent();
+        StorageManipulationOpt bootOpt = StorageManipulationOpt.bootInstall();
         new BanyanDBIndexInstaller(client, moduleManager, config).isExists(reshapedModel, bootOpt);
 
         BanyandbDatabase.Stream reshaped = client.client.findStream(groupName, "testStream");
@@ -412,19 +412,19 @@ public class BanyanDBIT {
 
         boolean updatedRecorded = bootOpt.getOutcomes().stream()
             .anyMatch(o -> "stream".equals(o.getResourceType())
-                && "testStream".equals(o.getResourceName())
+                && (groupName + "/testStream").equals(o.getResourceName())
                 && o.getStatus() == StorageManipulationOpt.Outcome.UPDATED);
         assertTrue(updatedRecorded, "expected UPDATED outcome for additive boot reshape, got " + bootOpt.getOutcomes());
     }
 
     /**
-     * Same setup as {@link #testStreamAdditiveBootReshape} but the re-install class leaves
-     * out {@code @BanyanDB.Stream.AllowBootReshape}. Boot must refuse to reshape
-     * even though the diff is additive — record {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}
-     * and leave the live stream untouched.
+     * Same setup as {@link #testStreamAdditiveBootReshape}, but a not-main OAP's startup check
+     * ({@link StorageManipulationOpt#runtimePeerVerify()}) sees the additive difference. It never changes the
+     * backend: it records {@link StorageManipulationOpt.Outcome#RUNTIME_PEER_SCHEMA_DIFFERENT} for the stream and
+     * its dependents and leaves the live stream untouched.
      */
     @Test
-    public void testStreamAdditiveBootReshape_optOutSkips() throws Exception {
+    public void testStreamAdditiveDifference_peerVerifyLeavesItAlone() throws Exception {
         DownSamplingConfigService downSamplingConfigService = new DownSamplingConfigService(Arrays.asList("minute"));
         ModuleManager moduleManager = mock(ModuleManager.class);
         ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
@@ -436,18 +436,18 @@ public class BanyanDBIT {
         StorageModels models = new StorageModels();
         Model baseModel = models.add(TestStream.class, DefaultScopeDefine.SERVICE,
                                      new Storage("testStream", true, DownSampling.Second),
-                                     StorageManipulationOpt.withSchemaChange());
+                                     StorageManipulationOpt.runtimeApply());
         BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
-        installer.isExists(baseModel, StorageManipulationOpt.withSchemaChange());
+        installer.isExists(baseModel, StorageManipulationOpt.runtimeApply());
         installer.createTable(baseModel);
 
-        models.remove(TestStream.class, StorageManipulationOpt.withSchemaChange());
-        Model reshapedModel = models.add(TestStreamAdditiveReshapeOff.class, DefaultScopeDefine.SERVICE,
+        models.remove(TestStream.class, StorageManipulationOpt.runtimeApply());
+        Model reshapedModel = models.add(TestStreamAdditive.class, DefaultScopeDefine.SERVICE,
                                          new Storage("testStream", true, DownSampling.Second),
-                                         StorageManipulationOpt.withSchemaChange());
+                                         StorageManipulationOpt.runtimeApply());
 
-        StorageManipulationOpt bootOpt = StorageManipulationOpt.schemaCreateIfAbsent();
-        new BanyanDBIndexInstaller(client, moduleManager, config).isExists(reshapedModel, bootOpt);
+        StorageManipulationOpt verifyOpt = StorageManipulationOpt.runtimePeerVerify();
+        new BanyanDBIndexInstaller(client, moduleManager, config).isExists(reshapedModel, verifyOpt);
 
         String groupName = MetadataRegistry.convertGroupName(
             config.getGlobal().getNamespace(), BanyanDB.StreamGroup.RECORDS_LOG.getName());
@@ -455,23 +455,23 @@ public class BanyanDBIT {
         assertEquals("entity=[service_id] tags=[storage-only/service_id:TAG_TYPE_STRING, storage-only/timestamp:TAG_TYPE_INT,"
                 + " searchable/tag:TAG_TYPE_STRING]", describe(live));
 
-        boolean skipRecorded = bootOpt.getOutcomes().stream()
-            .anyMatch(o -> "stream".equals(o.getResourceType())
-                && "testStream".equals(o.getResourceName())
-                && o.getStatus() == StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH);
-        assertTrue(skipRecorded, "expected SKIPPED_SHAPE_MISMATCH without @BanyanDB.Stream.AllowBootReshape, got " + bootOpt.getOutcomes());
+        assertOutcome(verifyOpt, "stream", groupName + "/testStream",
+            StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_DIFFERENT);
+        // The binding and index rules are left alone too: no rule for the new tag, the binding unchanged.
+        assertNull(client.client.findIndexRule(groupName, "new_tag"));
+        assertEquals("subject=CATALOG_STREAM/testStream rules=[tag]",
+            describe(client.client.findIndexRuleBinding(groupName, "testStream")));
     }
 
     /**
-     * Opt-in is necessary but not sufficient: even with {@code @BanyanDB.Stream.AllowBootReshape} a
-     * diff that is not purely additive (here, the {@code tag} column flips from
+     * A difference that is not purely additive (here, the {@code tag} column flips from
      * {@code String} → {@code long}, i.e. {@code TAG_TYPE_STRING} → {@code TAG_TYPE_INT})
-     * must be refused at boot. {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}
+     * is refused at boot. {@link StorageManipulationOpt.Outcome#BOOT_REFUSED_BREAKING_CHANGE}
      * is recorded and the live stream stays unchanged, forcing the operator to do an
      * explicit drop+recreate (the only safe path for identity-breaking changes).
      */
     @Test
-    public void testStreamNonAdditiveBootReshape_optInStillSkips() throws Exception {
+    public void testStreamNonAdditiveBootReshape_refused() throws Exception {
         DownSamplingConfigService downSamplingConfigService = new DownSamplingConfigService(Arrays.asList("minute"));
         ModuleManager moduleManager = mock(ModuleManager.class);
         ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
@@ -483,17 +483,17 @@ public class BanyanDBIT {
         StorageModels models = new StorageModels();
         Model baseModel = models.add(TestStream.class, DefaultScopeDefine.SERVICE,
                                      new Storage("testStream", true, DownSampling.Second),
-                                     StorageManipulationOpt.withSchemaChange());
+                                     StorageManipulationOpt.runtimeApply());
         BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
-        installer.isExists(baseModel, StorageManipulationOpt.withSchemaChange());
+        installer.isExists(baseModel, StorageManipulationOpt.runtimeApply());
         installer.createTable(baseModel);
 
-        models.remove(TestStream.class, StorageManipulationOpt.withSchemaChange());
-        Model reshapedModel = models.add(TestStreamNonAdditiveReshapeOn.class, DefaultScopeDefine.SERVICE,
+        models.remove(TestStream.class, StorageManipulationOpt.runtimeApply());
+        Model reshapedModel = models.add(TestStreamNonAdditive.class, DefaultScopeDefine.SERVICE,
                                          new Storage("testStream", true, DownSampling.Second),
-                                         StorageManipulationOpt.withSchemaChange());
+                                         StorageManipulationOpt.runtimeApply());
 
-        StorageManipulationOpt bootOpt = StorageManipulationOpt.schemaCreateIfAbsent();
+        StorageManipulationOpt bootOpt = StorageManipulationOpt.bootInstall();
         new BanyanDBIndexInstaller(client, moduleManager, config).isExists(reshapedModel, bootOpt);
 
         String groupName = MetadataRegistry.convertGroupName(
@@ -502,12 +502,12 @@ public class BanyanDBIT {
         assertEquals("entity=[service_id] tags=[storage-only/service_id:TAG_TYPE_STRING, storage-only/timestamp:TAG_TYPE_INT,"
                 + " searchable/tag:TAG_TYPE_STRING]", describe(live));
 
-        boolean skipRecorded = bootOpt.getOutcomes().stream()
+        boolean refusalRecorded = bootOpt.getOutcomes().stream()
             .anyMatch(o -> "stream".equals(o.getResourceType())
-                && "testStream".equals(o.getResourceName())
-                && o.getStatus() == StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH);
-        assertTrue(skipRecorded,
-            "expected SKIPPED_SHAPE_MISMATCH for non-additive (type-change) diff even with opt-in, got " + bootOpt.getOutcomes());
+                && (groupName + "/testStream").equals(o.getResourceName())
+                && o.getStatus() == StorageManipulationOpt.Outcome.BOOT_REFUSED_BREAKING_CHANGE);
+        assertTrue(refusalRecorded,
+            "expected BOOT_REFUSED_BREAKING_CHANGE for a non-additive (type-change) diff, got " + bootOpt.getOutcomes());
     }
 
     /**
@@ -515,8 +515,7 @@ public class BanyanDBIT {
      * {@code storage-only} → {@code searchable} (or vice versa). Although the live tag
      * family no longer contains the tag at its old position, the tag identity + type are
      * preserved, so {@link BanyanDBIndexInstaller#isPurelyAdditiveStream} (via
-     * {@code isPurelyAdditiveTagFamilies}) should accept the relocation when
-     * {@code @BanyanDB.Stream.AllowBootReshape} and the OAP is in the init / standalone path. The
+     * {@code isPurelyAdditiveTagFamilies}) accepts the relocation at boot on an init or default-mode OAP. The
      * dependent IndexRule for the now-indexed tag should also be created.
      */
     @Test
@@ -532,9 +531,9 @@ public class BanyanDBIT {
         StorageModels models = new StorageModels();
         Model baseModel = models.add(TestStreamStorageOnly.class, DefaultScopeDefine.SERVICE,
                                      new Storage("relocStream", true, DownSampling.Second),
-                                     StorageManipulationOpt.withSchemaChange());
+                                     StorageManipulationOpt.runtimeApply());
         BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
-        installer.isExists(baseModel, StorageManipulationOpt.withSchemaChange());
+        installer.isExists(baseModel, StorageManipulationOpt.runtimeApply());
         installer.createTable(baseModel);
 
         String groupName = MetadataRegistry.convertGroupName(
@@ -545,12 +544,12 @@ public class BanyanDBIT {
                 + " storage-only/payload:TAG_TYPE_STRING, storage-only/timestamp:TAG_TYPE_INT]",
             describe(initial));
 
-        models.remove(TestStreamStorageOnly.class, StorageManipulationOpt.withSchemaChange());
+        models.remove(TestStreamStorageOnly.class, StorageManipulationOpt.runtimeApply());
         Model reshapedModel = models.add(TestStreamStorageOnlyOff.class, DefaultScopeDefine.SERVICE,
                                          new Storage("relocStream", true, DownSampling.Second),
-                                         StorageManipulationOpt.withSchemaChange());
+                                         StorageManipulationOpt.runtimeApply());
 
-        StorageManipulationOpt bootOpt = StorageManipulationOpt.schemaCreateIfAbsent();
+        StorageManipulationOpt bootOpt = StorageManipulationOpt.bootInstall();
         new BanyanDBIndexInstaller(client, moduleManager, config).isExists(reshapedModel, bootOpt);
 
         BanyandbDatabase.Stream reshaped = client.client.findStream(groupName, "relocStream");
@@ -561,7 +560,7 @@ public class BanyanDBIT {
 
         boolean updatedRecorded = bootOpt.getOutcomes().stream()
             .anyMatch(o -> "stream".equals(o.getResourceType())
-                && "relocStream".equals(o.getResourceName())
+                && (groupName + "/relocStream").equals(o.getResourceName())
                 && o.getStatus() == StorageManipulationOpt.Outcome.UPDATED);
         assertTrue(updatedRecorded, "expected UPDATED outcome for storageOnly relocation, got " + bootOpt.getOutcomes());
 
@@ -576,6 +575,276 @@ public class BanyanDBIT {
         BanyandbDatabase.IndexRuleBinding binding = client.client.findIndexRuleBinding(groupName, "relocStream");
         assertNotNull(binding, "expected IndexRuleBinding for relocStream to be present after relocation");
         assertEquals("subject=CATALOG_STREAM/relocStream rules=[payload]", describe(binding));
+    }
+
+    /**
+     * Boot applies an additive measure change: {@link TestMetric} is installed first, then {@link TestMetricAdditive}
+     * (one more tag and one more field) is registered under {@link StorageManipulationOpt#bootInstall()}. The measure
+     * is updated in place and {@link StorageManipulationOpt.Outcome#UPDATED} recorded.
+     */
+    @Test
+    public void testMeasureAdditiveBootReshape() throws Exception {
+        DownSamplingConfigService downSamplingConfigService = new DownSamplingConfigService(Arrays.asList("minute"));
+        ModuleManager moduleManager = mock(ModuleManager.class);
+        ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
+        ModuleServiceHolder moduleServiceHolder = mock(ModuleServiceHolder.class);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleProviderHolder);
+        when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
+        when(moduleServiceHolder.getService(DownSamplingConfigService.class)).thenReturn(downSamplingConfigService);
+
+        StorageModels models = new StorageModels();
+        Model baseModel = models.add(TestMetric.class, DefaultScopeDefine.SERVICE,
+                                     new Storage("testMetric", true, DownSampling.Minute),
+                                     StorageManipulationOpt.runtimeApply());
+        BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
+        installer.isExists(baseModel, StorageManipulationOpt.runtimeApply());
+        installer.createTable(baseModel);
+
+        models.remove(TestMetric.class, StorageManipulationOpt.runtimeApply());
+        Model reshapedModel = models.add(TestMetricAdditive.class, DefaultScopeDefine.SERVICE,
+                                         new Storage("testMetric", true, DownSampling.Minute),
+                                         StorageManipulationOpt.runtimeApply());
+        StorageManipulationOpt bootOpt = StorageManipulationOpt.bootInstall();
+        new BanyanDBIndexInstaller(client, moduleManager, config).isExists(reshapedModel, bootOpt);
+
+        String groupName = MetadataRegistry.convertGroupName(
+            config.getGlobal().getNamespace(), BanyanDB.MeasureGroup.METRICS_MINUTE.getName());
+        BanyandbDatabase.Measure reshaped = client.client.findMeasure(groupName, "testMetric_minute");
+        assertEquals("entity=[service_id] shardingKey=[service_id] interval=1m indexMode=false"
+                + " tags=[storage-only/service_id:TAG_TYPE_STRING, searchable/tag:TAG_TYPE_STRING,"
+                + " searchable/new_tag:TAG_TYPE_STRING]"
+                + " fields=[value:FIELD_TYPE_INT:ENCODING_METHOD_GORILLA:COMPRESSION_METHOD_ZSTD,"
+                + " new_value:FIELD_TYPE_INT:ENCODING_METHOD_GORILLA:COMPRESSION_METHOD_ZSTD]",
+            describe(reshaped));
+        assertOutcome(bootOpt, "measure", groupName + "/testMetric_minute", StorageManipulationOpt.Outcome.UPDATED);
+    }
+
+    /**
+     * Boot refuses a breaking measure change: {@link TestMetricRetyped} stores {@code value} as a double where the
+     * live measure has a long field. The live measure keeps its shape and records
+     * {@link StorageManipulationOpt.Outcome#BOOT_REFUSED_BREAKING_CHANGE}; its index rules and binding are left as
+     * they are.
+     */
+    @Test
+    public void testMeasureNonAdditiveBootReshape_refused() throws Exception {
+        DownSamplingConfigService downSamplingConfigService = new DownSamplingConfigService(Arrays.asList("minute"));
+        ModuleManager moduleManager = mock(ModuleManager.class);
+        ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
+        ModuleServiceHolder moduleServiceHolder = mock(ModuleServiceHolder.class);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleProviderHolder);
+        when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
+        when(moduleServiceHolder.getService(DownSamplingConfigService.class)).thenReturn(downSamplingConfigService);
+
+        StorageModels models = new StorageModels();
+        Model baseModel = models.add(TestMetric.class, DefaultScopeDefine.SERVICE,
+                                     new Storage("testMetric", true, DownSampling.Minute),
+                                     StorageManipulationOpt.runtimeApply());
+        BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
+        installer.isExists(baseModel, StorageManipulationOpt.runtimeApply());
+        installer.createTable(baseModel);
+
+        models.remove(TestMetric.class, StorageManipulationOpt.runtimeApply());
+        Model reshapedModel = models.add(TestMetricRetyped.class, DefaultScopeDefine.SERVICE,
+                                         new Storage("testMetric", true, DownSampling.Minute),
+                                         StorageManipulationOpt.runtimeApply());
+        StorageManipulationOpt bootOpt = StorageManipulationOpt.bootInstall();
+        new BanyanDBIndexInstaller(client, moduleManager, config).isExists(reshapedModel, bootOpt);
+
+        String groupName = MetadataRegistry.convertGroupName(
+            config.getGlobal().getNamespace(), BanyanDB.MeasureGroup.METRICS_MINUTE.getName());
+        BanyandbDatabase.Measure live = client.client.findMeasure(groupName, "testMetric_minute");
+        assertEquals("entity=[service_id] shardingKey=[service_id] interval=1m indexMode=false"
+                + " tags=[storage-only/service_id:TAG_TYPE_STRING, searchable/tag:TAG_TYPE_STRING]"
+                + " fields=[value:FIELD_TYPE_INT:ENCODING_METHOD_GORILLA:COMPRESSION_METHOD_ZSTD]",
+            describe(live));
+        assertOutcome(bootOpt, "measure", groupName + "/testMetric_minute",
+            StorageManipulationOpt.Outcome.BOOT_REFUSED_BREAKING_CHANGE);
+        assertTrue(bootOpt.getOutcomes().stream().anyMatch(o -> o.getDiff() != null
+                && o.getDiff().contains("its index rules and binding are left as they are")
+                && o.getDiff().contains("delete the measure with BanyanDB's own tools")),
+            "expected the refusal to say its index rules and binding are left, and how to reach the declared "
+                + "shape, got " + bootOpt.getOutcomes());
+        assertEquals("subject=CATALOG_MEASURE/testMetric_minute rules=[tag]",
+            describe(client.client.findIndexRuleBinding(groupName, "testMetric_minute")));
+    }
+
+    /**
+     * Two measures of one group share the index rule {@code tag}. One installer checks {@link TestMetric} first, then
+     * {@link TestMetricSharedAdditive}, which gained {@code new_tag} since it was created. The shared rule was already
+     * checked for the first measure, and the boot must still define the second measure's new rule and bind it.
+     */
+    @Test
+    public void testMeasureAdditiveBootReshape_afterSharedIndexRule() throws Exception {
+        DownSamplingConfigService downSamplingConfigService = new DownSamplingConfigService(Arrays.asList("minute"));
+        ModuleManager moduleManager = mock(ModuleManager.class);
+        ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
+        ModuleServiceHolder moduleServiceHolder = mock(ModuleServiceHolder.class);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleProviderHolder);
+        when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
+        when(moduleServiceHolder.getService(DownSamplingConfigService.class)).thenReturn(downSamplingConfigService);
+
+        StorageModels models = new StorageModels();
+        Model first = models.add(TestMetric.class, DefaultScopeDefine.SERVICE,
+                                 new Storage("testMetric", true, DownSampling.Minute),
+                                 StorageManipulationOpt.runtimeApply());
+        Model secondBase = models.add(TestMetricShared.class, DefaultScopeDefine.SERVICE,
+                                      new Storage("testMetricShared", true, DownSampling.Minute),
+                                      StorageManipulationOpt.runtimeApply());
+        BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
+        installer.isExists(first, StorageManipulationOpt.runtimeApply());
+        installer.createTable(first);
+        installer.isExists(secondBase, StorageManipulationOpt.runtimeApply());
+        installer.createTable(secondBase);
+
+        models.remove(TestMetricShared.class, StorageManipulationOpt.runtimeApply());
+        Model secondAdditive = models.add(TestMetricSharedAdditive.class, DefaultScopeDefine.SERVICE,
+                                          new Storage("testMetricShared", true, DownSampling.Minute),
+                                          StorageManipulationOpt.runtimeApply());
+        StorageManipulationOpt bootOpt = StorageManipulationOpt.bootInstall();
+        BanyanDBIndexInstaller bootInstaller = new BanyanDBIndexInstaller(client, moduleManager, config);
+        bootInstaller.isExists(first, bootOpt);
+        bootInstaller.isExists(secondAdditive, bootOpt);
+
+        String groupName = MetadataRegistry.convertGroupName(
+            config.getGlobal().getNamespace(), BanyanDB.MeasureGroup.METRICS_MINUTE.getName());
+        assertOutcome(bootOpt, "measure", groupName + "/testMetricShared_minute", StorageManipulationOpt.Outcome.UPDATED);
+        assertEquals("tags=[new_tag] type=TYPE_INVERTED analyzer= noSort=true",
+            describe(client.client.findIndexRule(groupName, "new_tag")));
+        assertEquals("subject=CATALOG_MEASURE/testMetricShared_minute rules=[tag, new_tag]",
+            describe(client.client.findIndexRuleBinding(groupName, "testMetricShared_minute")));
+    }
+
+    /**
+     * Two measures of one group share the index rule {@code tag}, which the backend lacks. A not-main OAP's startup
+     * check reports it absent for each measure: a rule whose check failed is checked again for the next model.
+     */
+    @Test
+    public void testPeerVerifyReportsASharedMissingIndexRuleForEachMeasure() throws Exception {
+        ModuleManager moduleManager = moduleManagerWithMinuteDownSampling();
+        StorageModels models = new StorageModels();
+        Model first = models.add(TestMetric.class, DefaultScopeDefine.SERVICE,
+                                 new Storage("testMetric", true, DownSampling.Minute),
+                                 StorageManipulationOpt.runtimeApply());
+        Model second = models.add(TestMetricShared.class, DefaultScopeDefine.SERVICE,
+                                  new Storage("testMetricShared", true, DownSampling.Minute),
+                                  StorageManipulationOpt.runtimeApply());
+        BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
+        installer.isExists(first, StorageManipulationOpt.runtimeApply());
+        installer.createTable(first);
+        installer.isExists(second, StorageManipulationOpt.runtimeApply());
+        installer.createTable(second);
+        String groupName = MetadataRegistry.convertGroupName(
+            config.getGlobal().getNamespace(), BanyanDB.MeasureGroup.METRICS_MINUTE.getName());
+        client.client.deleteIndexRule(groupName, "tag");
+
+        StorageManipulationOpt verifyOpt = StorageManipulationOpt.runtimePeerVerify();
+        BanyanDBIndexInstaller peerInstaller = new BanyanDBIndexInstaller(client, moduleManager, config);
+        peerInstaller.isExists(first, verifyOpt);
+        peerInstaller.isExists(second, verifyOpt);
+
+        assertEquals(2, verifyOpt.getOutcomes().stream()
+                                 .filter(o -> "indexRule".equals(o.getResourceType())
+                                     && (groupName + "/tag").equals(o.getResourceName())
+                                     && o.getStatus() == StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_ABSENT)
+                                 .count(),
+            "expected the missing rule reported for both measures, got " + verifyOpt.getOutcomes());
+
+        // Put the rule back for the other tests of this group.
+        new BanyanDBIndexInstaller(client, moduleManager, config).isExists(first, StorageManipulationOpt.runtimeApply());
+        assertEquals("tags=[tag] type=TYPE_INVERTED analyzer=url noSort=true",
+            describe(client.client.findIndexRule(groupName, "tag")));
+    }
+
+    /**
+     * Dropping a measure drops its index rule binding before the measure, and records each drop. A group the
+     * installer compares with its declaration records a match.
+     */
+    @Test
+    public void testDropMeasureRecordsItsBindingAndItself() throws Exception {
+        ModuleManager moduleManager = moduleManagerWithMinuteDownSampling();
+        Model model = new StorageModels().add(TestMetric.class, DefaultScopeDefine.SERVICE,
+                                              new Storage("testMetricDropped", true, DownSampling.Minute),
+                                              StorageManipulationOpt.runtimeApply());
+        StorageManipulationOpt createOpt = StorageManipulationOpt.runtimeApply();
+        BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
+        installer.isExists(model, createOpt);
+        installer.createTable(model, createOpt);
+        String groupName = MetadataRegistry.convertGroupName(
+            config.getGlobal().getNamespace(), BanyanDB.MeasureGroup.METRICS_MINUTE.getName());
+        StorageManipulationOpt checkOpt = StorageManipulationOpt.runtimeApply();
+        new BanyanDBIndexInstaller(client, moduleManager, config).isExists(model, checkOpt);
+        assertOutcome(checkOpt, "group", groupName, StorageManipulationOpt.Outcome.MATCHED);
+
+        StorageManipulationOpt dropOpt = StorageManipulationOpt.runtimeApply();
+        installer.dropTable(model, dropOpt);
+
+        assertOutcome(dropOpt, "indexRuleBinding", groupName + "/testMetricDropped_minute",
+            StorageManipulationOpt.Outcome.DROPPED);
+        assertOutcome(dropOpt, "measure", groupName + "/testMetricDropped_minute",
+            StorageManipulationOpt.Outcome.DROPPED);
+        assertNull(client.client.findIndexRuleBinding(groupName, "testMetricDropped_minute"));
+    }
+
+    /**
+     * Boot applies an additive trace change: {@link TestTrace} is installed first, then {@link TestTraceAdditive}
+     * (one more tag) is registered under {@link StorageManipulationOpt#bootInstall()}. The trace is updated in place
+     * and {@link StorageManipulationOpt.Outcome#UPDATED} recorded.
+     */
+    @Test
+    public void testTraceAdditiveBootReshape() throws Exception {
+        DownSamplingConfigService downSamplingConfigService = new DownSamplingConfigService(Arrays.asList("minute"));
+        ModuleManager moduleManager = mock(ModuleManager.class);
+        ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
+        ModuleServiceHolder moduleServiceHolder = mock(ModuleServiceHolder.class);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleProviderHolder);
+        when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
+        when(moduleServiceHolder.getService(DownSamplingConfigService.class)).thenReturn(downSamplingConfigService);
+
+        StorageModels models = new StorageModels();
+        Model baseModel = models.add(TestTrace.class, DefaultScopeDefine.SERVICE,
+                                     new Storage("testTrace", true, DownSampling.Second),
+                                     StorageManipulationOpt.runtimeApply());
+        BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
+        installer.isExists(baseModel, StorageManipulationOpt.runtimeApply());
+        installer.createTable(baseModel);
+
+        String groupName = MetadataRegistry.convertGroupName(
+            config.getGlobal().getNamespace(), BanyanDB.TraceGroup.TRACE.getName());
+        assertEquals("traceId=trace_id spanId=span_id timestamp=timestamp"
+                + " tags=[trace_id:TAG_TYPE_STRING, span_id:TAG_TYPE_STRING, service_id:TAG_TYPE_STRING,"
+                + " timestamp:TAG_TYPE_TIMESTAMP]",
+            describe(client.client.findTrace(groupName, "testTrace")));
+
+        models.remove(TestTrace.class, StorageManipulationOpt.runtimeApply());
+        Model reshapedModel = models.add(TestTraceAdditive.class, DefaultScopeDefine.SERVICE,
+                                         new Storage("testTrace", true, DownSampling.Second),
+                                         StorageManipulationOpt.runtimeApply());
+        StorageManipulationOpt bootOpt = StorageManipulationOpt.bootInstall();
+        new BanyanDBIndexInstaller(client, moduleManager, config).isExists(reshapedModel, bootOpt);
+
+        assertEquals("traceId=trace_id spanId=span_id timestamp=timestamp"
+                + " tags=[trace_id:TAG_TYPE_STRING, span_id:TAG_TYPE_STRING, service_id:TAG_TYPE_STRING,"
+                + " endpoint_id:TAG_TYPE_STRING, timestamp:TAG_TYPE_TIMESTAMP]",
+            describe(client.client.findTrace(groupName, "testTrace")));
+        assertOutcome(bootOpt, "trace", groupName + "/testTrace", StorageManipulationOpt.Outcome.UPDATED);
+    }
+
+    private static ModuleManager moduleManagerWithMinuteDownSampling() {
+        DownSamplingConfigService downSamplingConfigService = new DownSamplingConfigService(Arrays.asList("minute"));
+        ModuleManager moduleManager = mock(ModuleManager.class);
+        ModuleProviderHolder moduleProviderHolder = mock(ModuleProviderHolder.class);
+        ModuleServiceHolder moduleServiceHolder = mock(ModuleServiceHolder.class);
+        when(moduleManager.find(CoreModule.NAME)).thenReturn(moduleProviderHolder);
+        when(moduleProviderHolder.provider()).thenReturn(moduleServiceHolder);
+        when(moduleServiceHolder.getService(DownSamplingConfigService.class)).thenReturn(downSamplingConfigService);
+        return moduleManager;
+    }
+
+    private static void assertOutcome(final StorageManipulationOpt opt, final String resourceType,
+                                      final String resourceName, final StorageManipulationOpt.Outcome status) {
+        assertTrue(opt.getOutcomes().stream().anyMatch(o -> resourceType.equals(o.getResourceType())
+                && resourceName.equals(o.getResourceName()) && o.getStatus() == status),
+            "expected " + resourceType + "(" + resourceName + ")=" + status + ", got " + opt.getOutcomes());
     }
 
     // The describe() helpers render a schema object as BanyanDB holds it, with every property the installer sets, so
@@ -595,6 +864,12 @@ public class BanyanDBIT {
 
     private static String describe(final BanyandbDatabase.Stream stream) {
         return "entity=" + stream.getEntity().getTagNamesList() + " tags=" + tags(stream.getTagFamiliesList());
+    }
+
+    private static String describe(final BanyandbDatabase.Trace trace) {
+        return "traceId=" + trace.getTraceIdTagName() + " spanId=" + trace.getSpanIdTagName()
+            + " timestamp=" + trace.getTimestampTagName()
+            + " tags=" + trace.getTagsList().stream().map(t -> t.getName() + ":" + t.getType()).collect(Collectors.toList());
     }
 
     private static String describe(final BanyandbDatabase.IndexRule rule) {
@@ -650,12 +925,10 @@ public class BanyanDBIT {
 
     /**
      * Reshape target: same {@code payload} column, but {@code storageOnly} is gone so the
-     * tag relocates to the {@code searchable} family. Opted in via
-     * {@code @BanyanDB.Stream.AllowBootReshape}.
+     * tag relocates to the {@code searchable} family.
      */
     @Stream(name = "relocStream", scopeId = DefaultScopeDefine.SERVICE,
         builder = TestStreamStorageOnlyOff.Builder.class, processor = RecordStreamProcessor.class)
-    @BanyanDB.Stream.AllowBootReshape
     @BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_LOG)
     @BanyanDB.Stream.TimestampColumn("timestamp")
     private static class TestStreamStorageOnlyOff extends Record {
@@ -686,15 +959,13 @@ public class BanyanDBIT {
 
     /**
      * Non-additive variant: {@code tag} is now {@code long} (TAG_TYPE_INT) where the live
-     * stream has it as {@code String} (TAG_TYPE_STRING). Boot must refuse to reshape even
-     * with {@code @BanyanDB.Stream.AllowBootReshape}.
+     * stream has it as {@code String} (TAG_TYPE_STRING). Boot refuses it.
      */
     @Stream(name = "testStream", scopeId = DefaultScopeDefine.SERVICE,
-        builder = TestStreamNonAdditiveReshapeOn.Builder.class, processor = RecordStreamProcessor.class)
-    @BanyanDB.Stream.AllowBootReshape
+        builder = TestStreamNonAdditive.Builder.class, processor = RecordStreamProcessor.class)
     @BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_LOG)
     @BanyanDB.Stream.TimestampColumn("timestamp")
-    private static class TestStreamNonAdditiveReshapeOn extends Record {
+    private static class TestStreamNonAdditive extends Record {
         @Column(name = "service_id")
         @BanyanDB.Stream.SeriesID(index = 0)
         private String serviceId;
@@ -723,51 +994,13 @@ public class BanyanDBIT {
     /**
      * Mirror of {@link UpdateTestStream} but trimmed to a purely-additive shape change
      * (only {@code new_tag} is added; {@code tag}'s index settings stay matched to
-     * {@link TestStream}) and opted in via {@code @BanyanDB.Stream.AllowBootReshape}.
+     * {@link TestStream}).
      */
     @Stream(name = "testStream", scopeId = DefaultScopeDefine.SERVICE,
-        builder = TestStreamAdditiveReshapeOn.Builder.class, processor = RecordStreamProcessor.class)
-    @BanyanDB.Stream.AllowBootReshape
+        builder = TestStreamAdditive.Builder.class, processor = RecordStreamProcessor.class)
     @BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_LOG)
     @BanyanDB.Stream.TimestampColumn("timestamp")
-    private static class TestStreamAdditiveReshapeOn extends Record {
-        @Column(name = "service_id")
-        @BanyanDB.Stream.SeriesID(index = 0)
-        private String serviceId;
-        @Column(name = "tag")
-        @BanyanDB.Stream.MatchQuery(analyzer = BanyanDB.AnalyzerType.URL)
-        private String tag;
-        @Column(name = "new_tag")
-        private String newTag;
-        @Column(name = "timestamp")
-        private long timestamp;
-
-        @Override
-        public StorageID id() {
-            return new StorageID();
-        }
-
-        static class Builder implements StorageBuilder<StorageData> {
-            @Override
-            public StorageData storage2Entity(final Convert2Entity converter) {
-                return null;
-            }
-
-            @Override
-            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
-            }
-        }
-    }
-
-    /**
-     * Same additive shape as {@link TestStreamAdditiveReshapeOn} but without the opt-in —
-     * boot must refuse to reshape and record SKIPPED_SHAPE_MISMATCH.
-     */
-    @Stream(name = "testStream", scopeId = DefaultScopeDefine.SERVICE,
-        builder = TestStreamAdditiveReshapeOff.Builder.class, processor = RecordStreamProcessor.class)
-    @BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_LOG)
-    @BanyanDB.Stream.TimestampColumn("timestamp")
-    private static class TestStreamAdditiveReshapeOff extends Record {
+    private static class TestStreamAdditive extends Record {
         @Column(name = "service_id")
         @BanyanDB.Stream.SeriesID(index = 0)
         private String serviceId;
@@ -906,6 +1139,208 @@ public class BanyanDBIT {
         @Column(name = "new_value", storageOnly = true)
         @BanyanDB.Measure.Field
         private long newValue;
+
+        static class Builder implements StorageBuilder<StorageData> {
+            @Override
+            public StorageData storage2Entity(final Convert2Entity converter) {
+                return null;
+            }
+
+            @Override
+            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
+
+            }
+        }
+    }
+
+    /**
+     * {@link TestMetric} plus one tag and one field: an additive measure change.
+     */
+    @Stream(name = "testMetric", scopeId = DefaultScopeDefine.SERVICE,
+        builder = TestMetricAdditive.Builder.class, processor = MetricsStreamProcessor.class)
+    private static class TestMetricAdditive {
+        @Column(name = "service_id")
+        @BanyanDB.Measure.SeriesID(index = 0)
+        @BanyanDB.Measure.ShardingKey(index = 0)
+        private String serviceId;
+        @Column(name = "tag")
+        @BanyanDB.Measure.MatchQuery(analyzer = BanyanDB.AnalyzerType.URL)
+        private String tag;
+        @Column(name = "new_tag")
+        private String newTag;
+        @Column(name = "value", dataType = Column.ValueDataType.COMMON_VALUE)
+        @BanyanDB.Measure.Field
+        private long value;
+        @Column(name = "new_value")
+        @BanyanDB.Measure.Field
+        private long newValue;
+
+        static class Builder implements StorageBuilder<StorageData> {
+            @Override
+            public StorageData storage2Entity(final Convert2Entity converter) {
+                return null;
+            }
+
+            @Override
+            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
+
+            }
+        }
+    }
+
+    /**
+     * {@link TestMetric} with {@code value} stored as a double: a breaking measure change (the field's type).
+     */
+    @Stream(name = "testMetric", scopeId = DefaultScopeDefine.SERVICE,
+        builder = TestMetricRetyped.Builder.class, processor = MetricsStreamProcessor.class)
+    private static class TestMetricRetyped {
+        @Column(name = "service_id")
+        @BanyanDB.Measure.SeriesID(index = 0)
+        @BanyanDB.Measure.ShardingKey(index = 0)
+        private String serviceId;
+        @Column(name = "tag")
+        @BanyanDB.Measure.MatchQuery(analyzer = BanyanDB.AnalyzerType.URL)
+        private String tag;
+        @Column(name = "value", dataType = Column.ValueDataType.COMMON_VALUE)
+        @BanyanDB.Measure.Field
+        private double value;
+
+        static class Builder implements StorageBuilder<StorageData> {
+            @Override
+            public StorageData storage2Entity(final Convert2Entity converter) {
+                return null;
+            }
+
+            @Override
+            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
+
+            }
+        }
+    }
+
+    @Stream(name = "testTrace", scopeId = DefaultScopeDefine.SERVICE,
+        builder = TestTrace.Builder.class, processor = RecordStreamProcessor.class)
+    @BanyanDB.Trace.Group(BanyanDB.TraceGroup.TRACE)
+    @BanyanDB.Trace.TimestampColumn("timestamp")
+    @BanyanDB.Trace.TraceIdColumn("trace_id")
+    @BanyanDB.Trace.SpanIdColumn("span_id")
+    @BanyanDB.Trace.IndexRule(name = "timestamp", columns = {"service_id"}, orderByColumn = "timestamp")
+    private static class TestTrace extends Record {
+        @Column(name = "trace_id")
+        private String traceId;
+        @Column(name = "span_id")
+        private String spanId;
+        @Column(name = "service_id")
+        private String serviceId;
+        @Column(name = "timestamp")
+        private long timestamp;
+
+        @Override
+        public StorageID id() {
+            return new StorageID();
+        }
+
+        static class Builder implements StorageBuilder<StorageData> {
+            @Override
+            public StorageData storage2Entity(final Convert2Entity converter) {
+                return null;
+            }
+
+            @Override
+            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
+
+            }
+        }
+    }
+
+    /**
+     * {@link TestTrace} plus one tag: an additive trace change.
+     */
+    @Stream(name = "testTrace", scopeId = DefaultScopeDefine.SERVICE,
+        builder = TestTraceAdditive.Builder.class, processor = RecordStreamProcessor.class)
+    @BanyanDB.Trace.Group(BanyanDB.TraceGroup.TRACE)
+    @BanyanDB.Trace.TimestampColumn("timestamp")
+    @BanyanDB.Trace.TraceIdColumn("trace_id")
+    @BanyanDB.Trace.SpanIdColumn("span_id")
+    @BanyanDB.Trace.IndexRule(name = "timestamp", columns = {"service_id"}, orderByColumn = "timestamp")
+    private static class TestTraceAdditive extends Record {
+        @Column(name = "trace_id")
+        private String traceId;
+        @Column(name = "span_id")
+        private String spanId;
+        @Column(name = "service_id")
+        private String serviceId;
+        @Column(name = "endpoint_id")
+        private String endpointId;
+        @Column(name = "timestamp")
+        private long timestamp;
+
+        @Override
+        public StorageID id() {
+            return new StorageID();
+        }
+
+        static class Builder implements StorageBuilder<StorageData> {
+            @Override
+            public StorageData storage2Entity(final Convert2Entity converter) {
+                return null;
+            }
+
+            @Override
+            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
+
+            }
+        }
+    }
+
+    /**
+     * A second measure of {@link TestMetric}'s group, sharing its {@code tag} index rule.
+     */
+    @Stream(name = "testMetricShared", scopeId = DefaultScopeDefine.SERVICE,
+        builder = TestMetricShared.Builder.class, processor = MetricsStreamProcessor.class)
+    private static class TestMetricShared {
+        @Column(name = "service_id")
+        @BanyanDB.Measure.SeriesID(index = 0)
+        @BanyanDB.Measure.ShardingKey(index = 0)
+        private String serviceId;
+        @Column(name = "tag")
+        @BanyanDB.Measure.MatchQuery(analyzer = BanyanDB.AnalyzerType.URL)
+        private String tag;
+        @Column(name = "value", dataType = Column.ValueDataType.COMMON_VALUE)
+        @BanyanDB.Measure.Field
+        private long value;
+
+        static class Builder implements StorageBuilder<StorageData> {
+            @Override
+            public StorageData storage2Entity(final Convert2Entity converter) {
+                return null;
+            }
+
+            @Override
+            public void entity2Storage(final StorageData entity, final Convert2Storage converter) {
+
+            }
+        }
+    }
+
+    /**
+     * {@link TestMetricShared} plus {@code new_tag}, whose index rule comes after the shared {@code tag}.
+     */
+    @Stream(name = "testMetricShared", scopeId = DefaultScopeDefine.SERVICE,
+        builder = TestMetricSharedAdditive.Builder.class, processor = MetricsStreamProcessor.class)
+    private static class TestMetricSharedAdditive {
+        @Column(name = "service_id")
+        @BanyanDB.Measure.SeriesID(index = 0)
+        @BanyanDB.Measure.ShardingKey(index = 0)
+        private String serviceId;
+        @Column(name = "tag")
+        @BanyanDB.Measure.MatchQuery(analyzer = BanyanDB.AnalyzerType.URL)
+        private String tag;
+        @Column(name = "new_tag")
+        private String newTag;
+        @Column(name = "value", dataType = Column.ValueDataType.COMMON_VALUE)
+        @BanyanDB.Measure.Field
+        private long value;
 
         static class Builder implements StorageBuilder<StorageData> {
             @Override

@@ -74,11 +74,11 @@ class BanyanDBAIAgentConversationQueryDAOTest {
             registeredModels.add(models.add(
                 AIAgentSessionFlowRecord.class, DefaultScopeDefine.AI_AGENT_SESSION_FLOW,
                 new Storage(AIAgentSessionFlowRecord.INDEX_NAME, true, DownSampling.Second),
-                StorageManipulationOpt.withSchemaChange()));
+                StorageManipulationOpt.runtimeApply()));
             registeredModels.add(models.add(
                 AIAgentSessionDataRecord.class, DefaultScopeDefine.AI_AGENT_SESSION_DATA,
                 new Storage(AIAgentSessionDataRecord.INDEX_NAME, true, DownSampling.Second),
-                StorageManipulationOpt.withSchemaChange()));
+                StorageManipulationOpt.runtimeApply()));
         }
         registeredModels.forEach(model -> MetadataRegistry.INSTANCE.registerStreamModel(model, config));
         final BanyanDBStorageClient client = mock(BanyanDBStorageClient.class);

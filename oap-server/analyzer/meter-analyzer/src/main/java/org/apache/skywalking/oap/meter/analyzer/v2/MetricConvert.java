@@ -84,16 +84,16 @@ public class MetricConvert {
     private final List<Analyzer> analyzers;
 
     public MetricConvert(MetricRuleConfig rule, MeterSystem service) {
-        // Static boot default: create-if-absent semantics. Runtime-rule on-demand callers use
-        // the explicit-opt overload and pass withSchemaChange() to get reshape permission.
-        this(rule, service, null, null, StorageManipulationOpt.schemaCreateIfAbsent());
+        // Static boot default: additive changes only. Runtime-rule on-demand callers use
+        // the explicit-opt overload and pass runtimeApply() to get reshape permission.
+        this(rule, service, null, null, StorageManipulationOpt.bootInstall());
     }
 
     public MetricConvert(final MetricRuleConfig rule, final MeterSystem service,
                          final ClassPool pool,
                          final ClassLoader targetClassLoader) {
         this(rule, service, pool, targetClassLoader,
-             StorageManipulationOpt.schemaCreateIfAbsent());
+             StorageManipulationOpt.bootInstall());
     }
 
     /**
@@ -103,8 +103,8 @@ public class MetricConvert {
      * @param service MeterSystem target for registration
      * @param pool per-file Javassist pool, or null to use the shared default
      * @param targetClassLoader per-file ClassLoader, or null to use the shared default
-     * @param storageOpt policy for backend-side install; main-node passes withSchemaChange,
-     *                   peer-node passes withoutSchemaChange to skip server DDL
+     * @param storageOpt policy for backend-side install; main-node passes runtimeApply,
+     *                   peer-node passes runtimeLocalOnly to skip server DDL
      */
     public MetricConvert(final MetricRuleConfig rule, final MeterSystem service,
                          final ClassPool pool,

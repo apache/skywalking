@@ -150,10 +150,10 @@ public class MeterSystem implements Service {
                                         String functionName,
                                         ScopeType type,
                                         Class<T> dataType) throws IllegalArgumentException {
-        // Static boot path: create-if-absent semantics so a backend that already holds this
-        // metric under a different shape is preserved and reported, not silently reshaped.
+        // Static boot path: additive changes only, so a backend that already holds this metric
+        // under a breaking different shape is preserved and reported, not silently reshaped.
         createInternal(metricsName, functionName, type, dataType, classPool, MeterClassPackageHolder.class,
-            StorageManipulationOpt.schemaCreateIfAbsent());
+            StorageManipulationOpt.bootInstall());
     }
 
     /**
@@ -168,8 +168,8 @@ public class MeterSystem implements Service {
      * Runtime-rule entry point: create a streaming calculation under a caller-supplied
      * per-file {@code ClassPool} + {@code ClassLoader}, with a caller-specified
      * {@link StorageManipulationOpt} policy. Main-node apply passes
-     * {@link StorageManipulationOpt#withSchemaChange()} (the usual install path); peer-node apply
-     * passes {@link StorageManipulationOpt#withoutSchemaChange()} so local state is populated
+     * {@link StorageManipulationOpt#runtimeApply()} (the usual install path); peer-node apply
+     * passes {@link StorageManipulationOpt#runtimeLocalOnly()} so local state is populated
      * (MeterSystem meterPrototypes, BanyanDB MetadataRegistry, StorageModels entry) without
      * firing server-side {@code createMeasure} / {@code update}.
      */
@@ -301,20 +301,18 @@ public class MeterSystem implements Service {
                 metricsClass, targetClassLoader, MeterClassPackageHolder.class);
             AcceptableValue prototype = (AcceptableValue) targetClass.newInstance();
             meterPrototypes.put(metricsName, new MeterDefinition(type, prototype, dataType, true));
+            final int outcomesBefore = opt.getOutcomes().size();
             MetricsStreamProcessor.getInstance().create(
                 manager,
                 new StreamDefinition(
                     metricsName, type.getScopeId(), prototype.builder(), MetricsStreamProcessor.class),
                 targetClass,
                 opt);
-            // Roll back the prototype if the installer refused to reshape the backend
-            // (SKIPPED_SHAPE_MISMATCH recorded on opt). Leaving the prototype in
-            // meterPrototypes would mean dispatch lookups succeed for a metric whose
-            // storage workers MetricsStreamProcessor refused to register — samples would
-            // fail silently later rather than at registration time. Boot continues with
-            // this metric inactive; operator reshapes explicitly via the runtime-rule
-            // on-demand endpoint.
-            if (opt.hasShapeMismatch()) {
+            // Roll back the prototype if boot refused a breaking change to this metric's storage.
+            // Leaving the prototype in meterPrototypes would mean dispatch lookups succeed for a
+            // metric whose storage workers MetricsStreamProcessor refused to register — samples would
+            // fail silently later rather than at registration time. The metric stays off.
+            if (opt.firstBootRefusalSince(outcomesBefore) != null) {
                 meterPrototypes.remove(metricsName);
             }
         } catch (CannotCompileException | IllegalAccessException | InstantiationException
@@ -369,7 +367,7 @@ public class MeterSystem implements Service {
             throw new IllegalArgumentException("classLoaderNeighbor must not be null");
         }
         createInternal(metricsName, functionName, type, dataType, pool, classLoaderNeighbor,
-            StorageManipulationOpt.withSchemaChange());
+            StorageManipulationOpt.runtimeApply());
     }
 
     /**
@@ -414,12 +412,12 @@ public class MeterSystem implements Service {
      * @return {@code true} if a metric was found and removed, {@code false} otherwise
      */
     public synchronized boolean removeMetric(final String metricsName) {
-        return removeMetric(metricsName, StorageManipulationOpt.withSchemaChange());
+        return removeMetric(metricsName, StorageManipulationOpt.runtimeApply());
     }
 
     /**
      * Opt-aware {@code removeMetric}. Runtime-rule peer-side callers pass
-     * {@link StorageManipulationOpt#withoutSchemaChange()} so {@code ModelInstaller.dropTable} is
+     * {@link StorageManipulationOpt#runtimeLocalOnly()} so {@code ModelInstaller.dropTable} is
      * NOT invoked on the shared storage — the cluster main owns that side-effect.
      *
      * <p>Order is backend-first / local-state-second so failure is retriable. The earlier
@@ -431,11 +429,11 @@ public class MeterSystem implements Service {
      * caches; on failure we leave {@code meterPrototypes} populated and the CtClass attached
      * so a retry hits the backend again.
      *
-     * <p>Failure surface: under {@code withSchemaChange} the storage-model cascade failure is
+     * <p>Failure surface: under {@code runtimeApply} the storage-model cascade failure is
      * propagated as a {@link RuntimeException}. The REST {@code /inactivate} path depends on
      * this to surface 500 {@code teardown_deferred} when BanyanDB's delete-measure threw —
      * without it the handler would return 200 inactivated despite the measure still being
-     * live. Under {@code withoutSchemaChange} the cascade fires {@code whenRemoving} but the
+     * live. Under {@code runtimeLocalOnly} the cascade fires {@code whenRemoving} but the
      * peer's {@code ModelInstaller.dropTable} is suppressed by policy, so any throw is
      * logged and swallowed — the peer has no backend debt. Streaming-chain drain failures
      * are always logged and swallowed: stale workers self-drain within one tick.
@@ -450,7 +448,7 @@ public class MeterSystem implements Service {
         // Cascade storage-model removal (Hour / Day / Minute) FIRST. ModelRegistry.remove
         // fires whenRemoving on every listener, so each backend's ModelInstaller.dropTable
         // runs — real delete for BanyanDB, no-op for JDBC / Elasticsearch, skipped outright
-        // when the caller is a peer-side (WITHOUT_SCHEMA_CHANGE) apply. If a listener throws,
+        // when the caller is a peer-side (RUNTIME_LOCAL_ONLY) apply. If a listener throws,
         // ModelRegistry.remove keeps the model in its registry so this retry path stays
         // open: the caller (Reconciler unregisterBundle) preserves appliedMal[key] and the
         // next tick (or operator retry) re-enters this method, finds meterPrototypes still
@@ -468,7 +466,7 @@ public class MeterSystem implements Service {
                         + "; backend drop did not complete. Local state preserved for retry.",
                     t);
             }
-            // Non-escalating opt (peer-side withoutSchemaChange, etc.) — backend drop is
+            // Non-escalating opt (peer-side runtimeLocalOnly, etc.) — backend drop is
             // suppressed by policy anyway, so a listener throw here is the listener's
             // local bookkeeping misbehaving, not real backend debt. Fall through to
             // clear local state.
@@ -699,6 +697,7 @@ public class MeterSystem implements Service {
 
             log.debug("Generate metrics class, " + metricsClass.getName());
 
+            final int outcomesBefore = opt.getOutcomes().size();
             MetricsStreamProcessor.getInstance().create(
                 manager,
                 new StreamDefinition(
@@ -706,12 +705,11 @@ public class MeterSystem implements Service {
                 targetClass,
                 opt
             );
-            // Same shape-mismatch guard as the static-catalog createInternal path. Under
-            // full-install mode the opt shouldn't ever carry a SKIPPED_SHAPE_MISMATCH
-            // outcome (the installer reshapes), but defensively roll the prototype back if
-            // it does — a dispatch lookup against a prototype whose workers never came up
-            // produces confusing silent-drop failures later.
-            if (opt.hasShapeMismatch()) {
+            // Same guard as the static-catalog createInternal path. A runtime apply never refuses
+            // (it applies every difference), but roll the prototype back if this call did — a
+            // dispatch lookup against a prototype whose workers never came up produces confusing
+            // silent-drop failures later.
+            if (opt.firstBootRefusalSince(outcomesBefore) != null) {
                 meterPrototypes.remove(metricsName);
             }
         } catch (CannotCompileException | IllegalAccessException | InstantiationException | StorageException e) {

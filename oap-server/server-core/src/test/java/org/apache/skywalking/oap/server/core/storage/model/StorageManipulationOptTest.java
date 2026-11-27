@@ -30,33 +30,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Unit coverage for the batched-fence machinery on {@link StorageManipulationOpt}: a
- * {@link StorageManipulationOpt#withSchemaChangeDeferredFence()} opt carries the same flags as
- * {@link StorageManipulationOpt#withSchemaChange()} but lets the installer register a single
+ * {@link StorageManipulationOpt#runtimeApplyDeferredFence()} opt carries the same flags as
+ * {@link StorageManipulationOpt#runtimeApply()} but lets the installer register a single
  * {@link StorageManipulationOpt.DeferredFence} that the apply orchestration runs ONCE instead of
  * one fence per metric/downsampling.
  */
 class StorageManipulationOptTest {
 
     @Test
-    void deferredFenceOptHasSameFlagsAsWithSchemaChange() {
-        final StorageManipulationOpt deferred = StorageManipulationOpt.withSchemaChangeDeferredFence();
-        final StorageManipulationOpt plain = StorageManipulationOpt.withSchemaChange();
+    void deferredFenceOptHasSameFlagsAsRuntimeApply() {
+        final StorageManipulationOpt deferred = StorageManipulationOpt.runtimeApplyDeferredFence();
+        final StorageManipulationOpt plain = StorageManipulationOpt.runtimeApply();
         // Behaviour must be identical except for the batching toggle — same mode/flags so every
         // create/update/drop privilege the installer checks is unchanged.
         assertEquals(plain.getMode(), deferred.getMode(),
-            "deferred-fence opt must keep the WITH_SCHEMA_CHANGE mode");
-        assertTrue(deferred.isWithSchemaChange(),
-            "deferred-fence opt must still report withSchemaChange semantics");
+            "deferred-fence opt must keep the RUNTIME_APPLY mode");
+        assertTrue(deferred.isRuntimeApply(),
+            "deferred-fence opt must still report runtimeApply semantics");
         assertTrue(deferred.isDeferFence(),
             "deferred-fence opt must flag deferFence");
         assertFalse(plain.isDeferFence(),
-            "the plain withSchemaChange opt must NOT defer the fence");
-        assertFalse(StorageManipulationOpt.withoutSchemaChange().isDeferFence());
+            "the plain runtimeApply opt must NOT defer the fence");
+        assertFalse(StorageManipulationOpt.runtimeLocalOnly().isDeferFence());
     }
 
     @Test
     void runDeferredFenceInvokesRegisteredFenceOnce() throws StorageException {
-        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        final StorageManipulationOpt opt = StorageManipulationOpt.runtimeApplyDeferredFence();
         final AtomicInteger calls = new AtomicInteger();
         opt.setDeferredFence(calls::incrementAndGet);
 
@@ -69,13 +69,13 @@ class StorageManipulationOptTest {
     void runDeferredFenceIsNoOpWhenNothingRegistered() {
         // Peer / no-change applies (and non-BanyanDB backends) never register a fence; flushing
         // must be a safe no-op, not an NPE.
-        assertDoesNotThrow(() -> StorageManipulationOpt.withSchemaChangeDeferredFence().runDeferredFence());
-        assertDoesNotThrow(() -> StorageManipulationOpt.withoutSchemaChange().runDeferredFence());
+        assertDoesNotThrow(() -> StorageManipulationOpt.runtimeApplyDeferredFence().runDeferredFence());
+        assertDoesNotThrow(() -> StorageManipulationOpt.runtimeLocalOnly().runDeferredFence());
     }
 
     @Test
     void runDeferredFencePropagatesStorageException() {
-        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        final StorageManipulationOpt opt = StorageManipulationOpt.runtimeApplyDeferredFence();
         opt.setDeferredFence(() -> {
             throw new StorageException("barrier transport error");
         });
@@ -88,7 +88,7 @@ class StorageManipulationOptTest {
         // A reconciler tick reuses ONE opt across every rule file. After a file flushes its
         // fence, a later file that performed no DDL (registers no new closure) must NOT re-run
         // the earlier file's stale fence.
-        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        final StorageManipulationOpt opt = StorageManipulationOpt.runtimeApplyDeferredFence();
         final AtomicInteger calls = new AtomicInteger();
         opt.setDeferredFence(calls::incrementAndGet);
 
@@ -102,7 +102,7 @@ class StorageManipulationOptTest {
     void runDeferredFenceResetsRevisionAfterAwait() throws StorageException {
         // The closure must observe this file's accumulated revision DURING await, then the opt
         // resets so the next file fences on its own DDL only — not the cumulative max.
-        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        final StorageManipulationOpt opt = StorageManipulationOpt.runtimeApplyDeferredFence();
         opt.recordModRevision(42L);
         final AtomicInteger seenDuringAwait = new AtomicInteger();
         opt.setDeferredFence(() -> seenDuringAwait.set((int) opt.getMaxModRevision()));
@@ -119,7 +119,7 @@ class StorageManipulationOptTest {
         // A no-DDL file on a shared tick opt registers no closure, but a prior file (or its
         // commit-tail drops) may have left a revision on the opt. runDeferredFence must still clear
         // it so the next file is not over-fenced on a stale revision.
-        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        final StorageManipulationOpt opt = StorageManipulationOpt.runtimeApplyDeferredFence();
         opt.recordModRevision(77L);
 
         assertDoesNotThrow(opt::runDeferredFence);
@@ -132,7 +132,7 @@ class StorageManipulationOptTest {
     void runDeferredFenceResetsRevisionEvenWhenFenceThrows() {
         // A barrier transport failure on one file must not leave a stale revision that the next
         // file would inherit; the reset runs in finally.
-        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        final StorageManipulationOpt opt = StorageManipulationOpt.runtimeApplyDeferredFence();
         opt.recordModRevision(99L);
         opt.setDeferredFence(() -> {
             throw new StorageException("barrier transport error");
@@ -147,7 +147,7 @@ class StorageManipulationOptTest {
     void laterSetDeferredFenceWins() throws StorageException {
         // The installer may register the closure once per resource; the latest (equivalent) one
         // wins and still runs a single time.
-        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        final StorageManipulationOpt opt = StorageManipulationOpt.runtimeApplyDeferredFence();
         final AtomicInteger first = new AtomicInteger();
         final AtomicInteger second = new AtomicInteger();
         opt.setDeferredFence(first::incrementAndGet);

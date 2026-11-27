@@ -123,8 +123,8 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  *                         Engine clears its applied-state entry, drops registered
  *                         dispatcher handlers, retires the classloader, fires alarm reset
  *                         for the prior metric set. Storage opt determines whether
- *                         backend schema is dropped (withSchemaChange) or preserved
- *                         (withoutSchemaChange — the {@code /inactivate} contract).
+ *                         backend schema is dropped (runtimeApply) or preserved
+ *                         (runtimeLocalOnly — the {@code /inactivate} contract).
  * </pre>
  *
  * <p><b>4. Bundled-revert prep (driven by {@code DSLRuntimeDelete})</b>
@@ -133,7 +133,7 @@ import org.apache.skywalking.oap.server.library.module.ModuleManager;
  *                         {@code /delete?mode=revertToBundled} after {@code /inactivate}
  *                         has already cleared the engine's applied state. Engines with
  *                         backend schema (MAL) re-register prototypes under
- *                         {@code withoutSchemaChange} so a subsequent {@code apply} of
+ *                         {@code runtimeLocalOnly} so a subsequent {@code apply} of
  *                         the bundled YAML can compute its delta against runtime and
  *                         drop runtime-only metrics through the standard commit path.
  *                         Engines without backend (LAL) implement as no-op. Symmetric
@@ -281,7 +281,7 @@ public interface RuleEngine<C extends ApplyContext> {
      * Phase: schema changes. Drive the listener chain (BanyanDB define / drop, ES index
      * mapping, JDBC table, etc.) for the deltas this CompiledDSL represents. The
      * {@code StorageManipulationOpt} on the context controls whether the listeners actually
-     * fire (full / withoutSchemaChange / verifySchemaOnly). LAL impl is a no-op (no backend
+     * fire (full / runtimeLocalOnly / runtimePeerVerify). LAL impl is a no-op (no backend
      * schema). Throws on backend failure; scheduler invokes {@link #rollback}.
      */
     void fireSchemaChanges(CompiledDSL compiled, C ctx);
@@ -312,8 +312,8 @@ public interface RuleEngine<C extends ApplyContext> {
 
     /**
      * Tear down a previously-applied bundle (or a static-only bundle). Driven by
-     * {@code /inactivate} (with {@code withoutSchemaChange} so backend stays), {@code /delete}
-     * (with {@code withSchemaChange} so backend drops), and the tick's gone-keys cleanup on main.
+     * {@code /inactivate} (with {@code runtimeLocalOnly} so backend stays), {@code /delete}
+     * (with {@code runtimeApply} so backend drops), and the tick's gone-keys cleanup on main.
      * Engine clears its own dispatcher state + per-key applied entry. Shared post-cleanup
      * (content-cache clear) is the orchestrator's concern after this call returns.
      */
@@ -329,7 +329,7 @@ public interface RuleEngine<C extends ApplyContext> {
      * through the standard commit path.
      *
      * <p>Engines with backend schema (MAL) compile + register meterPrototypes / Models under
-     * {@code withoutSchemaChange} so BanyanDB / ES / JDBC stay untouched. Engines without backend
+     * {@code runtimeLocalOnly} so BanyanDB / ES / JDBC stay untouched. Engines without backend
      * (LAL) implement this as a no-op — bundled's apply pipeline reinstalls handlers without
      * needing a runtime delta.
      *
@@ -362,11 +362,11 @@ public interface RuleEngine<C extends ApplyContext> {
      *                      drives reset itself) doesn't double-reset.
      * @param moduleManager scheduler-supplied module manager so the engine can resolve its
      *                      backend dispatcher (MeterSystem / LogFilterListener.Factory).
-     * @param storageOpt    storage policy for the reload. Main-node {@code /delete} passes
-     *                      {@code schemaCreateIfAbsent} so backend resources removed by the delta
-     *                      drop get recreated; peer-node tick reconcile passes the tick's
-     *                      own opt (typically {@code withoutSchemaChange}) so peers don't
-     *                      double-write DDL.
+     * @param storageOpt    storage policy for the reload: the opt the preceding unregister
+     *                      ran under, so a not-main OAP's tick ({@code runtimeLocalOnly})
+     *                      writes no DDL. {@code /delete?mode=revertToBundled} doesn't come
+     *                      here: it re-applies the bundled rule through the apply pipeline
+     *                      under {@code runtimeApplyDeferredFence}.
      */
     boolean installBundled(String catalog, String name, Consumer<Set<String>> alarmResetter,
                          ModuleManager moduleManager, StorageManipulationOpt storageOpt);

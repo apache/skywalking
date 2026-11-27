@@ -107,7 +107,7 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.util.ContentHash;
  *       storage_change_requires_explicit_approval).</li>
  *   <li>{@code /inactivate} — the soft-pause path. Broadcasts Suspend, flips the row to
  *       INACTIVE, runs the OAP-internal teardown under
- *       {@link StorageManipulationOpt#withoutSchemaChange} via
+ *       {@link StorageManipulationOpt#runtimeLocalOnly} via
  *       {@link DSLManager#applyNowForRuleFile}: dispatch handlers unregistered, prototypes
  *       and Models cleared, alarm windows reset. The BanyanDB measure and its data are
  *       explicitly preserved so reactivation via {@code /addOrUpdate} on the INACTIVE row
@@ -1242,7 +1242,7 @@ public class RuntimeRuleService {
         // dispatch) and the peer resume/notify must wait for the fence. fenceRunByCaller tells the
         // installer to register the fence closure but NOT run it inline — we run it (in the
         // background) right before resuming, so the HTTP response is not held for the wait.
-        final StorageManipulationOpt fenceOpt = StorageManipulationOpt.withSchemaChangeDeferredFence(
+        final StorageManipulationOpt fenceOpt = StorageManipulationOpt.runtimeApplyDeferredFence(
             Duration.ofMillis(dslManager.getDeferredFenceTimeoutMs()));
         fenceOpt.setFenceRunByCaller(true);
         // The apply call compiles, verifies, and fires the schema-change DDL (the fence is deferred
@@ -1885,7 +1885,7 @@ public class RuntimeRuleService {
         // applyNowForRuleFile is idempotent; if the tick fires first, the second call is a
         // fast no-op on the matching hash.
         //
-        // SOFT-PAUSE semantics: pass {@link StorageManipulationOpt#withoutSchemaChange()} so the
+        // SOFT-PAUSE semantics: pass {@link StorageManipulationOpt#runtimeLocalOnly()} so the
         // teardown unregisters every OAP-internal artefact (MeterSystem prototypes,
         // MetricsStreamProcessor entry / persistent workers, BatchQueue handlers, retired
         // RuleClassLoader) without firing the backend dropTable cascade. The measure / table
@@ -1902,14 +1902,14 @@ public class RuntimeRuleService {
         // completed (MalFileApplier swallowed per-metric failures, MetricsStreamProcessor
         // worker drain threw, etc.). Returning 200 would tell the operator "done" while
         // dispatch is still live; 500 + "teardown_deferred" accurately signals retriable
-        // state — the next dslManager tick re-runs the same withoutSchemaChange teardown.
+        // state — the next dslManager tick re-runs the same runtimeLocalOnly teardown.
         final RuntimeRuleManagementDAO.RuntimeRuleFile inactiveFile =
             new RuntimeRuleManagementDAO.RuntimeRuleFile(
                 catalog, name, content,
                 RuntimeRule.STATUS_INACTIVE, rule.getUpdateTime());
         try {
             dslManager.applyNowForRuleFile(inactiveFile, false,
-                StorageManipulationOpt.withoutSchemaChange());
+                StorageManipulationOpt.runtimeLocalOnly());
         } catch (final Throwable t) {
             log.warn("runtime-rule inactivate: local teardown deferred to tick for {}/{}",
                 catalog, name, t);
@@ -1972,7 +1972,7 @@ public class RuntimeRuleService {
                                          final DeleteMode mode,
                                          final RuntimeRuleManagementDAO dao) {
         // /inactivate is a soft-pause that runs the OAP-internal teardown under
-        // withoutSchemaChange, deliberately preserving the BanyanDB measure + its data so
+        // runtimeLocalOnly, deliberately preserving the BanyanDB measure + its data so
         // a re-activation via /addOrUpdate is cheap and lossless. /delete then removes the
         // INACTIVE row. Default mode without a bundled twin leaves the backend measure as
         // an inert artefact; with a bundled twin, default mode is refused (operator must
@@ -2038,7 +2038,7 @@ public class RuntimeRuleService {
             // Bundled-revert is the schema-change path: bundled may have a different shape
             // than runtime, so — like a structural /addOrUpdate — it is tracked and runs
             // ASYNCHRONOUSLY. The unified pipeline (installRuntime → apply(bundled, STRUCTURAL,
-            // withSchemaChange, deferred fence) → reset state → dao.delete) plus its schema
+            // runtimeApply, deferred fence) → reset state → dao.delete) plus its schema
             // fence (up to deferredFenceTimeoutMs) run on the background executor, and the
             // response returns immediately with an applyId the operator polls via
             // GET /runtime/rule/status. The precondition rejections above (inactivate-first,
@@ -2071,7 +2071,7 @@ public class RuntimeRuleService {
         }
 
         // No-bundled-twin DEFAULT path. /inactivate already tore down local handlers under
-        // withoutSchemaChange, so the runtime rule is no longer dispatching. The backend measure
+        // runtimeLocalOnly, so the runtime rule is no longer dispatching. The backend measure
         // (if any) is left in place — it becomes an inert schema artefact, matching the
         // bundled-rule deletion semantics (removing a YAML from otel-rules/ on disk doesn't
         // drop its measure either). Operators who want backend cleanup must purge the

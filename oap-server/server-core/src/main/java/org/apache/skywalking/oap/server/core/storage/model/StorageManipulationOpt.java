@@ -29,111 +29,96 @@ import lombok.Setter;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
 
 /**
- * Per-call policy + outcome for a storage model manipulation — threaded through the
- * {@link ModelRegistry} → {@link ModelRegistry.CreatingListener} → {@link ModelInstaller} call
- * chain. The {@link Mode} is set by the caller up-front; outcome entries are appended by the
- * installer as it examines each underlying storage resource (table, index, measure, index
- * rule, binding, template, etc.).
+ * Per-call storage policy, plus the outcome of every resource the installer examined. It travels through
+ * {@link ModelRegistry} → {@link ModelRegistry.CreatingListener} → {@link ModelInstaller}: the caller picks a
+ * {@link Mode} through a named factory, the installer appends one {@link ResourceOutcome} per resource (table,
+ * index, template, measure, stream, trace, property) it checks, and {@link ModelInstaller} logs them.
  *
- * <h2>Canonical profiles — always use a named factory</h2>
- * Four modes, each matching one distinct caller scenario. Use the factories; the
- * constructor is private. If a future scenario genuinely needs a fifth mode, add it to
- * {@link Mode} here so every caller keeps picking from a known set.
+ * <h2>Where each mode runs in an OAP cluster</h2>
+ * Two stages change storage. <b>Boot</b> registers models while an OAP starts. It runs in production with no
+ * operator watching, so it applies additive changes only. <b>Runtime</b> is the runtime-rule REST API (MAL and LAL
+ * hot update). An operator drives it, so a breaking change goes through once the operator allows it
+ * ({@code allowStorageChange=true}). Runtime only ever changes MAL measures: LAL rules write into record types
+ * defined in code.
+ * <table border="1">
+ * <caption>OAP (role, doing) → mode → outcomes it records</caption>
+ * <tr><th>Stage</th><th>OAP (role, doing)</th><th>Mode</th><th>Outcomes</th></tr>
+ * <tr><td rowspan="2">Boot</td>
+ *     <td>OAP (init or default mode, registering models at startup, persisted runtime overrides of bundled rule
+ *         files included; the init OAP also registers runtime-only rules)</td>
+ *     <td>{@link Mode#BOOT_INSTALL}</td>
+ *     <td>{@code CREATED}, {@code UPDATED}, {@code MATCHED}, {@code BOOT_REFUSED_BREAKING_CHANGE}</td></tr>
+ * <tr><td>OAP (no-init, registering models at startup)</td>
+ *     <td>{@link Mode#BOOT_INSTALL}</td>
+ *     <td>no DDL: it waits until the init OAP has created the resources; then {@code MATCHED} on JDBC and
+ *         Elasticsearch</td></tr>
+ * <tr><td rowspan="4">Runtime</td>
+ *     <td>OAP (main, applying {@code /addOrUpdate} or {@code /delete?mode=revertToBundled}, or a reconcile tick,
+ *         the one at startup included)</td>
+ *     <td>{@link Mode#RUNTIME_APPLY}</td>
+ *     <td>{@code CREATED}, {@code UPDATED}, {@code DROPPED}, {@code MATCHED}; {@code RUNTIME_BACKEND_UNTOUCHED} when
+ *         JDBC or Elasticsearch removes a metric (they keep the table or index)</td></tr>
+ * <tr><td>OAP (main, {@code /inactivate}, the local steps of a revert to a bundled rule, reinstalling a rule
+ *         locally)</td>
+ *     <td>{@link Mode#RUNTIME_LOCAL_ONLY}</td>
+ *     <td>{@code RUNTIME_BACKEND_UNTOUCHED}</td></tr>
+ * <tr><td>OAP (not-main, starting up)</td>
+ *     <td>{@link Mode#RUNTIME_PEER_VERIFY}</td>
+ *     <td>{@code MATCHED}, {@code RUNTIME_PEER_SCHEMA_ABSENT}, {@code RUNTIME_PEER_SCHEMA_DIFFERENT};
+ *         {@code RUNTIME_BACKEND_UNTOUCHED} for the rule's other models, rolled back when one fails</td></tr>
+ * <tr><td>OAP (not-main, reconcile tick)</td>
+ *     <td>{@link Mode#RUNTIME_LOCAL_ONLY}</td>
+ *     <td>{@code RUNTIME_BACKEND_UNTOUCHED}</td></tr>
+ * </table>
+ * A not-main OAP never applies a runtime change itself: it forwards REST calls to the main OAP. An OAP that sees no
+ * peer yet (an empty cluster list at startup) counts itself main.
  *
- * <h3>{@link #withSchemaChange()} — {@link Mode#WITH_SCHEMA_CHANGE} (predicate: {@link #isWithSchemaChange()})</h3>
- * <p>Callers:
- * <ul>
- *   <li>Main-node REST apply ({@code /addOrUpdate}, {@code /delete}) — operator-driven,
- *       structural changes explicitly intended (recovery pushes use the same
- *       {@code /addOrUpdate} route with {@code allowStorageChange=true} +
- *       {@code force=true})</li>
- *   <li>Main-node reconciler tick for files that haven't yet converged via REST
- *       (rare — REST usually wins the race)</li>
- * </ul>
- * <p>Note: {@code /inactivate} is a soft-pause that goes through
- * {@link Mode#WITHOUT_SCHEMA_CHANGE} — backend schema and data are preserved; only
- * OAP-internal state (compiled bundles, dispatch, prototypes) is torn down so
- * cheap re-activation works on the next {@code /addOrUpdate}.
- * <p>Backend behaviour: full DDL — create missing tables / measures, drop retired ones,
- * auto-update BanyanDB {@code Measure} / {@code IndexRule} / {@code IndexRuleBinding} on
- * shape mismatch, and create / update index rules + bindings. Reshaping is treated as
- * intended because the caller came in through an on-demand operator request.
- *
- * <h3>{@link #schemaCreateIfAbsent()} — {@link Mode#SCHEMA_CREATE_IF_ABSENT} (predicate: {@link #isSchemaCreateIfAbsent()})</h3>
- * <p>Callers:
- * <ul>
- *   <li>Startup-time model registration (every OAP, via stream processors — static MAL /
- *       LAL files on disk)</li>
- * </ul>
- * <p>Backend behaviour: create resources that are absent; when a resource is present with
- * a shape that differs from what the model declares, record
- * {@link Outcome#SKIPPED_SHAPE_MISMATCH SKIPPED_SHAPE_MISMATCH} and <strong>do not</strong>
- * call update/reshape. Silent acceptance on reboot used to happen on BanyanDB
- * ({@code ALREADY_EXISTS} swallow) and JDBC (column-type changes undetected); explicit
- * skip surfaces the mismatch to the operator, who must reshape via the on-demand
- * runtime-rule REST endpoint (the only workflow that may change backend schema).
- *
- * <h3>{@link #verifySchemaOnly()} — {@link Mode#VERIFY_SCHEMA_ONLY} (predicate: {@link #isVerifySchemaOnly()})</h3>
- * <p>Callers:
- * <ul>
- *   <li>Boot-time runtime-rule reconciler pass on a cluster <em>peer</em> (a node that is
- *       not the hash-selected main for the file) — the main owns DDL, so this node must not
- *       perform it but must refuse to start if the backend isn't already in the shape the
- *       persisted runtime-rule catalog declares. Chosen by main-ness, not running mode, so a
- *       peer behaves the same in no-init and default mode.</li>
- * </ul>
- * <p>Backend behaviour: read-only inspection. The installer issues the same metadata
- * read RPCs as {@link Mode#SCHEMA_CREATE_IF_ABSENT} but never invokes create / update / drop. On
- * resource missing OR shape mismatch the installer throws — the exception propagates up
- * through the module bootstrap and causes the OAP process to exit, which under k8s
- * results in a pod backloop until either the init OAP has caught up or the operator has
- * fixed the rule files. This matches general OAP boot semantics for static models in
- * non-init mode: the OAP will not silently start with a backend that disagrees with
- * what's declared. Local {@code MetadataRegistry} is populated only when the live shape
- * matches the declared shape.
- *
- * <h3>{@link #withoutSchemaChange()} — {@link Mode#WITHOUT_SCHEMA_CHANGE} (predicate: {@link #isWithoutSchemaChange()})</h3>
- * <p>Callers:
- * <ul>
- *   <li>Peer-node reconciler tick (peer is not the hash-selected main for this file —
- *       main owns server-side DDL)</li>
- *   <li>Main-node REST {@code /inactivate} — soft-pause: backend schema + data are
- *       preserved, only OAP-internal state (compiled bundles, dispatch, prototypes) is
- *       torn down so re-activation on the next {@code /addOrUpdate} is cheap</li>
- * </ul>
- * <p>Backend behaviour: zero server RPCs. {@code BanyanDBIndexInstaller.isExists}
- * short-circuits: {@code parseMetadata} + populate {@code MetadataRegistry} + return
- * {@code allExist=true}. {@code whenCreating} / {@code whenRemoving} record
- * {@link Outcome#SKIPPED_NOT_ALLOWED SKIPPED_NOT_ALLOWED} outcomes instead of firing
- * {@code createTable} / {@code dropTable}. Peer's local MeterSystem still compiles
- * Metrics classes and populates {@code meterPrototypes} — that's pure in-JVM work the
- * opt doesn't (and shouldn't) gate. Differs from {@link Mode#VERIFY_SCHEMA_ONLY} in two
- * ways: no server RPCs (cache populates from local model), and missing / mismatched
- * resources are <strong>not</strong> a fatal error (the next tick will retry, or the
- * main will catch up).
- *
- * <h2>Why it's a single mutable object instead of separate policy/result</h2>
- * Installers can nest many resource operations per Model (BanyanDB Measure + N index rules
- * + binding + optional TopN; ES template + current index). The call chain passes one
- * object; the installer appends outcomes as each resource is examined. The caller reads
- * {@link #getOutcomes()} after the call returns to log or report.
+ * <h2>Why one mutable object</h2>
+ * An installer examines several resources per model (a BanyanDB measure with its index rules, binding and TopN; an
+ * Elasticsearch template and index), so the policy and the outcomes travel together through one call chain.
  */
 public final class StorageManipulationOpt {
 
     /**
-     * Storage-manipulation mode. The installer branches once on this value to decide whether
-     * server-side DDL (create / drop / update) is allowed. See the class Javadoc for the
-     * scenario each mode covers.
+     * The stage a storage change happens in. See the class Javadoc for which OAP runs which stage.
+     */
+    public enum Stage {
+        /** Registering models while an OAP starts. Additive changes only. */
+        BOOT,
+        /** The runtime-rule REST API and its reconciler. Breaking changes need the operator's approval. */
+        RUNTIME
+    }
+
+    /**
+     * What an installer may do to the backend. Each mode belongs to one {@link Stage}; installers read its
+     * {@link Flags} rather than branching on the mode.
      */
     public enum Mode {
         /**
-         * Main-node on-demand path. Installer performs full DDL: create absent resources,
-         * detect shape mismatch and apply the additive subset each backend supports
-         * online ({@code client.update} for BanyanDB, add-column for JDBC, mapping append
-         * for ES). Reshape is treated as intended because the caller explicitly asked
-         * for it via the operator REST endpoint.
+         * Boot.
+         * <ul>
+         *   <li>OAP (init or default mode, registering models at startup) → creates absent resources, extends a
+         *       resource that lacks declared columns, tags or fields, and refuses a breaking difference.</li>
+         *   <li>OAP (no-init, registering models at startup) → no DDL; waits until the init OAP has created the
+         *       resources.</li>
+         * </ul>
          */
-        WITH_SCHEMA_CHANGE(Flags.builder()
+        BOOT_INSTALL(Stage.BOOT, Flags.builder()
+            .inspectBackend(true)
+            .createMissing(true)
+            .applyAdditiveOnMismatch(true)
+            .deferDDLToInitNode(true)
+            .build()),
+        /**
+         * Runtime.
+         * <ul>
+         *   <li>OAP (main, applying {@code /addOrUpdate} or {@code /delete?mode=revertToBundled}, or a reconcile
+         *       tick) → full DDL: creates, updates and drops. A breaking rule edit reaches storage only once the
+         *       operator allowed it, as a drop followed by a create.</li>
+         *   <li>OAP (not-main) → never; it forwards REST calls to the main OAP.</li>
+         * </ul>
+         */
+        RUNTIME_APPLY(Stage.RUNTIME, Flags.builder()
             .inspectBackend(true)
             .createMissing(true)
             .updateOnMismatch(true)
@@ -141,137 +126,104 @@ public final class StorageManipulationOpt {
             .escalateToCaller(true)
             .build()),
         /**
-         * Static boot-time model registration, run by every OAP. On an init / standalone
-         * OAP the installer creates absent resources, but if a resource already exists with
-         * a shape that diverges from the declared model it records
-         * {@link Outcome#SKIPPED_SHAPE_MISMATCH} and does <strong>not</strong> call
-         * update / reshape. Operator must reconcile via the runtime-rule REST endpoint —
-         * boot is not allowed to silently mutate backend shape.
-         *
-         * <p>This is the only mode that sets {@code deferDDLToInitNode}: on a {@code no-init}
-         * OAP the installer defers to the init OAP (waits in the
-         * {@link ModelInstaller#whenCreating} poll loop) rather than creating the resource
-         * itself. The runtime-rule (DSL) modes never defer.
+         * Runtime.
+         * <ul>
+         *   <li>OAP (main) → never.</li>
+         *   <li>OAP (not-main, starting up) → read-only check that the main OAP has already put the persisted
+         *       runtime rules' schema in place. An absent or different resource fails that rule's apply on this
+         *       OAP for this pass (logged); a later reconcile tick loads the rule locally
+         *       ({@link #RUNTIME_LOCAL_ONLY}), trusting the main OAP.</li>
+         * </ul>
          */
-        SCHEMA_CREATE_IF_ABSENT(Flags.builder()
-            .inspectBackend(true)
-            .createMissing(true)
-            .deferDDLToInitNode(true)
-            .build()),
-        /**
-         * Boot path on a non-init OAP. Installer issues the same read-only inspection
-         * RPCs as {@link #SCHEMA_CREATE_IF_ABSENT} but never creates / updates / drops. On
-         * resource missing or shape mismatch the installer <strong>throws</strong>; the
-         * exception propagates up through module bootstrap and exits the process.
-         * Under k8s this causes a pod backloop until the init OAP has caught up or the
-         * operator has aligned rule files with the backend. Local {@code MetadataRegistry}
-         * is populated only when the live shape matches the declared shape.
-         */
-        VERIFY_SCHEMA_ONLY(Flags.builder()
+        RUNTIME_PEER_VERIFY(Stage.RUNTIME, Flags.builder()
             .inspectBackend(true)
             .failOnAbsence(true)
             .failOnShapeMismatch(true)
             .build()),
         /**
-         * Peer-node reconciler tick path. Zero server RPCs — local caches populate from
-         * the declared model and the main is trusted to own backend DDL. Missing or
-         * mismatched resources are not an error: the next tick will retry, and the main
-         * will eventually converge. Distinct from {@link #VERIFY_SCHEMA_ONLY} in that
-         * verification is skipped entirely, not run-and-fail.
+         * Runtime. The backend is never called.
+         * <ul>
+         *   <li>OAP (main, {@code /inactivate}, the local steps of a revert to a bundled rule, reinstalling a rule
+         *       locally) → storage is kept as it is; only this OAP's own state changes.</li>
+         *   <li>OAP (not-main, reconcile tick) → the main OAP owns the DDL; this OAP refreshes its local schema
+         *       cache.</li>
+         * </ul>
          */
-        WITHOUT_SCHEMA_CHANGE(Flags.builder().build());
+        RUNTIME_LOCAL_ONLY(Stage.RUNTIME, Flags.builder().build());
 
+        @Getter
+        private final Stage stage;
         @Getter
         private final Flags flags;
 
-        Mode(final Flags flags) {
+        Mode(final Stage stage, final Flags flags) {
+            this.stage = stage;
             this.flags = flags;
         }
     }
 
     /**
-     * Per-mode behavioural flags. Each control point in the install / remove pipeline
-     * checks one flag instead of branching on the {@link Mode} value, so adding a new
-     * mode is a matter of choosing flag values rather than auditing every {@code if
-     * (opt.isXxx())} site. Flags are immutable and shared across all opts of the same
-     * mode.
-     *
-     * <p>Each flag describes a distinct privilege the installer is granted by the
-     * caller. They are independently composable on paper, but the canonical
-     * combinations live on {@link Mode} — call sites should never construct a
-     * {@code Flags} directly.</p>
+     * What a {@link Mode} allows, one flag per control point in the install / remove pipeline, so a new mode is a
+     * choice of flag values rather than an audit of every call site. Only {@link Mode} builds them.
      */
     @Builder
     @Getter
     public static final class Flags {
         /**
-         * Issue read RPCs to the backend (existence + shape compare). False on
-         * {@link Mode#WITHOUT_SCHEMA_CHANGE} where the contract is "zero server RPCs". When
-         * false the installer must populate local caches from the declared model and
-         * return early without inspecting the backend.
+         * Read the backend (existence and shape). Off on {@link Mode#RUNTIME_LOCAL_ONLY}, whose contract is "no
+         * backend call": the installer only fills local caches from the declared model.
          */
         private final boolean inspectBackend;
         /**
-         * Call backend create primitives ({@code client.define}, JDBC {@code CREATE
-         * TABLE}, ES {@code createIndex}, BanyanDB {@code defineIndexRule} /
-         * {@code defineIndexRuleBinding}) when a resource is absent.
+         * Create an absent resource ({@code client.define}, JDBC {@code CREATE TABLE}, Elasticsearch
+         * {@code createIndex}, BanyanDB {@code defineIndexRule} / {@code defineIndexRuleBinding}).
          */
         private final boolean createMissing;
         /**
-         * Call backend update primitives ({@code client.update}, JDBC {@code ALTER
-         * TABLE}, ES mapping append) when a present resource's live shape diverges from
-         * the declared shape. Only {@link Mode#WITH_SCHEMA_CHANGE} (the operator-driven path)
-         * permits this — boot must never silently reshape backend storage.
+         * Apply any difference between a present BanyanDB measure, stream, trace or property and its declared
+         * shape ({@code client.update}). {@link Mode#RUNTIME_APPLY} only.
          *
-         * <p>Note: BanyanDB's index-rule / index-rule-binding update path is gated by
-         * {@link #failOnShapeMismatch} instead of this flag, preserving the long-standing
-         * behaviour that init-mode OAPs reconcile index rules even under
-         * {@link Mode#SCHEMA_CREATE_IF_ABSENT}.</p>
+         * <p>BanyanDB's index-rule / index-rule-binding / TopN update is gated by {@link #failOnShapeMismatch}
+         * instead, so an init or default-mode OAP keeps reconciling those at boot as it always has. JDBC and
+         * Elasticsearch read neither update flag: whenever they create, they add the columns or mapping fields a
+         * present table or index lacks, and never remove or retype one.</p>
          */
         private final boolean updateOnMismatch;
         /**
-         * Call backend drop primitives ({@code client.dropMeasure} / {@code dropStream}
-         * / etc.) from {@link ModelRegistry.CreatingListener#whenRemoving}. Only
-         * {@link Mode#WITH_SCHEMA_CHANGE} (operator-driven runtime-rule deletion) permits
-         * this; peers under {@link Mode#WITHOUT_SCHEMA_CHANGE} short-circuit with
-         * {@link Outcome#SKIPPED_NOT_ALLOWED}.
+         * Apply a difference to a present BanyanDB measure, stream, trace or property only when it is additive: new
+         * tags or fields, nothing removed or retyped (a property is schemaless, so any change).
+         * {@link Mode#BOOT_INSTALL} only; a breaking difference is recorded as
+         * {@link Outcome#BOOT_REFUSED_BREAKING_CHANGE}.
+         */
+        private final boolean applyAdditiveOnMismatch;
+        /**
+         * Drop the backend resource from {@link ModelRegistry.CreatingListener#whenRemoving}.
+         * {@link Mode#RUNTIME_APPLY} only; {@link Mode#RUNTIME_LOCAL_ONLY} records
+         * {@link Outcome#RUNTIME_BACKEND_UNTOUCHED} instead.
          */
         private final boolean dropOnRemoval;
         /**
-         * Throw a {@link org.apache.skywalking.oap.server.core.storage.StorageException}
-         * when a resource is absent on the backend after inspection. Used by
-         * {@link Mode#VERIFY_SCHEMA_ONLY} to fail boot rather than silently start
-         * against an unprepared backend.
+         * Throw a {@link StorageException} when a resource is absent. {@link Mode#RUNTIME_PEER_VERIFY}: a not-main
+         * OAP doesn't apply the rule until the main OAP has created the resource; the rule's apply fails on this OAP
+         * and a later reconcile tick loads it locally.
          */
         private final boolean failOnAbsence;
         /**
-         * Throw a {@link org.apache.skywalking.oap.server.core.storage.StorageException}
-         * when a present resource's live shape diverges from the declared shape. Used
-         * by {@link Mode#VERIFY_SCHEMA_ONLY} so boot does not silently start against a
-         * backend whose schema disagrees with the rule file.
+         * Throw a {@link StorageException} when a present resource's shape differs.
+         * {@link Mode#RUNTIME_PEER_VERIFY}: a not-main OAP doesn't apply the rule until the main OAP has applied the
+         * shape; the rule's apply fails on this OAP and a later reconcile tick loads it locally.
          */
         private final boolean failOnShapeMismatch;
         /**
-         * Re-throw cascaded backend errors to the caller (REST handler, operator
-         * tooling) instead of swallowing them. Set on {@link Mode#WITH_SCHEMA_CHANGE}; other
-         * modes log and continue so a peer-side bookkeeping glitch doesn't take down
-         * the node.
+         * Re-throw backend errors to the caller (the REST handler) instead of logging and continuing.
+         * {@link Mode#RUNTIME_APPLY} only.
          */
         private final boolean escalateToCaller;
         /**
-         * On a {@code no-init} OAP, defer all backend DDL to the dedicated init OAP and wait
-         * (poll loop in {@link ModelInstaller#whenCreating}) rather than create / update the
-         * resource here. Set ONLY on {@link Mode#SCHEMA_CREATE_IF_ABSENT} — the static
-         * boot-time model registration that every OAP runs. The init / no-init / default
-         * running-mode axis governs <strong>static</strong> schema only.
-         *
-         * <p>The runtime-rule (DSL) opts — {@link Mode#WITH_SCHEMA_CHANGE},
-         * {@link Mode#VERIFY_SCHEMA_ONLY}, {@link Mode#WITHOUT_SCHEMA_CHANGE} — leave this
-         * {@code false}, so an operator-driven runtime apply is driven by the other flags and
-         * by cluster main-ness, never by {@code RunningMode}. Without this distinction a
-         * no-init OAP (every production cluster node) would route a runtime {@code withSchemaChange}
-         * create into the init-node poll loop and block forever, because no init OAP knows
-         * about a metric that was created at runtime.
+         * On a no-init OAP, leave all DDL to the init OAP and wait for the resources (the poll loop in
+         * {@link ModelInstaller#whenCreating}). {@link Mode#BOOT_INSTALL} only: the init / no-init / default
+         * running mode governs boot. Runtime modes never defer, because no init OAP knows about a metric created
+         * at runtime; a no-init OAP routed into the wait loop by a runtime apply would wait forever.
          */
         private final boolean deferDDLToInitNode;
     }
@@ -279,54 +231,55 @@ public final class StorageManipulationOpt {
     @Getter
     private final Mode mode;
 
-    /** Per-resource outcomes appended as the installer examines each underlying resource.
-     *  Read-only externally; copy-on-write so concurrent readers (e.g., metrics scrapers)
-     *  never see a torn list. */
+    /** Per-resource outcomes, in the order the installer examined the resources. Copy-on-write, so a reader
+     *  never sees a torn list. */
     private final List<ResourceOutcome> outcomes = new CopyOnWriteArrayList<>();
 
     /**
-     * Behavioural flags for this opt. Convenience accessor — equivalent to
-     * {@code getMode().getFlags()}. Call sites read individual flags (e.g.
-     * {@code opt.getFlags().isCreateMissing()}) instead of pattern-matching on the
-     * {@link Mode}.
+     * Behavioural flags for this opt, equivalent to {@code getMode().getFlags()}. Call sites read individual flags
+     * (e.g. {@code opt.getFlags().isCreateMissing()}) instead of pattern-matching on the {@link Mode}.
      */
     public Flags getFlags() {
         return mode.getFlags();
     }
 
-    public static StorageManipulationOpt withSchemaChange() {
-        return new StorageManipulationOpt(Mode.WITH_SCHEMA_CHANGE);
+    /** {@link Mode#BOOT_INSTALL}: model registration while an OAP starts. */
+    public static StorageManipulationOpt bootInstall() {
+        return new StorageManipulationOpt(Mode.BOOT_INSTALL);
     }
 
-    public static StorageManipulationOpt schemaCreateIfAbsent() {
-        return new StorageManipulationOpt(Mode.SCHEMA_CREATE_IF_ABSENT);
+    /** {@link Mode#RUNTIME_APPLY}: the main OAP applying a runtime-rule change. */
+    public static StorageManipulationOpt runtimeApply() {
+        return new StorageManipulationOpt(Mode.RUNTIME_APPLY);
     }
 
-    public static StorageManipulationOpt verifySchemaOnly() {
-        return new StorageManipulationOpt(Mode.VERIFY_SCHEMA_ONLY);
+    /** {@link Mode#RUNTIME_PEER_VERIFY}: a not-main OAP checking the main OAP's work at startup. */
+    public static StorageManipulationOpt runtimePeerVerify() {
+        return new StorageManipulationOpt(Mode.RUNTIME_PEER_VERIFY);
     }
 
-    public static StorageManipulationOpt withoutSchemaChange() {
-        return new StorageManipulationOpt(Mode.WITHOUT_SCHEMA_CHANGE);
+    /** {@link Mode#RUNTIME_LOCAL_ONLY}: a runtime change to this OAP's own state, with no backend call. */
+    public static StorageManipulationOpt runtimeLocalOnly() {
+        return new StorageManipulationOpt(Mode.RUNTIME_LOCAL_ONLY);
     }
 
     /**
-     * {@link Mode#WITH_SCHEMA_CHANGE} but with the post-install schema fence DEFERRED. The
+     * {@link Mode#RUNTIME_APPLY} with the post-install schema fence DEFERRED. The
      * installer records each resource's {@code mod_revision} without fencing, then registers a
      * single flush via {@link #setDeferredFence(DeferredFence)}; the caller runs that flush ONCE
      * with {@link #runDeferredFence()} after the whole apply (e.g. a multi-rule file) so the
      * bundle waits on one barrier instead of one fence per metric/downsampling. All flags are
-     * identical to {@link #withSchemaChange()} — only the create/update fence is batched; drops
+     * identical to {@link #runtimeApply()} — only the create/update fence is batched; drops
      * still fence inline.
      */
-    public static StorageManipulationOpt withSchemaChangeDeferredFence() {
-        final StorageManipulationOpt opt = new StorageManipulationOpt(Mode.WITH_SCHEMA_CHANGE);
+    public static StorageManipulationOpt runtimeApplyDeferredFence() {
+        final StorageManipulationOpt opt = new StorageManipulationOpt(Mode.RUNTIME_APPLY);
         opt.deferFence = true;
         return opt;
     }
 
     /**
-     * {@link #withSchemaChangeDeferredFence()} with an explicit batched-fence timeout. Used by the
+     * {@link #runtimeApplyDeferredFence()} with an explicit batched-fence timeout. Used by the
      * runtime-rule operator apply, which fences on a generous cluster-propagation budget (default
      * 3 min, configurable) instead of the installer's short inline default — the apply is async +
      * progress-queryable, so a long single wait is affordable. The inline/static/delete fence paths
@@ -335,45 +288,30 @@ public final class StorageManipulationOpt {
      * @param timeout the batched-fence wait; passed to the backend via {@link #getFenceTimeoutMs()}.
      * @return a deferred-fence opt carrying {@code timeout}.
      */
-    public static StorageManipulationOpt withSchemaChangeDeferredFence(final Duration timeout) {
-        final StorageManipulationOpt opt = withSchemaChangeDeferredFence();
+    public static StorageManipulationOpt runtimeApplyDeferredFence(final Duration timeout) {
+        final StorageManipulationOpt opt = runtimeApplyDeferredFence();
         opt.fenceTimeoutMs = timeout == null ? 0L : timeout.toMillis();
         return opt;
     }
 
-    /**
-     * True for {@link Mode#WITH_SCHEMA_CHANGE}. The on-demand operator workflow — drops,
-     * updates, and reshapes are permitted because the caller explicitly asked for them.
-     */
-    public boolean isWithSchemaChange() {
-        return mode == Mode.WITH_SCHEMA_CHANGE;
+    /** True for {@link Mode#RUNTIME_APPLY}. */
+    public boolean isRuntimeApply() {
+        return mode == Mode.RUNTIME_APPLY;
     }
 
-    /**
-     * True for {@link Mode#SCHEMA_CREATE_IF_ABSENT}. The static boot workflow — create absent
-     * resources, skip + record {@link Outcome#SKIPPED_SHAPE_MISMATCH} on a resource that
-     * already exists with a different shape. Never update or drop.
-     */
-    public boolean isSchemaCreateIfAbsent() {
-        return mode == Mode.SCHEMA_CREATE_IF_ABSENT;
+    /** True for {@link Mode#BOOT_INSTALL}. */
+    public boolean isBootInstall() {
+        return mode == Mode.BOOT_INSTALL;
     }
 
-    /**
-     * True for {@link Mode#VERIFY_SCHEMA_ONLY}. Boot-time strict verification on a
-     * non-init OAP — installer issues read-only inspection RPCs and throws on missing or
-     * shape-mismatched resources. No DDL.
-     */
-    public boolean isVerifySchemaOnly() {
-        return mode == Mode.VERIFY_SCHEMA_ONLY;
+    /** True for {@link Mode#RUNTIME_PEER_VERIFY}. */
+    public boolean isRuntimePeerVerify() {
+        return mode == Mode.RUNTIME_PEER_VERIFY;
     }
 
-    /**
-     * True for {@link Mode#WITHOUT_SCHEMA_CHANGE}. The {@code BanyanDBIndexInstaller.isExists}
-     * short-circuit reads this to skip every server RPC and populate
-     * {@code MetadataRegistry} only.
-     */
-    public boolean isWithoutSchemaChange() {
-        return mode == Mode.WITHOUT_SCHEMA_CHANGE;
+    /** True for {@link Mode#RUNTIME_LOCAL_ONLY}. */
+    public boolean isRuntimeLocalOnly() {
+        return mode == Mode.RUNTIME_LOCAL_ONLY;
     }
 
     private StorageManipulationOpt(final Mode mode) {
@@ -417,7 +355,7 @@ public final class StorageManipulationOpt {
     /**
      * A storage-backend schema fence whose execution is deferred to the end of a batched
      * apply. The backend installer (e.g. BanyanDB) registers one on a
-     * {@link #withSchemaChangeDeferredFence()} opt instead of fencing per resource; the apply
+     * {@link #runtimeApplyDeferredFence()} opt instead of fencing per resource; the apply
      * orchestration runs it once via {@link #runDeferredFence()}. Implemented as a closure in
      * the storage plugin so core stays backend-agnostic (same pattern as the local-cache
      * populator). A timeout inside the fence is a non-fatal WARN; only a barrier transport
@@ -429,7 +367,7 @@ public final class StorageManipulationOpt {
     }
 
     /**
-     * True only for {@link #withSchemaChangeDeferredFence()}. The installer reads this to skip
+     * True only for {@link #runtimeApplyDeferredFence()}. The installer reads this to skip
      * the per-resource create/update fence and register a single {@link DeferredFence} instead.
      */
     @Getter
@@ -439,7 +377,7 @@ public final class StorageManipulationOpt {
 
     /**
      * Batched-fence wait in millis, or {@code 0} (the default) meaning "use the backend installer's
-     * own short constant". Set only by {@link #withSchemaChangeDeferredFence(Duration)} on the
+     * own short constant". Set only by {@link #runtimeApplyDeferredFence(Duration)} on the
      * runtime-rule operator path; the backend reads it when running the deferred fence so the
      * inline/static/delete paths (which leave it {@code 0}) keep the short timeout.
      */
@@ -538,97 +476,145 @@ public final class StorageManipulationOpt {
     }
 
     /**
-     * True when every recorded outcome is benign — resource is matched or was created /
-     * updated / dropped per policy. False when any outcome is {@link Outcome#MISSING},
-     * {@link Outcome#EXISTING_MISMATCH}, or {@link Outcome#SKIPPED_NOT_ALLOWED}.
+     * First {@link Outcome#BOOT_REFUSED_BREAKING_CHANGE} recorded at or after index {@code from}, or {@code null}.
+     * A caller that keeps a model off on a refusal ({@code MetricsStreamProcessor}, {@code MeterSystem}) passes the
+     * outcome count it saw before its own call: one opt can serve many models (a MAL rule file shares one across its
+     * metrics), and another model's refusal must not switch this one off.
      */
-    public boolean isAllOk() {
-        for (final ResourceOutcome o : outcomes) {
-            switch (o.getStatus()) {
-                case MISSING:
-                case EXISTING_MISMATCH:
-                case SKIPPED_NOT_ALLOWED:
-                case SKIPPED_SHAPE_MISMATCH:
-                    return false;
-                default:
-                    break;
-            }
-        }
-        return true;
+    public ResourceOutcome firstBootRefusalSince(final int from) {
+        return firstSince(from, Outcome.BOOT_REFUSED_BREAKING_CHANGE, Outcome.BOOT_REFUSED_BREAKING_CHANGE);
     }
 
     /**
-     * True when at least one recorded outcome is {@link Outcome#SKIPPED_SHAPE_MISMATCH}.
-     * Callers (notably {@code MeterSystem.create} / {@code StorageModels.add}) read this
-     * after firing the {@code whenCreating} chain to decide whether to proceed with local
-     * registration or roll it back — a shape-mismatched metric must not be registered
-     * because its backend-declared schema disagrees with what's declared in the rule file.
+     * First {@link Outcome#RUNTIME_PEER_SCHEMA_ABSENT} or {@link Outcome#RUNTIME_PEER_SCHEMA_DIFFERENT} recorded at
+     * or after index {@code from}, or {@code null}. A not-main OAP fails the rule's apply on one
+     * ({@link ModelInstaller#whenCreating}).
      */
-    public boolean hasShapeMismatch() {
-        for (final ResourceOutcome o : outcomes) {
-            if (o.getStatus() == Outcome.SKIPPED_SHAPE_MISMATCH) {
-                return true;
-            }
-        }
-        return false;
+    public ResourceOutcome firstPeerVerifyFailureSince(final int from) {
+        return firstSince(from, Outcome.RUNTIME_PEER_SCHEMA_ABSENT, Outcome.RUNTIME_PEER_SCHEMA_DIFFERENT);
     }
 
-    /**
-     * First {@link Outcome#SKIPPED_SHAPE_MISMATCH} outcome recorded, or {@code null} if
-     * none. Used to surface the diff on {@code /runtime/rule/list} and in error responses.
-     */
-    public ResourceOutcome firstShapeMismatch() {
-        for (final ResourceOutcome o : outcomes) {
-            if (o.getStatus() == Outcome.SKIPPED_SHAPE_MISMATCH) {
+    private ResourceOutcome firstSince(final int from, final Outcome one, final Outcome other) {
+        for (int i = from; i < outcomes.size(); i++) {
+            final ResourceOutcome o = outcomes.get(i);
+            if (o.getStatus() == one || o.getStatus() == other) {
                 return o;
             }
         }
         return null;
     }
 
+    /**
+     * The outcome for a present resource whose difference this opt doesn't let the installer apply: refused at
+     * boot, or not yet applied by the main OAP when a not-main OAP verifies.
+     *
+     * @return {@link Outcome#BOOT_REFUSED_BREAKING_CHANGE} or {@link Outcome#RUNTIME_PEER_SCHEMA_DIFFERENT}
+     * @throws IllegalStateException for a mode that applies every difference or never inspects the backend
+     */
+    public Outcome unappliedDifference() {
+        switch (mode) {
+            case BOOT_INSTALL:
+                return Outcome.BOOT_REFUSED_BREAKING_CHANGE;
+            case RUNTIME_PEER_VERIFY:
+                return Outcome.RUNTIME_PEER_SCHEMA_DIFFERENT;
+            default:
+                throw new IllegalStateException(mode + " never leaves a difference unapplied");
+        }
+    }
+
+    /**
+     * What happened to one storage resource. Each value lists the OAPs that record it, in the class Javadoc's
+     * terms.
+     */
     public enum Outcome {
-        /** The resource was not present on storage and creation was either not attempted
-         *  (policy) or deferred to a later step in the chain. */
-        MISSING,
-        /** Resource present and matches the intended shape. No action taken. */
-        EXISTING_MATCHED,
-        /** Resource present but live shape differs from intended; update was NOT applied
-         *  because the caller is in {@link Mode#WITHOUT_SCHEMA_CHANGE}. Caller may re-push with
-         *  {@link #withSchemaChange()} to reconcile. {@link ResourceOutcome#getDiff()} carries
-         *  a short description of the difference. */
-        EXISTING_MISMATCH,
-        /** Installer ran {@code createTable} (or equivalent) and the resource now exists. */
+        /**
+         * Checked; the live resource has the declared shape.
+         * <ul>
+         *   <li>OAP (init or default mode, boot) → nothing to do.</li>
+         *   <li>OAP (no-init, boot) → the init OAP has created the resource (JDBC and Elasticsearch).</li>
+         *   <li>OAP (main, runtime apply) → nothing to do.</li>
+         *   <li>OAP (not-main, startup check) → the main OAP has applied this resource.</li>
+         * </ul>
+         */
+        MATCHED,
+        /**
+         * The resource was absent and is now created.
+         * <ul>
+         *   <li>OAP (init or default mode, boot) → created at startup.</li>
+         *   <li>OAP (main, runtime apply) → created for a new or changed rule.</li>
+         * </ul>
+         */
         CREATED,
-        /** Installer ran {@code client.update} (BanyanDB) or mapping-append (ES) to
-         *  reconcile live shape with intended. {@link ResourceOutcome#getDiff()} carries
-         *  a short description of what was updated. */
+        /**
+         * The resource existed with a different shape and is now updated: a BanyanDB schema update, a JDBC
+         * {@code ADD COLUMN}, an Elasticsearch mapping append. {@link ResourceOutcome#getDiff()} says what changed.
+         * <ul>
+         *   <li>OAP (init or default mode, boot) → an additive change: new columns, tags or fields. Any change for a
+         *       BanyanDB property, which is schemaless, and for a BanyanDB group, index rule, binding or TopN
+         *       aggregation, which boot has always reconciled.</li>
+         *   <li>OAP (main, runtime apply) → the change the rule edit carried.</li>
+         * </ul>
+         */
         UPDATED,
-        /** Installer ran {@code dropTable} and the resource is no longer present. */
+        /**
+         * The resource is removed.
+         * <ul>
+         *   <li>OAP (main, runtime apply on BanyanDB) → dropped by a rule edit that retires a metric, or by a
+         *       revert to a bundled rule that drops runtime-only metrics. A plain {@code /delete} keeps the
+         *       resource.</li>
+         * </ul>
+         */
         DROPPED,
-        /** Installer intended to act (create, drop, update) but was blocked by policy.
-         *  {@link ResourceOutcome#getDiff()} carries the reason. */
-        SKIPPED_NOT_ALLOWED,
-        /** Boot-time shape mismatch — backend already holds a resource with the same name
-         *  but a different shape than the declared model. The installer did NOT drop, did
-         *  NOT update, and did NOT register; the operator must reconcile explicitly via
-         *  the on-demand runtime-rule {@code /addOrUpdate} endpoint (only workflow that
-         *  may change backend schema). {@link ResourceOutcome#getDiff()} carries the
-         *  declared-vs-backend diff for operator inspection. */
-        SKIPPED_SHAPE_MISMATCH
+        /**
+         * Boot found a breaking difference on a BanyanDB measure, stream or trace (a removed or retyped tag or field,
+         * a different entity) and left the resource as it is; its index rules and binding are left as they are too,
+         * with no outcome of their own. {@code MetricsStreamProcessor} and {@code MeterSystem} keep a metric off on it
+         * when they register the metric after the storage module added its listener.
+         * <ul>
+         *   <li>OAP (init or default mode, boot) → refused: boot applies additive changes only.</li>
+         * </ul>
+         */
+        BOOT_REFUSED_BREAKING_CHANGE,
+        /**
+         * <ul>
+         *   <li>OAP (not-main, startup check) → the main OAP hasn't created this resource yet; the rule's apply
+         *       fails on this OAP for this pass.</li>
+         * </ul>
+         */
+        RUNTIME_PEER_SCHEMA_ABSENT,
+        /**
+         * <ul>
+         *   <li>OAP (not-main, startup check) → the live shape differs from the persisted rule: the main OAP hasn't
+         *       applied it yet; the rule's apply fails on this OAP for this pass.</li>
+         * </ul>
+         */
+        RUNTIME_PEER_SCHEMA_DIFFERENT,
+        /**
+         * The backend was deliberately not called.
+         * <ul>
+         *   <li>OAP (main, {@code /inactivate}, the local steps of a revert to a bundled rule, reinstalling a rule
+         *       locally) → storage is kept as it is.</li>
+         *   <li>OAP (main, runtime apply on JDBC or Elasticsearch, removing a metric) → tables and indices are kept:
+         *       those storages never drop them.</li>
+         *   <li>OAP (not-main, reconcile tick) → the main OAP owns the DDL; only this OAP's local state is set
+         *       up.</li>
+         *   <li>OAP (not-main, startup check) → a rule's other models, rolled back when one fails its check.</li>
+         * </ul>
+         */
+        RUNTIME_BACKEND_UNTOUCHED
     }
 
     @Getter
     public static final class ResourceOutcome {
-        /** Short label for the underlying resource kind — e.g. "measure", "stream",
-         *  "property", "indexRule", "indexRuleBinding", "topN", "template", "index",
-         *  "table", "additionalTable". Operator-facing; kept lower-case. */
+        /** Short, lower-case label for the resource kind: "group", "measure", "stream", "trace", "property",
+         *  "indexRule", "indexRuleBinding", "topN", "template", "index", "table", "additionalTable"; "model" when the
+         *  outcome covers the whole model rather than one resource. */
         private final String resourceType;
-        /** Fully-qualified resource name as the backend sees it (group + name for
-         *  BanyanDB; index name for ES; table name for JDBC). */
+        /** The resource's name as the backend sees it (BanyanDB group + name; Elasticsearch index name; JDBC
+         *  table name). */
         private final String resourceName;
         private final Outcome status;
-        /** Non-null on {@link Outcome#EXISTING_MISMATCH}, {@link Outcome#UPDATED},
-         *  {@link Outcome#SKIPPED_NOT_ALLOWED}. Null otherwise. */
+        /** What changed, or why nothing was changed; {@code null} when there is nothing to add. */
         private final String diff;
 
         public ResourceOutcome(final String resourceType, final String resourceName,

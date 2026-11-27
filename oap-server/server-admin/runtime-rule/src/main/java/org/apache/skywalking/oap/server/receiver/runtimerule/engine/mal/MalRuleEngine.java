@@ -546,8 +546,8 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
         final CompiledMalDSL c = (CompiledMalDSL) compiled;
         // Drop metrics this bundle no longer claims (STRUCTURAL/NEW only — FILTER_ONLY has
         // identical metric sets). Honours the caller's storage opt: a peer-driven tick uses
-        // withoutSchemaChange here so the cluster-shared backend isn't touched; the main's REST
-        // path uses withSchemaChange to fire dropTable through the listener chain. Must run
+        // runtimeLocalOnly here so the cluster-shared backend isn't touched; the main's REST
+        // path uses runtimeApply to fire dropTable through the listener chain. Must run
         // BEFORE the swap so the about-to-be-displaced applier still owns the prototypes.
         if (c.getClassification() != Classification.FILTER_ONLY
                 && c.getDelta() != null
@@ -642,11 +642,11 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
      * <p>The {@link MalApplyContext#getStorageOpt()} parameter decides whether the listener
      * chain reaches the backend:
      * <ul>
-     *   <li>{@code withoutSchemaChange} — soft-pause path. Local state is cleared (meterPrototypes,
+     *   <li>{@code runtimeLocalOnly} — soft-pause path. Local state is cleared (meterPrototypes,
      *       Models from registry, appliedMal entry, classloader retired) but the listener's
      *       {@code dropTable} is skipped, so the BanyanDB measure / ES index / JDBC table stays
      *       intact. This is the {@code /inactivate} contract.</li>
-     *   <li>{@code withSchemaChange} — schema-change path. Same local cleanup PLUS the listener
+     *   <li>{@code runtimeApply} — schema-change path. Same local cleanup PLUS the listener
      *       fires {@code dropTable} so the backend resource is removed. Used by the
      *       {@code /delete?mode=revertToBundled} pipeline (where the engine's commit drops
      *       runtime-only metrics through the listener chain) and by STRUCTURAL
@@ -734,12 +734,12 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
 
     /**
      * Install the runtime MAL DSL into local MeterSystem state under
-     * {@code withoutSchemaChange} so a subsequent {@code apply} of the bundled YAML can
+     * {@code runtimeLocalOnly} so a subsequent {@code apply} of the bundled YAML can
      * compute its delta against the prior runtime claim set. The listener chain is
      * suppressed — backend schema is untouched here. The destructive moment lives inside
      * the standard apply pipeline that runs immediately after this call: its
      * {@link #commit} sees the loaded prior, calls
-     * {@code applier.remove(removedMetrics, withSchemaChange)}, and the listener cascade fires
+     * {@code applier.remove(removedMetrics, runtimeApply)}, and the listener cascade fires
      * {@code dropTable} on the runtime-only metrics that bundled doesn't claim.
      *
      * <p>Throws {@link IllegalStateException} on MeterSystem unavailability or register
@@ -761,7 +761,7 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
 
         try {
             final MalFileApplier.Applied applied = applier.apply(
-                runtimeContent, sourceName, hash, StorageManipulationOpt.withoutSchemaChange());
+                runtimeContent, sourceName, hash, StorageManipulationOpt.runtimeLocalOnly());
             if (applied.getRuleClassLoader() != null) {
                 DSLClassLoaderManager.INSTANCE.commit(applied.getRuleClassLoader())
                     .filter(prior -> prior != applied.getRuleClassLoader())
@@ -775,7 +775,7 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
             if (ae.getPartiallyRegistered() != null && !ae.getPartiallyRegistered().isEmpty()) {
                 try {
                     applier.remove(ae.getPartiallyRegistered(),
-                        StorageManipulationOpt.withoutSchemaChange());
+                        StorageManipulationOpt.runtimeLocalOnly());
                 } catch (final Throwable rollbackErr) {
                     log.warn("runtime-rule installRuntime: rollback of partial re-register also "
                         + "failed for {}/{}; {} prototype(s) may persist locally until OAP "
@@ -799,7 +799,7 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
      * <p>Compiles via {@code applier.apply(..., Kind.BUNDLED)} so the per-file loader is minted
      * with the {@code bundled:} prefix — diagnostics can tell at a glance whether a key is
      * being served by a runtime override or a bundled fall-over. The applier internally runs
-     * under {@code withoutSchemaChange}: the bundled metric backend already exists (it pre-dates
+     * under {@code runtimeLocalOnly}: the bundled metric backend already exists (it pre-dates
      * the override), so we only need to re-register local prototypes and re-publish the
      * MetricConvert.
      *
@@ -827,10 +827,8 @@ public final class MalRuleEngine implements RuleEngine<MalApplyContext> {
         final String sourceName = catalog + "/" + name;
         final String hash = ContentHash.sha256Hex(staticContent);
         try {
-            // Storage opt is caller-supplied: main-node /delete passes schemaCreateIfAbsent so
-            // measures the delta-drop just removed get recreated; peer-node tick reconcile
-            // passes the tick's own opt (typically withoutSchemaChange) so peers don't double-
-            // write DDL the main has already applied.
+            // Storage opt is the one the preceding unregister ran under, so a not-main OAP's
+            // tick (runtimeLocalOnly) writes no DDL the main has already applied.
             final MalFileApplier.Applied fresh = applier.apply(
                 staticContent, sourceName, hash, storageOpt,
                 DSLClassLoaderManager.Kind.BUNDLED);

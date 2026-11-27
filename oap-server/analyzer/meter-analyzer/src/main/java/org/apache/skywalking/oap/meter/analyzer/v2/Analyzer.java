@@ -170,15 +170,15 @@ public class Analyzer {
                                     final DslSourceRef sourceRef,
                                     final ClassPool pool,
                                     final ClassLoader targetClassLoader) {
-        // Static boot / default path: create-if-absent. Runtime-rule on-demand apply passes
-        // withSchemaChange() via the explicit-opt overload.
+        // Static boot / default path: boot install (additive changes only). Runtime-rule on-demand apply passes
+        // runtimeApply() via the explicit-opt overload.
         return prepare(metricName, filter, expression, meterSystem, sourceRef, pool, targetClassLoader,
-            StorageManipulationOpt.schemaCreateIfAbsent());
+            StorageManipulationOpt.bootInstall());
     }
 
     /**
      * Prepare overload that carries a {@link StorageManipulationOpt}. Runtime-rule peer-side
-     * apply passes {@link StorageManipulationOpt#withoutSchemaChange()} so subsequent
+     * apply passes {@link StorageManipulationOpt#runtimeLocalOnly()} so subsequent
      * {@link #register()} call skips server-side DDL.
      */
     public static Analyzer prepare(final String metricName,
@@ -194,7 +194,7 @@ public class Analyzer {
         Analyzer analyzer = new Analyzer(metricName, filter, e, meterSystem, ctx);
         analyzer.pool = pool;
         analyzer.targetClassLoader = targetClassLoader;
-        analyzer.storageOpt = storageOpt == null ? StorageManipulationOpt.schemaCreateIfAbsent() : storageOpt;
+        analyzer.storageOpt = storageOpt == null ? StorageManipulationOpt.bootInstall() : storageOpt;
         analyzer.resolveTypeFromMetadata();
         return analyzer;
     }
@@ -233,13 +233,13 @@ public class Analyzer {
     private ClassLoader targetClassLoader;
     /**
      * Storage-install policy threaded through to {@link MeterSystem#create}. Startup uses
-     * {@link StorageManipulationOpt#schemaCreateIfAbsent()} (the default when callers don't set
-     * it — never reshape the backend at boot). Main-node on-demand apply sets
-     * {@link StorageManipulationOpt#withSchemaChange()}. Peer-node apply sets
-     * {@link StorageManipulationOpt#withoutSchemaChange()} so local Metrics classes + BanyanDB
+     * {@link StorageManipulationOpt#bootInstall()} (the default when callers don't set
+     * it — boot applies additive changes only). Main-node on-demand apply sets
+     * {@link StorageManipulationOpt#runtimeApply()}. Peer-node apply sets
+     * {@link StorageManipulationOpt#runtimeLocalOnly()} so local Metrics classes + BanyanDB
      * MetadataRegistry populate without server-side DDL.
      */
-    private StorageManipulationOpt storageOpt = StorageManipulationOpt.schemaCreateIfAbsent();
+    private StorageManipulationOpt storageOpt = StorageManipulationOpt.bootInstall();
 
     /**
      * Analyse the full sample family map and produce meter-system metrics.
@@ -486,7 +486,7 @@ public class Analyzer {
         // bundle drops together on hot-remove.
         if (pool != null && targetClassLoader != null) {
             // Per-file: generated Metrics class goes directly into the supplied RuleClassLoader.
-            // storageOpt controls server-side DDL: withSchemaChange() on main, withoutSchemaChange()
+            // storageOpt controls server-side DDL: runtimeApply() on main, runtimeLocalOnly()
             // on peer — see the Analyzer class-level Javadoc for the main/peer contract.
             meterSystem.create(metricName, functionName, scopeType, pool, targetClassLoader, storageOpt);
         } else {

@@ -154,7 +154,7 @@ final class JDBCQueryITSupport implements Closeable {
                    final DownSampling downSampling) throws Exception {
         try (MockedStatic<DefaultScopeDefine> ignored = mockStatic(DefaultScopeDefine.class)) {
             return models.add(
-                storageClass, scopeId, new Storage(name, false, downSampling), StorageManipulationOpt.withSchemaChange());
+                storageClass, scopeId, new Storage(name, false, downSampling), StorageManipulationOpt.runtimeApply());
         }
     }
 
@@ -166,7 +166,7 @@ final class JDBCQueryITSupport implements Closeable {
     Model install(final Class<?> storageClass, final int scopeId, final String name,
                   final DownSampling downSampling) throws Exception {
         final Model model = register(storageClass, scopeId, name, downSampling);
-        installer.isExists(model, StorageManipulationOpt.withSchemaChange());
+        installer.isExists(model, StorageManipulationOpt.runtimeApply());
         if (model.isTimeSeries()) {
             installer.createTable(model, day(MIDNIGHT - 1));
             installer.createTable(model, day(MIDNIGHT));
