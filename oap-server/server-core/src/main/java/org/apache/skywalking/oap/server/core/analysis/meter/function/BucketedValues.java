@@ -76,13 +76,13 @@ public class BucketedValues implements ToJson {
         long[] existedBuckets = new long[sortedKeys.size()];
         for (int i = 0; i < sortedKeys.size(); i++) {
             String key = sortedKeys.get(i);
-            if (key.equals(Bucket.INFINITE_NEGATIVE)) {
+            // remove the label name; -Inf is stored as "infinite-" after that strip
+            if (key.contains(":")) {
+                key = StringUtils.substringAfterLast(key, ":");
+            }
+            if (Bucket.INFINITE_NEGATIVE.equals(key)) {
                 existedBuckets[i] = Long.MIN_VALUE;
             } else {
-                // remove the label name
-                if (key.contains(":")) {
-                    key = StringUtils.substringAfterLast(key, ":");
-                }
                 existedBuckets[i] = Long.parseLong(key);
             }
         }

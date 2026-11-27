@@ -548,17 +548,20 @@ public class SampleFamily {
                 Arrays.stream(samples).filter(s -> !s.labels.containsKey(le)),
                 Arrays.stream(samples)
                       .filter(s -> s.labels.containsKey(le))
-                      .sorted(Comparator.comparingDouble(s -> Double.parseDouble(s.labels.get(le))))
+                      .sorted(Comparator.comparingDouble(s -> parseBucketBound(s.labels.get(le))))
                       .map(s -> {
                           double r = s.value;
+                          final double bound = parseBucketBound(s.labels.get(le));
+                          // OTel/Prometheus +Inf becomes Long.MAX_VALUE after unit scale (HeatMap / Analyzer).
+                          final long scaled = Double.isInfinite(bound)
+                              ? (bound > 0 ? Long.MAX_VALUE : Long.MIN_VALUE)
+                              : (long) (bound * scale);
                           ImmutableMap<String, String> ll = ImmutableMap.<String, String>builder()
                                                                         .putAll(Maps.filterKeys(s.labels,
                                                                                                 key -> !Objects.equals(
                                                                                                     key, le)
                                                                         ))
-                                                                        .put(
-                                                                            "le",
-                                                                            String.valueOf((long) ((Double.parseDouble(s.labels.get(le))) * scale)))
+                                                                        .put("le", String.valueOf(scaled))
                                                                         .build();
                           return InternalOps.newSample(s.name, ll, s.timestamp, r);
                       })
@@ -797,6 +800,32 @@ public class SampleFamily {
         private Map<MeterEntity, Sample[]> meterSamples = new HashMap<>();
 
         private TimeUnit defaultHistogramBucketUnit;
+    }
+
+    /**
+     * Parse a histogram bucket upper bound. Accepts Prometheus text ({@code +Inf}/{@code -Inf})
+     * and Java {@link Double#toString()} forms ({@code Infinity}/{@code -Infinity}).
+     * Rejects {@code NaN}: OpenMetrics forbids it as a bucket bound, and casting NaN to {@code long}
+     * would silently become {@code 0}.
+     */
+    public static double parseBucketBound(final String raw) {
+        if (raw == null) {
+            throw new NumberFormatException("null histogram bucket bound");
+        }
+        if ("+Inf".equalsIgnoreCase(raw) || "Inf".equalsIgnoreCase(raw) || "Infinity".equalsIgnoreCase(raw)) {
+            return Double.POSITIVE_INFINITY;
+        }
+        if ("-Inf".equalsIgnoreCase(raw) || "-Infinity".equalsIgnoreCase(raw)) {
+            return Double.NEGATIVE_INFINITY;
+        }
+        if ("NaN".equalsIgnoreCase(raw)) {
+            throw new NumberFormatException("NaN histogram bucket bound");
+        }
+        final double value = Double.parseDouble(raw);
+        if (Double.isNaN(value)) {
+            throw new NumberFormatException("NaN histogram bucket bound");
+        }
+        return value;
     }
 
     private static class InternalOps {

@@ -740,6 +740,8 @@ class TALExecutionTest {
 
     @Test
     void aPercentileAboveTheLastBoundReadsTheOverflowBucket() throws Exception {
+        // Counts land in the Long.MAX_VALUE overflow bucket; the reported percentile is the highest
+        // finite upper bound (10000), not Long.MAX_VALUE leaking as a latency.
         final TalExpression rule = compile("filter { extractor {\n"
             + "  layer \"OTLP_GENERAL\"\n"
             + "  def svc = service(meta.service, meta.layer)\n"
@@ -758,7 +760,7 @@ class TALExecutionTest {
         final DataTable ranks = minute.getValue();
         assertEquals(5, ranks.keys().size(), "the default ranks: " + ranks);
         for (final String rank : ranks.keys()) {
-            assertEquals(Long.MAX_VALUE, ranks.get(rank), "every span took 20 s, above the last bound: " + rank);
+            assertEquals(10000L, ranks.get(rank), "every span took 20 s, above the last bound: " + rank);
         }
     }
 

@@ -179,7 +179,8 @@ Two metrics read differently:
 - `*_percentile`: `core.oal` computes `percentile2(10)`, which floors a latency to 10 ms steps, so a 110 ms p99
   reads 110. The TAL `percentile` counts a latency in the bucket whose upper edge is the first bound not below it,
   and a rank reads that edge, so the same p99 reads 250 with the shipped buckets, and a rank above the last bound,
-  10 s, reads `9223372036854775807`. An alarm threshold such as `p99 > 200` needs restating against the buckets.
+  10 s, reads 10000, the last bound. An alarm threshold such as `p99 > 200` needs restating against the buckets, and
+  one that needs a p99 above 10000, such as `p99 > 10000`, never fires.
 - `*_resp_time`: a minute whose mean is above 0 but below 1 ms reads 1, the meter system's `avg`; `core.oal`'s
   `longAvg` reads 0.
 

@@ -357,9 +357,11 @@ public class Analyzer {
                               long[] vv = new long[bb.length];
                               for (int i = 0; i < subSs.size(); i++) {
                                   Sample s = subSs.get(i);
-                                  final double leVal = Double.parseDouble(s.getLabels().get("le"));
+                                  final double leVal = SampleFamily.parseBucketBound(s.getLabels().get("le"));
                                   if (leVal == Double.NEGATIVE_INFINITY) {
                                       bb[i] = Long.MIN_VALUE;
+                                  } else if (leVal == Double.POSITIVE_INFINITY) {
+                                      bb[i] = Long.MAX_VALUE;
                                   } else {
                                       bb[i] = (long) leVal;
                                   }
