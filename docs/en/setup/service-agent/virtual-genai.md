@@ -22,7 +22,7 @@ The GenAI operation span should have the following properties:
 - Tag key = `gen_ai.response.model`, value = The name of the GenAI model, e.g. gpt-4o, claude-3-5-sonnet
 - Tag key = `gen_ai.usage.input_tokens`, value = The number of tokens used in the GenAI input (prompt)
 - Tag key = `gen_ai.usage.output_tokens`, value = The number of tokens used in the GenAI response (completion)
-- Tag key = `gen_ai.response.time_to_first_chunk`, value = The duration in seconds, such as `0.457`, until the first chunk of the response is received (streaming requests only)
+- Tag key = `gen_ai.response.time_to_first_chunk`, value = The duration in seconds, such as `0.457`, until the first chunk of the response is received (streaming requests only). SkyWalking Java Agent 9.7 and 9.8 report `gen_ai.server.time_to_first_token` instead, in milliseconds, which is still read, see the note on time to first token under [Semantic Conventions and Compatibility](#semantic-conventions-and-compatibility)
 - If the GenAI service is a remote API (e.g. OpenAI), the span's peer should be the network address (IP or domain) of the GenAI server.
 
 ## Provider Configuration
@@ -83,7 +83,9 @@ The tag keys used in Virtual GenAI follow the **OpenTelemetry GenAI Semantic Con
 2. **The operation**: a span whose `gen_ai.operation.name` describes no model call of its own is not counted: `fetch_response`, `create_agent`, `execute_tool`, `plan`, `retrieval`, `user_speech`, the memory operations (`search_memory`, `create_memory`, `update_memory`, `upsert_memory`, `delete_memory`, `create_memory_store`, `delete_memory_store`), and every name that starts with `invoke_`, such as `invoke_agent` and `invoke_workflow`. These spans can repeat the model and the token usage of the model calls made under them, or of a call made earlier, so counting them would count the same tokens twice. A span with any other operation name, or with none, is counted.
 
 **Note on Time to First Token**:
-The time to first token is read from `gen_ai.response.time_to_first_chunk`, the span attribute the OpenTelemetry GenAI semantic conventions define for it, a number of seconds, and reported in milliseconds. It is read the same way from the spans of a SkyWalking agent and from OTLP and Zipkin spans. The `gen_ai.server.time_to_first_token` tag, in milliseconds, that SkyWalking Java Agent 9.7 and 9.8 report is no longer read, so `gen_ai_model_ttft_avg` and `gen_ai_model_ttft_percentile` need a later agent.
+The time to first token is read from `gen_ai.response.time_to_first_chunk`, the span attribute the OpenTelemetry GenAI semantic conventions define for it, a number of seconds, and reported in milliseconds. It is read the same way from the spans of a SkyWalking agent and from OTLP and Zipkin spans.
+
+A span without `gen_ai.response.time_to_first_chunk` is read for `gen_ai.server.time_to_first_token`, in milliseconds. SkyWalking Java Agent 9.7 and 9.8 report the time to first token under that tag, and so do OTLP and Zipkin producers that followed the earlier version of this page. The OpenTelemetry GenAI semantic conventions give that name to a metric, not to a span attribute, so a new producer should report `gen_ai.response.time_to_first_chunk`. When a span carries both, `gen_ai.response.time_to_first_chunk` is used.
 
 **Note on OTLP / Zipkin Provider Identification**:
 To ensure broad compatibility with different OpenTelemetry instrumentation versions, SkyWalking OAP identifies the GenAI provider using the following prioritized logic:

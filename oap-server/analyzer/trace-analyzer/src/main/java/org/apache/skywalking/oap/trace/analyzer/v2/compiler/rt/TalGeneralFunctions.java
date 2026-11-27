@@ -121,7 +121,8 @@ public class TalGeneralFunctions implements TALFunctionProvider {
     }
 
     /**
-     * {@code parseIntOrZero(text)}: 0 for no value, the number, or 0 after a warning under the script's logger.
+     * {@code parseIntOrZero(text)}, {@code GenAIMeterAnalyzer.parseSafeInt}: 0 for no value, the number, or 0 after
+     * a warning under the script's logger.
      *
      * @param h    the run
      * @param text the value to parse

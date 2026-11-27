@@ -65,7 +65,10 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         GenAISemanticAttributes.SYSTEM_NAME,
         GenAISemanticAttributes.USAGE_INPUT_TOKENS,
         GenAISemanticAttributes.USAGE_OUTPUT_TOKENS,
-        GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK
+        GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK,
+        // Read when a span has no time to first chunk: SkyWalking Java Agent 9.7 and 9.8, and the earlier
+        // virtual-genai.md
+        GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN
     };
     /**
      * The {@code gen_ai.operation.name} values of the OpenTelemetry GenAI conventions that describe no model call of
@@ -143,8 +146,7 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
 
-        metrics.setTimeToFirstToken(
-            parseSecondsAsMillis(tags.get(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK)));
+        metrics.setTimeToFirstToken(timeToFirstTokenMillis(tags));
         metrics.setTotalEstimatedCost(totalCost);
 
         long latency = span.getEndTime() - span.getStartTime();
@@ -236,13 +238,28 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
         metrics.setModelName(modelName);
         metrics.setInputTokens(inputTokens);
         metrics.setOutputTokens(outputTokens);
-        metrics.setTimeToFirstToken(
-            parseSecondsAsMillis(attributes.get(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK)));
+        metrics.setTimeToFirstToken(timeToFirstTokenMillis(attributes));
         metrics.setTotalEstimatedCost(totalCost);
         metrics.setLatency(latencyMillis);
         metrics.setStatus(status);
         metrics.setTimeBucket(TimeBucket.getMinuteTimeBucket(startTimeMillis));
         return metrics;
+    }
+
+    /**
+     * @param tags span tags or attributes as strings
+     * @return the time to first token in milliseconds: {@code gen_ai.response.time_to_first_chunk}, in seconds, the
+     *         span attribute of the OpenTelemetry GenAI conventions; else {@code gen_ai.server.time_to_first_token}, in
+     *         milliseconds, which SkyWalking Java Agent 9.7 and 9.8 report, as do OTLP / Zipkin producers that followed
+     *         the earlier virtual-genai.md
+     */
+    private int timeToFirstTokenMillis(final Map<String, String> tags) {
+        final String timeToFirstChunk = tags.get(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK);
+        if (StringUtil.isNotBlank(timeToFirstChunk)) {
+            return parseSecondsAsMillis(timeToFirstChunk);
+        }
+        // SkyWalking Java Agent 9.7 and 9.8
+        return parseSafeInt(tags.get(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN));
     }
 
     private static void putAttribute(final Map<String, String> target,
@@ -276,6 +293,18 @@ public class GenAIMeterAnalyzer implements IGenAIMeterAnalyzerService {
             return Long.parseLong(value);
         } catch (NumberFormatException e) {
             log.warn("Failed to parse value to long: {}", value);
+            return 0;
+        }
+    }
+
+    private int parseSafeInt(String value) {
+        if (StringUtil.isEmpty(value)) {
+            return 0;
+        }
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            log.warn("Failed to parse value to int: {}", value);
             return 0;
         }
     }

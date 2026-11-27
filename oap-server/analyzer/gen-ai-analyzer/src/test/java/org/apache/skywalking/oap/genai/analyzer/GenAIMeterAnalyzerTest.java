@@ -98,8 +98,8 @@ public class GenAIMeterAnalyzerTest {
                         .setValue("500")
                         .build())
                 .addTags(KeyStringValuePair.newBuilder()
-                        .setKey(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK)
-                        .setValue("0.1")
+                        .setKey(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN)
+                        .setValue("100")
                         .build())
                 .build();
 
@@ -267,14 +267,60 @@ public class GenAIMeterAnalyzerTest {
     }
 
     @Test
-    void testOTLPSpanIgnoresTimeToFirstTokenInMillis() {
+    void testOTLPSpanFallsBackToTimeToFirstTokenInMillis() {
         final Map<String, String> attributes = chatAttributes();
-        attributes.put("gen_ai.server.time_to_first_token", "100");
+        attributes.put(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN, "100");
+
+        final GenAIMetrics metrics = analyzer.extractMetricsFromOTLPSpan(otlpSpan(attributes, "STATUS_CODE_OK"));
+
+        assertNotNull(metrics);
+        assertEquals(100, metrics.getTimeToFirstToken());
+    }
+
+    @Test
+    void testOTLPSpanPrefersTimeToFirstChunkOverTimeToFirstToken() {
+        final Map<String, String> attributes = chatAttributes();
+        attributes.put(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK, "0.4567");
+        attributes.put(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN, "100");
+
+        final GenAIMetrics metrics = analyzer.extractMetricsFromOTLPSpan(otlpSpan(attributes, "STATUS_CODE_OK"));
+
+        assertNotNull(metrics);
+        assertEquals(457, metrics.getTimeToFirstToken());
+    }
+
+    @Test
+    void testOTLPSpanWithUnusableTimeToFirstChunkDoesNotFallBack() {
+        final Map<String, String> attributes = chatAttributes();
+        attributes.put(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK, "soon");
+        attributes.put(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN, "100");
 
         final GenAIMetrics metrics = analyzer.extractMetricsFromOTLPSpan(otlpSpan(attributes, "STATUS_CODE_OK"));
 
         assertNotNull(metrics);
         assertEquals(0, metrics.getTimeToFirstToken());
+    }
+
+    @Test
+    void testSWSpanReadsTimeToFirstChunkAsSeconds() {
+        final SpanObject span = SpanObject.newBuilder()
+                .setOperationName("genai_call")
+                .setStartTime(1000000L)
+                .setEndTime(1005000L)
+                .addTags(KeyStringValuePair.newBuilder()
+                        .setKey(GenAISemanticAttributes.RESPONSE_MODEL)
+                        .setValue("gpt-5.4")
+                        .build())
+                .addTags(KeyStringValuePair.newBuilder()
+                        .setKey(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK)
+                        .setValue("0.1")
+                        .build())
+                .build();
+
+        final GenAIMetrics metrics = analyzer.extractMetricsFromSWSpan(span, SegmentObject.newBuilder().build());
+
+        assertNotNull(metrics);
+        assertEquals(100, metrics.getTimeToFirstToken());
     }
 
     @ParameterizedTest
@@ -379,6 +425,10 @@ public class GenAIMeterAnalyzerTest {
         assertEquals(1200, metrics.getTimeToFirstToken());
         assertEquals(5000L, metrics.getLatency());
         assertFalse(metrics.isStatus());
+
+        tags.remove(GenAISemanticAttributes.RESPONSE_TIME_TO_FIRST_CHUNK);
+        tags.addProperty(GenAISemanticAttributes.SERVER_TIME_TO_FIRST_TOKEN, "100");
+        assertEquals(100, analyzer.extractMetricsFromZipkinSpan(failedCall).getTimeToFirstToken());
 
         tags.addProperty(GenAISemanticAttributes.OPERATION_NAME, "invoke_agent");
         assertNull(analyzer.extractMetricsFromZipkinSpan(failedCall));
