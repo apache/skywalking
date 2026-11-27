@@ -66,12 +66,12 @@ import org.apache.skywalking.oap.server.receiver.runtimerule.state.AppliedRuleSc
  * proper diff, {@link #revertToBundled} runs the steps below in order:
  * <pre>
  *   1. {@link RuleEngine#installRuntime} re-registers prior runtime claims under
- *      {@code withoutSchemaChange} (no backend touch). Now the rules map points at
+ *      {@code runtimeLocalOnly} (no backend touch). Now the rules map points at
  *      runtime's claim set as if it were ACTIVE again.
  *   2. {@link DSLRuntimeApply#apply} runs the standard pipeline against the bundled YAML
- *      with {@code Kind.BUNDLED} + {@code withSchemaChange}. Engine.compile sees the
+ *      with {@code Kind.BUNDLED} + {@code runtimeApply}. Engine.compile sees the
  *      step-1 runtime install as prior, classifies STRUCTURAL, computes the runtime→bundled
- *      delta. Engine.commit fires {@code applier.remove(removedMetrics, withSchemaChange)}
+ *      delta. Engine.commit fires {@code applier.remove(removedMetrics, runtimeApply)}
  *      which drops runtime-only measures via the listener chain, and the new compile
  *      registers bundled-only measures. Bundled-shared metrics at matching shape are
  *      reused; at differing shape, the listener cascade reshapes them via the standard
@@ -209,7 +209,7 @@ public class DSLRuntimeDelete {
         // Step 1. Install runtime locally (no backend touch). The next step's compile
         // sees this as the prior state and computes the runtime→bundled delta against it.
         final ApplyInputs withoutSchema = new ApplyInputs(
-            moduleManager, StorageManipulationOpt.withoutSchemaChange(),
+            moduleManager, StorageManipulationOpt.runtimeLocalOnly(),
             alarmResetter, rules);
         final C ctx = engine.newApplyContext(withoutSchema);
         try {
@@ -230,7 +230,7 @@ public class DSLRuntimeDelete {
             new RuntimeRuleManagementDAO.RuntimeRuleFile(
                 catalog, name, bundledContent, /* status */ null, /* updateTime */ 0L);
         final ApplyInputs withSchema = new ApplyInputs(
-            moduleManager, StorageManipulationOpt.withSchemaChangeDeferredFence(),
+            moduleManager, StorageManipulationOpt.runtimeApplyDeferredFence(),
             alarmResetter, rules);
         final DSLRuntimeApply.Outcome outcome = dslRuntimeApply.apply(
             bundledFile, Classification.STRUCTURAL,
@@ -238,7 +238,7 @@ public class DSLRuntimeDelete {
         if (outcome.status != DSLRuntimeApply.Outcome.Status.COMMITTED) {
             log.warn("runtime-rule revertToBundled: bundled apply did not commit for {}/{}: {} ({})",
                 catalog, name, outcome.error, outcome.status);
-            // Step 1 installed runtime locally under withoutSchemaChange — handlers and
+            // Step 1 installed runtime locally under runtimeLocalOnly — handlers and
             // meterPrototypes are live again. Bundled apply failed (engine self-rolled
             // back its own partial registrations) but step 1 is still in place. The
             // operator's intent was /inactivate (handlers OFF) followed by a failed
@@ -246,7 +246,7 @@ public class DSLRuntimeDelete {
             // back down so local state matches the persisted INACTIVE row. The operator
             // must retry /delete?mode=revertToBundled after fixing the bundled YAML.
             final ApplyInputs cleanup = new ApplyInputs(
-                moduleManager, StorageManipulationOpt.withoutSchemaChange(),
+                moduleManager, StorageManipulationOpt.runtimeLocalOnly(),
                 alarmResetter, rules);
             final C cleanupCtx = engine.newApplyContext(cleanup);
             engine.unregister(catalog, name, cleanupCtx);

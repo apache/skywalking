@@ -32,7 +32,7 @@ import static org.mockito.Mockito.when;
 /**
  * Unit coverage for the local schema-cache self-heal on {@link MetadataRegistry}. A read/persist
  * path that finds the cache empty for a model whose dispatch worker is already live (e.g. a
- * {@code withoutSchemaChange} peer apply or a runtime-rule bundled fall-over that rebuilt the
+ * {@code runtimeLocalOnly} peer apply or a runtime-rule bundled fall-over that rebuilt the
  * worker but skipped the populate) must be able to re-derive the schema locally with no server
  * RPC, instead of throwing {@code "<model> is not registered"} forever.
  */

@@ -104,7 +104,7 @@ public enum MetadataRegistry {
      * Re-derive and locally register a model's BanyanDB {@link Schema} with NO server RPC.
      * Registered once by the active {@code BanyanDBIndexInstaller} at boot and invoked by
      * {@link #repopulateLocally(Model)} when a read path finds the cache empty for a model whose
-     * dispatch worker is already live — e.g. a {@code withoutSchemaChange} peer apply or a
+     * dispatch worker is already live — e.g. a {@code runtimeLocalOnly} peer apply or a
      * runtime-rule bundled fall-over rebuilt the worker but skipped the local populate. The
      * {@code Model} is always known locally and its schema is a pure local derivation, so such a
      * miss is always re-derivable without touching the backend.

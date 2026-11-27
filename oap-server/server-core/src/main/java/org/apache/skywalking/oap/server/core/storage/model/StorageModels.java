@@ -170,10 +170,6 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
             banyanDBModelExtension.setTraceGroup(aClass.getAnnotation(BanyanDB.Trace.Group.class).value());
         }
 
-        if (aClass.isAnnotationPresent(BanyanDB.Stream.AllowBootReshape.class)) {
-            banyanDBModelExtension.setAllowBootReshape(true);
-        }
-
         if (aClass.isAnnotationPresent(BanyanDB.Trace.StoreAsAttachmentOf.class)) {
             if (aClass.isAnnotationPresent(BanyanDB.Trace.Group.class)) {
                 throw new IllegalStateException(
@@ -360,11 +356,11 @@ public class StorageModels implements IModelManager, ModelRegistry, ModelManipul
         }
         // A late-registering listener catches up on every previously-added model. These
         // models were added with their original caller's policy; the listener now receives
-        // them under schemaCreateIfAbsent() because this catch-up is boot-time model registration,
-        // not an on-demand operator reshape — we want the same "create-if-absent + report
-        // shape mismatch" semantics, never auto-reshape.
+        // them under bootInstall() because this catch-up is boot-time model registration,
+        // not an on-demand operator reshape — the same boot policy: create what is absent,
+        // apply additive changes, report a breaking difference.
         for (Model model : modelsSnapshot) {
-            listener.whenCreating(model, StorageManipulationOpt.schemaCreateIfAbsent());
+            listener.whenCreating(model, StorageManipulationOpt.bootInstall());
         }
     }
 

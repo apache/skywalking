@@ -189,7 +189,7 @@ abstract class JDBCManagementITBase {
     @Test
     public void reportsTheTableAndColumnsOfAnInstalledModel() throws Exception {
         for (final Model model : Arrays.asList(templateModel, relationModel)) {
-            final var info = support.installer().isExists(model, StorageManipulationOpt.withSchemaChange());
+            final var info = support.installer().isExists(model, StorageManipulationOpt.runtimeApply());
             assertTrue(info.isAllExist(), model.getName());
             assertTrue(
                 info.buildInstallInfoMsg().contains("allResourcesExist=true [tableExist=true, allColumnsExist=true]"),
@@ -202,7 +202,7 @@ abstract class JDBCManagementITBase {
         final Model model = support.register(
             ServiceInstanceRelationServerSideMetrics.class, DefaultScopeDefine.SERVICE_INSTANCE_RELATION,
             ServiceInstanceRelationServerSideMetrics.INDEX_NAME, DownSampling.Minute);
-        final var info = support.installer().isExists(model, StorageManipulationOpt.withSchemaChange());
+        final var info = support.installer().isExists(model, StorageManipulationOpt.runtimeApply());
         assertFalse(info.isAllExist());
         assertTrue(
             info.buildInstallInfoMsg().contains("allResourcesExist=false [tableExist=false, allColumnsExist=false]"),
@@ -220,7 +220,7 @@ abstract class JDBCManagementITBase {
         support.getClient().execute(
             "ALTER TABLE " + TableHelper.getLatestTableForWrite(model) + " DROP COLUMN "
                 + ServiceRelationClientSideMetrics.COMPONENT_IDS);
-        final var info = support.installer().isExists(model, StorageManipulationOpt.withSchemaChange());
+        final var info = support.installer().isExists(model, StorageManipulationOpt.runtimeApply());
         assertFalse(info.isAllExist());
         assertTrue(
             info.buildInstallInfoMsg().contains("allResourcesExist=false [tableExist=true, allColumnsExist=false]"),

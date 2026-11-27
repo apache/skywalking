@@ -179,11 +179,11 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
 
     /**
      * Opt-aware variant invoked from the runtime-rule MAL path. Peer nodes pass
-     * {@link StorageManipulationOpt#withoutSchemaChange()} so every downstream {@code ModelRegistry.add}
+     * {@link StorageManipulationOpt#runtimeLocalOnly()} so every downstream {@code ModelRegistry.add}
      * records per-resource outcomes and suppresses server-side install. Main-node on-demand
-     * callers (REST {@code /addOrUpdate}) pass {@link StorageManipulationOpt#withSchemaChange()}.
+     * callers (REST {@code /addOrUpdate}) pass {@link StorageManipulationOpt#runtimeApply()}.
      * Startup-path callers (stream registration for static rules) pass
-     * {@link StorageManipulationOpt#schemaCreateIfAbsent()} so boot never reshapes the backend.
+     * {@link StorageManipulationOpt#bootInstall()} so boot applies additive changes only, never a breaking one.
      */
     public void create(ModuleDefineHolder moduleDefineHolder,
                        StreamDefinition stream,
@@ -196,7 +196,7 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
                         StreamDefinition stream,
                         Class<? extends Metrics> metricsClass,
                         MetricStreamKind kind) throws StorageException {
-        this.create(moduleDefineHolder, stream, metricsClass, kind, StorageManipulationOpt.schemaCreateIfAbsent());
+        this.create(moduleDefineHolder, stream, metricsClass, kind, StorageManipulationOpt.bootInstall());
     }
 
     private void create(ModuleDefineHolder moduleDefineHolder,
@@ -244,6 +244,8 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
             supportUpdate = metricsExtension.supportUpdate();
             timeRelativeID = metricsExtension.timeRelativeID();
         }
+        // One opt can serve many models; only this metric's outcomes (every downsampling) decide below.
+        final int outcomesBefore = opt.getOutcomes().size();
         if (supportDownSampling) {
             if (configService.shouldToHour()) {
                 Model model = modelSetter.add(
@@ -274,19 +276,16 @@ public class MetricsStreamProcessor implements StreamProcessor<Metrics> {
             opt
         );
 
-        // Shape-mismatch gate — boot registers under create-if-absent, which records
-        // SKIPPED_SHAPE_MISMATCH outcomes when the backend already holds a shape that
-        // differs from what the model declares. We must NOT register workers against a
-        // backend the installer refused to reshape: ingest would silently write against an
-        // inconsistent schema (or land rows the query side can't decode). Boot continues
-        // with the metric disabled — operator reconciles explicitly via the runtime-rule
-        // on-demand endpoint (the only workflow that may change backend schema).
-        if (opt.hasShapeMismatch()) {
-            log.error("Shape mismatch for metric {} — installer refused to reshape the "
-                + "backend; skipping worker registration so ingest won't write against an "
-                + "inconsistent schema. Operator action: reshape via POST /runtime/rule/addOrUpdate "
-                + "or align the rule shape with the backend. First mismatch: {}",
-                metricsClass.getName(), opt.firstShapeMismatch());
+        // Boot refused a breaking change to this metric's storage (any downsampling): register no entry
+        // worker (the hour / day workers built above get no data: the persistence timer visits them with
+        // nothing to flush), so nothing writes against a shape
+        // the model doesn't declare. ModelInstaller has logged the refusal. A model registered before the
+        // storage module added its listener is installed later by StorageModels' catch-up, whose outcome
+        // never reaches here.
+        final StorageManipulationOpt.ResourceOutcome refused = opt.firstBootRefusalSince(outcomesBefore);
+        if (refused != null) {
+            log.error("metric {} stays off: boot refused a breaking change to its storage, {}",
+                metricsClass.getName(), refused);
             return;
         }
 

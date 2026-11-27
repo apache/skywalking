@@ -172,7 +172,7 @@ public class MalFileApplier {
             throw new ApplyException("MAL compile failed for " + sourceName, t, Collections.emptySet());
         }
         // All DDL for this file's metrics is now fired. If the opt deferred its schema fence
-        // (batched apply via withSchemaChangeDeferredFence), run the single barrier here so the
+        // (batched apply via runtimeApplyDeferredFence), run the single barrier here so the
         // whole file waits ONCE instead of one fence per metric/downsampling. A fence timeout is
         // a non-fatal WARN inside the closure; only a barrier transport error throws, which
         // aborts this apply exactly as an inline per-resource fence would have.
@@ -206,11 +206,11 @@ public class MalFileApplier {
 
     /**
      * Back-compat overload: callers that haven't yet picked a storage policy pass
-     * {@link StorageManipulationOpt#withSchemaChange()}. Main-node apply path.
+     * {@link StorageManipulationOpt#runtimeApply()}. Main-node apply path.
      */
     public Applied apply(final String yamlContent, final String sourceName,
                          final String contentHash) throws ApplyException {
-        return apply(yamlContent, sourceName, contentHash, StorageManipulationOpt.withSchemaChange());
+        return apply(yamlContent, sourceName, contentHash, StorageManipulationOpt.runtimeApply());
     }
 
     /**
@@ -219,15 +219,15 @@ public class MalFileApplier {
      * {@code ClassLoaderGc} output.
      */
     public Applied apply(final String yamlContent, final String sourceName) throws ApplyException {
-        return apply(yamlContent, sourceName, "", StorageManipulationOpt.withSchemaChange());
+        return apply(yamlContent, sourceName, "", StorageManipulationOpt.runtimeApply());
     }
 
     /**
      * Reverse of {@link #apply}: drop every metric name the previous apply registered under
      * the given {@link StorageManipulationOpt storage policy}. Main-node callers pass
-     * {@link StorageManipulationOpt#withSchemaChange()} so {@code BanyanDBIndexInstaller.dropTable}
+     * {@link StorageManipulationOpt#runtimeApply()} so {@code BanyanDBIndexInstaller.dropTable}
      * actually deletes the server-side measure. Peer-node callers pass
-     * {@link StorageManipulationOpt#withoutSchemaChange()} so local teardown (L1/L2 drain,
+     * {@link StorageManipulationOpt#runtimeLocalOnly()} so local teardown (L1/L2 drain,
      * {@code meterPrototypes} eviction, CtClass detach) still runs but the server-side drop
      * is suppressed — main owns server-side state.
      *
@@ -267,7 +267,7 @@ public class MalFileApplier {
 
     /** Back-compat overload: full-install policy (server-side drop fires). */
     public void remove(final Set<String> metricNames) {
-        remove(metricNames, StorageManipulationOpt.withSchemaChange());
+        remove(metricNames, StorageManipulationOpt.runtimeApply());
     }
 
     private Rule parse(final String yamlContent, final String sourceName) throws ApplyException {

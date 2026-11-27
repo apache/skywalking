@@ -24,12 +24,16 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import io.grpc.Status;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,12 +50,12 @@ import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRule;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.IndexRuleBinding;
 import org.apache.skywalking.banyandb.schema.v1.BanyandbSchema.SchemaKey;
 import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TopNAggregation;
+import org.apache.skywalking.banyandb.database.v1.BanyandbDatabase.TraceTagSpec;
 import org.apache.skywalking.library.banyandb.v1.client.BanyanDBClient;
 import org.apache.skywalking.library.banyandb.v1.client.SchemaWatcher;
 import org.apache.skywalking.library.banyandb.v1.client.grpc.exception.BanyanDBException;
 import org.apache.skywalking.library.banyandb.v1.client.metadata.ResourceExist;
 import org.apache.skywalking.oap.server.core.CoreModule;
-import org.apache.skywalking.oap.server.core.RunningMode;
 import org.apache.skywalking.oap.server.core.analysis.DownSampling;
 import org.apache.skywalking.oap.server.core.config.DownSamplingConfigService;
 import org.apache.skywalking.oap.server.core.storage.StorageException;
@@ -69,12 +73,12 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
  * their index rules / bindings.
  *
  * <ul>
- *   <li><b>isExists</b> — read-only inspection. Compares the declared shape against what
- *       BanyanDB currently holds; records
- *       {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH} on
- *       {@link StorageManipulationOpt} when the on-disk shape diverges, so the boot loop
- *       can skip the affected resource and log an ERROR diff instead of silently dropping
- *       samples.</li>
+ *   <li><b>isExists</b> — compares the declared shape with what BanyanDB holds and, as the
+ *       opt allows, brings a present measure / stream / trace / property in line: any
+ *       difference on {@link StorageManipulationOpt.Mode#RUNTIME_APPLY}, an additive one on
+ *       {@link StorageManipulationOpt.Mode#BOOT_INSTALL}. Records {@code MATCHED},
+ *       {@code UPDATED}, or the outcome for a difference left unapplied, which keeps a
+ *       metric on that resource off.</li>
  *   <li><b>createTable</b> — DDL path. Creates the resource if missing, updates index
  *       rules / bindings if drift is detected, and on time-series resources installs
  *       per-downsampling siblings.</li>
@@ -90,11 +94,11 @@ import org.apache.skywalking.oap.server.library.util.CollectionUtils;
  *       the change before returning to the caller. On laggard timeout it logs a warning
  *       naming the laggards and continues — see the runtime-rule architecture doc for
  *       why this is best-effort, not a hard guarantee.</li>
- *   <li><b>Peer-mode shortcut</b> — when {@code opt.flags.inspectBackend == false}
- *       (non-main OAP in cluster mode), {@code isExists} skips every server RPC and
- *       just populates the local {@link MetadataRegistry} so this peer's DAOs can
- *       translate the model for sample read / write. The cluster main is the only
- *       node that actually drives DDL.</li>
+ *   <li><b>Local-only shortcut</b> — when {@code opt.flags.inspectBackend == false}
+ *       ({@link StorageManipulationOpt.Mode#RUNTIME_LOCAL_ONLY}: a not-main OAP's tick, or
+ *       the main OAP's {@code /inactivate}), {@code isExists} skips every server RPC and
+ *       just populates the local {@link MetadataRegistry} so this OAP's DAOs can
+ *       translate the model for sample read / write.</li>
  * </ul>
  */
 @Slf4j
@@ -110,7 +114,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         // Let read/persist paths self-heal a missing local schema entry (MetadataRegistry.repopulateLocally):
         // re-derive the model's Schema locally with zero server RPC via the same primitive the peer
         // boot path uses. This closes the "<metric> is not registered" flood that arises when a
-        // withoutSchemaChange peer apply or a runtime-rule bundled fall-over rebuilds the dispatch
+        // runtimeLocalOnly peer apply or a runtime-rule bundled fall-over rebuilds the dispatch
         // worker but skips the populate. DownSamplingConfigService is resolved lazily per call — a
         // self-heal only fires post-boot, when CoreModule is long up.
         MetadataRegistry.INSTANCE.registerLocalSchemaPopulator(model -> {
@@ -166,6 +170,8 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         installInfo.setTableName(metadata.name());
         installInfo.setKind(metadata.getKind());
         installInfo.setGroup(metadata.getGroup());
+        installInfo.setResourceType(metadata.getKind().name().toLowerCase(Locale.ROOT));
+        installInfo.setResourceName(metadata.getGroup() + "/" + metadata.name());
 
         // Peer-mode shortcut: when the caller has inspectBackend=false the contract is
         // "zero server RPCs". The cluster main has already installed the resource on
@@ -177,9 +183,8 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             installInfo.setGroupExist(true);
             installInfo.setTableExist(true);
             installInfo.setAllExist(true);
-            opt.recordOutcome(metadata.getKind().name().toLowerCase(), metadata.name(),
-                StorageManipulationOpt.Outcome.EXISTING_MATCHED,
-                "peer-mode local cache refresh — no server RPC");
+            opt.recordOutcome(metadata.getKind().name().toLowerCase(Locale.ROOT), metadata.getGroup() + "/" + metadata.name(),
+                StorageManipulationOpt.Outcome.RUNTIME_BACKEND_UNTOUCHED, "local schema cache refreshed");
             return installInfo;
         }
 
@@ -193,12 +198,12 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 installInfo.setAllExist(false);
                 return installInfo;
             } else {
-                // Run shape-compat checks — and the updates they drive for withSchemaChange —
+                // Run shape-compat checks — and the updates they drive for runtimeApply —
                 // unless this is the static boot-time path deferring to the init OAP. The
-                // runtime-rule DSL opts (withSchemaChange / verifySchemaOnly) are never
+                // runtime-rule DSL opts (runtimeApply / runtimePeerVerify) are never
                 // deferred, so an operator-driven shape UPDATE reconciles on a no-init OAP
-                // exactly as on a default / standalone one. (verifySchemaOnly still runs the
-                // checks but records SKIPPED_SHAPE_MISMATCH instead of writing.)
+                // exactly as on a default / standalone one. (runtimePeerVerify still runs the
+                // checks but records RUNTIME_PEER_SCHEMA_ABSENT / _DIFFERENT instead of writing.)
                 final boolean runShapeChecks = !deferDDLToInitNode(opt);
                 if (model.isTimeSeries()) {
                     // register models only locally(Schema cache) but not remotely
@@ -211,14 +216,13 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                 return installInfo;
                             }
                             if (runShapeChecks) {
+                                final int from = opt.getOutcomes().size();
                                 if (checkTrace(traceModel.getTrace(), c, opt)) {
-                                    checkIndexRules(model.getName(), traceModel.getIndexRules(), c, opt);
+                                    checkIndexRules(model.getName(), traceModel.getIndexRules(), updatedSince(opt, from), c, opt);
                                     checkIndexRuleBinding(
                                         traceModel.getIndexRules(), metadata.getGroup(), metadata.name(),
                                         BanyandbCommon.Catalog.CATALOG_TRACE, c, opt
                                     );
-                                } else {
-                                    skipDependentReconcile(opt, "trace", metadata.name());
                                 }
                             }
                         } else {
@@ -226,30 +230,28 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                             StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(
                                 model, config);
                             if (runShapeChecks) {
-                                if (checkStream(model, streamModel.getStream(), c, opt)) {
-                                    checkIndexRules(model.getName(), streamModel.getIndexRules(), c, opt);
+                                final int from = opt.getOutcomes().size();
+                                if (checkStream(streamModel.getStream(), c, opt)) {
+                                    checkIndexRules(model.getName(), streamModel.getIndexRules(), updatedSince(opt, from), c, opt);
                                     checkIndexRuleBinding(
                                         streamModel.getIndexRules(), metadata.getGroup(), metadata.name(),
                                         BanyandbCommon.Catalog.CATALOG_STREAM, c, opt
                                     );
                                     // Stream not support server side TopN pre-aggregation
-                                } else {
-                                    skipDependentReconcile(opt, "stream", metadata.name());
                                 }
                             }
                         }
                     } else { // measure
                         MeasureModel measureModel = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, downSamplingConfigService);
                         if (runShapeChecks) {
-                            if (checkMeasure(model, measureModel.getMeasure(), c, opt)) {
-                                checkIndexRules(model.getName(), measureModel.getIndexRules(), c, opt);
+                            final int from = opt.getOutcomes().size();
+                            if (checkMeasure(measureModel.getMeasure(), c, opt)) {
+                                checkIndexRules(model.getName(), measureModel.getIndexRules(), updatedSince(opt, from), c, opt);
                                 checkIndexRuleBinding(
                                     measureModel.getIndexRules(), metadata.getGroup(), metadata.name(),
                                     BanyandbCommon.Catalog.CATALOG_MEASURE, c, opt
                                 );
                                 checkTopNAggregation(model, c, opt);
-                            } else {
-                                skipDependentReconcile(opt, "measure", metadata.name());
                             }
                         }
                     }
@@ -363,7 +365,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     public void createTable(Model model) throws StorageException {
         // Legacy entry point preserved for binary compatibility; orchestrator calls
         // the opt-aware overload.
-        createTable(model, StorageManipulationOpt.withSchemaChange());
+        createTable(model, StorageManipulationOpt.runtimeApply());
     }
 
     @Override
@@ -383,21 +385,23 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         // trace
                         Trace trace = traceModel.getTrace();
                         if (trace != null) {
-                            log.info("install trace schema {}", model.getName());
+                            log.debug("BanyanDB DDL: define trace {}", nameOf(trace.getMetadata()));
                             try {
                                 opt.recordModRevision(client.define(trace));
+                                opt.recordOutcome("trace", nameOf(trace.getMetadata()),
+                                    StorageManipulationOpt.Outcome.CREATED, null);
                                 if (CollectionUtils.isNotEmpty(traceModel.getIndexRules())) {
                                     for (IndexRule indexRule : traceModel.getIndexRules()) {
-                                        opt.recordModRevision(defineIndexRule(model.getName(), indexRule, client));
+                                        opt.recordModRevision(defineIndexRule(model.getName(), indexRule, client, opt));
                                     }
                                     opt.recordModRevision(defineIndexRuleBinding(
                                         traceModel.getIndexRules(), trace.getMetadata().getGroup(), trace.getMetadata().getName(),
-                                        BanyandbCommon.Catalog.CATALOG_TRACE, client
+                                        BanyandbCommon.Catalog.CATALOG_TRACE, client, opt
                                     ));
                                 }
                             } catch (BanyanDBException ex) {
                                 if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                                    log.info("Trace schema {} already created by another OAP node", model.getName());
+                                    log.debug("BanyanDB trace {} already created by another OAP node", model.getName());
                                 } else {
                                     throw ex;
                                 }
@@ -408,23 +412,25 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         StreamModel streamModel = MetadataRegistry.INSTANCE.registerStreamModel(model, config);
                         Stream stream = streamModel.getStream();
                         if (stream != null) {
-                            log.info("install stream schema {}", model.getName());
+                            log.debug("BanyanDB DDL: define stream {}", nameOf(stream.getMetadata()));
                             try {
                                 opt.recordModRevision(client.define(stream));
+                                opt.recordOutcome("stream", nameOf(stream.getMetadata()),
+                                    StorageManipulationOpt.Outcome.CREATED, null);
                                 if (CollectionUtils.isNotEmpty(streamModel.getIndexRules())) {
                                     for (IndexRule indexRule : streamModel.getIndexRules()) {
-                                        opt.recordModRevision(defineIndexRule(model.getName(), indexRule, client));
+                                        opt.recordModRevision(defineIndexRule(model.getName(), indexRule, client, opt));
                                     }
                                     opt.recordModRevision(defineIndexRuleBinding(
                                         streamModel.getIndexRules(), stream.getMetadata().getGroup(),
                                         stream.getMetadata().getName(),
-                                        BanyandbCommon.Catalog.CATALOG_STREAM, client
+                                        BanyandbCommon.Catalog.CATALOG_STREAM, client, opt
                                     ));
                                 }
                             } catch (BanyanDBException ex) {
                                 if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                                    log.info(
-                                        "Stream schema {}_{} already created by another OAP node",
+                                    log.debug(
+                                        "BanyanDB stream {}_{} already created by another OAP node",
                                         model.getName(),
                                         model.getDownsampling()
                                     );
@@ -438,21 +444,23 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     MeasureModel measureModel = MetadataRegistry.INSTANCE.registerMeasureModel(model, config, configService);
                     Measure measure = measureModel.getMeasure();
                     if (measure != null) {
-                        log.info("install measure schema {}", model.getName());
+                        log.debug("BanyanDB DDL: define measure {}", nameOf(measure.getMetadata()));
                         try {
                             opt.recordModRevision(client.define(measure));
+                            opt.recordOutcome("measure", nameOf(measure.getMetadata()),
+                                StorageManipulationOpt.Outcome.CREATED, null);
                             if (CollectionUtils.isNotEmpty(measureModel.getIndexRules())) {
                                 for (IndexRule indexRule : measureModel.getIndexRules()) {
-                                    opt.recordModRevision(defineIndexRule(model.getName(), indexRule, client));
+                                    opt.recordModRevision(defineIndexRule(model.getName(), indexRule, client, opt));
                                 }
                                 opt.recordModRevision(defineIndexRuleBinding(
                                     measureModel.getIndexRules(), measure.getMetadata().getGroup(), measure.getMetadata().getName(),
-                                    BanyandbCommon.Catalog.CATALOG_MEASURE, client
+                                    BanyandbCommon.Catalog.CATALOG_MEASURE, client, opt
                                 ));
                             }
                         } catch (BanyanDBException ex) {
                             if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                                log.info("Measure schema {}_{} already created by another OAP node",
+                                log.debug("BanyanDB measure {}_{} already created by another OAP node",
                                     model.getName(),
                                     model.getDownsampling());
                             } else {
@@ -466,12 +474,14 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             } else {
                 PropertyModel propertyModel = MetadataRegistry.INSTANCE.registerPropertyModel(model, config);
                 Property property = propertyModel.getProperty();
-                log.info("install property schema {}", model.getName());
+                log.debug("BanyanDB DDL: define property {}", nameOf(property.getMetadata()));
                 try {
                     opt.recordModRevision(client.define(property));
+                    opt.recordOutcome("property", nameOf(property.getMetadata()),
+                        StorageManipulationOpt.Outcome.CREATED, null);
                 } catch (BanyanDBException ex) {
                     if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                        log.info("Property schema {} already created by another OAP node", model.getName());
+                        log.debug("BanyanDB property {} already created by another OAP node", model.getName());
                     } else {
                         throw ex;
                     }
@@ -501,7 +511,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     public void dropTable(Model model) throws StorageException {
         // Legacy entry point: delegate to opt-aware overload with a default opt so
         // existing callers don't need to construct one.
-        dropTable(model, StorageManipulationOpt.withSchemaChange());
+        dropTable(model, StorageManipulationOpt.runtimeApply());
     }
 
     @Override
@@ -515,7 +525,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 model, config, configService);
             final String group = metadata.getGroup();
             final String name = metadata.name();
-            log.info("drop BanyanDB schema kind={} {}:{}", metadata.getKind(), group, name);
+            final String kind = metadata.getKind().name().toLowerCase(Locale.ROOT);
             // Tombstone revision of THIS drop's primary resource only — used to decide the
             // deletion fence. It must be the primary's own revision, NOT opt.getMaxModRevision():
             // a single opt is reused across many files in a tick, so the cumulative max can carry
@@ -534,9 +544,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         if (!name.equals(topN.getSourceMeasure().getName())) {
                             continue;
                         }
+                        final String topNName = topN.getMetadata().getName();
                         try {
-                            opt.recordModRevision(
-                                client.deleteTopNAggregationWithRevision(group, topN.getMetadata().getName()));
+                            log.debug("BanyanDB DDL: drop TopN aggregation {}/{}", group, topNName);
+                            opt.recordModRevision(client.deleteTopNAggregationWithRevision(group, topNName));
+                            opt.recordOutcome("topN", group + "/" + topNName, StorageManipulationOpt.Outcome.DROPPED, null);
                         } catch (BanyanDBException ex) {
                             if (!Status.Code.NOT_FOUND.equals(ex.getStatus())) {
                                 throw ex;
@@ -544,32 +556,37 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                         }
                     }
                     dropIndexRuleBindingsBestEffort(client, group, name, opt);
+                    log.debug("BanyanDB DDL: drop {} {}/{}", kind, group, name);
                     primaryDeleteRev = client.deleteMeasureWithRevision(group, name);
                     opt.recordModRevision(primaryDeleteRev);
                     break;
                 case STREAM:
                     dropIndexRuleBindingsBestEffort(client, group, name, opt);
+                    log.debug("BanyanDB DDL: drop {} {}/{}", kind, group, name);
                     primaryDeleteRev = client.deleteStreamWithRevision(group, name);
                     opt.recordModRevision(primaryDeleteRev);
                     break;
                 case TRACE:
                     dropIndexRuleBindingsBestEffort(client, group, name, opt);
+                    log.debug("BanyanDB DDL: drop {} {}/{}", kind, group, name);
                     client.deleteTrace(group, name);
                     break;
                 case PROPERTY:
+                    log.debug("BanyanDB DDL: drop {} {}/{}", kind, group, name);
                     client.deletePropertyDefinition(group, name);
                     break;
                 default:
                     throw new StorageException(
                         "dropTable unsupported kind=" + metadata.getKind() + " for model " + model.getName());
             }
+            opt.recordOutcome(kind, group + "/" + name, StorageManipulationOpt.Outcome.DROPPED, null);
             // Fence: prefer the revision-based wait when the server recorded a tombstone
             // mod_revision for THIS resource; otherwise fall back to AwaitSchemaDeleted keyed on
             // the primary resource so callers get a hard "removed everywhere" signal.
             fenceOnRevisionOrDeletion(client, metadata, primaryDeleteRev, "dropTable:" + model.getName());
         } catch (BanyanDBException ex) {
             if (Status.Code.NOT_FOUND.equals(ex.getStatus())) {
-                log.info("BanyanDB schema {} already absent on drop (idempotent)", model.getName());
+                opt.recordOutcome("model", model.getName(), StorageManipulationOpt.Outcome.DROPPED, "already absent");
                 return;
             }
             throw new StorageException("fail to drop schema " + model.getName(), ex);
@@ -640,7 +657,9 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         // IndexRuleBindings are named after the resource; a best-effort delete covers both the common
         // binding-name pattern and leaves other objects untouched on NOT_FOUND.
         try {
+            log.debug("BanyanDB DDL: drop index rule binding {}/{}", group, name);
             opt.recordModRevision(client.deleteIndexRuleBindingWithRevision(group, name));
+            opt.recordOutcome("indexRuleBinding", group + "/" + name, StorageManipulationOpt.Outcome.DROPPED, null);
         } catch (BanyanDBException ex) {
             if (!Status.Code.NOT_FOUND.equals(ex.getStatus())) {
                 log.warn("drop index rule binding {}:{} failed: {}", group, name, ex.getMessage());
@@ -858,11 +877,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             optsBuilder.addAllDefaultStages(metadata.getResource().getDefaultQueryStages());
         }
         gBuilder.setResourceOpts(optsBuilder.build());
-        // Group DDL follows the opt, not RunningMode: a runtime-rule withSchemaChange
+        // Group DDL follows the opt, not RunningMode: a runtime-rule runtimeApply
         // creates / updates the group on whatever node reaches here (peers short-circuit
         // earlier via inspectBackend=false), while the static boot path defers to the init
         // OAP on no-init. Create is gated on createMissing and update on !failOnShapeMismatch
-        // so verifySchemaOnly stays read-only even though it is not deferred.
+        // so runtimePeerVerify stays read-only even though it is not deferred.
         if (!deferDDLToInitNode(opt) && !groupAligned.contains(metadata.getGroup())) {
             if (!resourceExist.isHasGroup()) {
                 // create the group if not exist
@@ -870,11 +889,12 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                     try {
                         Group g = client.define(gBuilder.build());
                         if (g != null) {
-                            log.info("group {} created", g.getMetadata().getName());
+                            log.debug("BanyanDB DDL: define group {}", g);
+                            opt.recordOutcome("group", g.getMetadata().getName(), StorageManipulationOpt.Outcome.CREATED, null);
                         }
                     } catch (BanyanDBException ex) {
                         if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                            log.info("group {} already created by another OAP node", metadata.getGroup());
+                            log.debug("BanyanDB group {} already created by another OAP node", metadata.getGroup());
                         } else {
                             throw ex;
                         }
@@ -882,9 +902,16 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 }
             } else {
                 // update the group if necessary
-                if (!opt.getFlags().isFailOnShapeMismatch() && this.checkGroup(metadata, client)) {
-                    opt.recordModRevision(client.update(gBuilder.build()));
-                    log.info("group {} updated", metadata.getGroup());
+                if (!opt.getFlags().isFailOnShapeMismatch()) {
+                    if (this.checkGroup(metadata, client)) {
+                        log.debug("BanyanDB DDL: update group {}", gBuilder.build());
+                        opt.recordModRevision(client.update(gBuilder.build()));
+                        opt.recordOutcome("group", metadata.getGroup(), StorageManipulationOpt.Outcome.UPDATED,
+                            "shards, segment interval, TTL, lifecycle stages or trace pipeline changed");
+                    } else {
+                        opt.recordOutcome("group", metadata.getGroup(), StorageManipulationOpt.Outcome.MATCHED,
+                            "shards, segment interval, TTL, lifecycle stages and trace pipeline match");
+                    }
                 }
             }
             // mark the group as aligned
@@ -904,10 +931,11 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         for (TopNAggregation topNSpec : schema.getTopNSpecs().values()) {
             try {
                 opt.recordModRevision(client.define(topNSpec));
-                log.info("installed TopN schema for measure {}", schema.getMetadata().name());
+                log.debug("BanyanDB DDL: define TopN aggregation {}", topNSpec);
+                opt.recordOutcome("topN", nameOf(topNSpec.getMetadata()), StorageManipulationOpt.Outcome.CREATED, null);
             } catch (BanyanDBException ex) {
                 if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                    log.info("TopNAggregation {} already created by another OAP node", topNSpec);
+                    log.debug("BanyanDB TopN aggregation {} already created by another OAP node", nameOf(topNSpec.getMetadata()));
                 } else {
                     throw ex;
                 }
@@ -926,21 +954,39 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     }
 
     /**
-     * Check if the index rule has been processed.
-     * If the index rule has been processed, return true.
-     * Otherwise, return false and mark the index rule as processed.
+     * Whether another model of the group already got this index rule onto the backend. A declaration that conflicts
+     * with that model's throws.
      */
-    private boolean checkIndexRuleProcessed(String modelName, IndexRule indexRule) {
-        Map<String, IndexRule> rules = groupIndexRules.computeIfAbsent(
-            indexRule.getMetadata().getGroup(), k -> new HashMap<>());
-        IndexRule existRule = rules.get(indexRule.getMetadata().getName());
+    private boolean isIndexRuleProcessed(String modelName, IndexRule indexRule) {
+        IndexRule existRule = groupIndexRules.getOrDefault(indexRule.getMetadata().getGroup(), Collections.emptyMap())
+                                             .get(indexRule.getMetadata().getName());
         if (existRule != null) {
             checkIndexRuleConflicts(modelName, indexRule, existRule);
             return true;
-        } else {
-            rules.put(indexRule.getMetadata().getName(), indexRule);
-            return false;
         }
+        return false;
+    }
+
+    /**
+     * Marks the index rule processed, once the backend holds it: a rule whose check or definition failed is checked
+     * again for the next model that declares it.
+     */
+    private void markIndexRuleProcessed(IndexRule indexRule) {
+        groupIndexRules.computeIfAbsent(indexRule.getMetadata().getGroup(), k -> new HashMap<>())
+                       .put(indexRule.getMetadata().getName(), indexRule);
+    }
+
+    /**
+     * Whether the primary resource check that started recording at outcome index {@code from} updated the resource.
+     */
+    private static boolean updatedSince(StorageManipulationOpt opt, int from) {
+        final List<StorageManipulationOpt.ResourceOutcome> outcomes = opt.getOutcomes();
+        for (int i = from; i < outcomes.size(); i++) {
+            if (outcomes.get(i).getStatus() == StorageManipulationOpt.Outcome.UPDATED) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -950,17 +996,21 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      */
     private long defineIndexRule(String modelName,
                                  IndexRule indexRule,
-                                 BanyanDBClient client) throws BanyanDBException {
-        if (checkIndexRuleProcessed(modelName, indexRule)) {
+                                 BanyanDBClient client,
+                                 StorageManipulationOpt opt) throws BanyanDBException {
+        if (isIndexRuleProcessed(modelName, indexRule)) {
             return 0L;
         }
         try {
+            log.debug("BanyanDB DDL: define index rule {}", indexRule);
             long rev = client.define(indexRule);
-            log.info("new IndexRule created: {}", indexRule.getMetadata().getName());
+            markIndexRuleProcessed(indexRule);
+            opt.recordOutcome("indexRule", nameOf(indexRule.getMetadata()), StorageManipulationOpt.Outcome.CREATED, null);
             return rev;
         } catch (BanyanDBException ex) {
             if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                log.info("IndexRule {} already created by another OAP node", indexRule.getMetadata().getName());
+                log.debug("BanyanDB index rule {} already created by another OAP node", nameOf(indexRule.getMetadata()));
+                markIndexRuleProcessed(indexRule);
                 return 0L;
             } else {
                 throw ex;
@@ -972,7 +1022,8 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                         String group,
                                         String name,
                                         BanyandbCommon.Catalog catalog,
-                                        BanyanDBClient client) throws BanyanDBException {
+                                        BanyanDBClient client,
+                                        StorageManipulationOpt opt) throws BanyanDBException {
         List<String> indexRuleNames = indexRules.stream().map(indexRule -> indexRule.getMetadata().getName()).collect(
             Collectors.toList());
         try {
@@ -985,11 +1036,12 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                                                               .setCatalog(catalog))
                                           .addAllRules(indexRuleNames)
                                           .build());
-            log.info("new IndexRuleBinding created: {}", name);
+            log.debug("BanyanDB DDL: define index rule binding {}/{} rules {}", group, name, indexRuleNames);
+            opt.recordOutcome("indexRuleBinding", group + "/" + name, StorageManipulationOpt.Outcome.CREATED, null);
             return rev;
         } catch (BanyanDBException ex) {
             if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                log.info("IndexRuleBinding {} already created by another OAP node", name);
+                log.debug("BanyanDB index rule binding {}/{} already created by another OAP node", group, name);
                 return 0L;
             } else {
                 throw ex;
@@ -998,178 +1050,211 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     }
 
     /**
-     * Check if the measure exists and, when the live shape differs from the intended shape,
-     * either update it (on-demand operator workflow — {@link StorageManipulationOpt#isWithSchemaChange()})
-     * or skip the update and record {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}
-     * (static boot workflow — {@link StorageManipulationOpt#isSchemaCreateIfAbsent()}). Boot MUST
-     * NOT reshape a measure — reshape is an explicit operator action.
+     * Checks a present measure against its declared shape and brings it in line as far as {@code opt} allows
+     * ({@link #reconcileShape}).
      *
-     * @return {@code true} when the live measure is now aligned with the declared shape
-     *         (either it already matched, or the installer successfully applied an update);
-     *         {@code false} when the shape diverged and the installer recorded
-     *         {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}. Callers use the
-     *         return value to skip dependent resources (index rules, binding, TopN) so a
-     *         non-additive divergence doesn't leave the binding pointing at a stream/measure
-     *         that no longer agrees with it.
+     * @return {@code true} when the live measure now has the declared shape (it already had, or it was updated);
+     *         {@code false} when a difference was left unapplied. Callers then skip the dependent index rules,
+     *         binding and TopN, so a binding never points at tags the live measure doesn't have.
      */
-    private boolean checkMeasure(Model model, Measure measure, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
+    private boolean checkMeasure(Measure measure, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
         Measure hisMeasure = client.findMeasure(measure.getMetadata().getGroup(), measure.getMetadata().getName());
         if (hisMeasure == null) {
             throw new IllegalStateException("Measure: " + measure.getMetadata().getName() + " exist but can't find it from BanyanDB server");
-        } else {
-            boolean equals = hisMeasure.toBuilder()
-                                       .clearUpdatedAt()
-                                       .clearCreatedAt()
-                                       .clearMetadata()
-                                       .build()
-                                       .equals(measure.toBuilder().clearMetadata().build());
-            if (!equals) {
-                if (!opt.getFlags().isUpdateOnMismatch()) {
-                    log.error("BanyanDB measure {} shape mismatch at boot — backend holds a "
-                        + "different shape than the declared rule. SKIPPING metric; operator "
-                        + "must reshape via POST /runtime/rule/addOrUpdate or align the rule "
-                        + "shape with the backend. backend={}, declared={}",
-                        hisMeasure.getMetadata().getName(), hisMeasure, measure);
-                    opt.recordOutcome("measure", hisMeasure.getMetadata().getName(),
-                        StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
-                        "backend shape differs from declared shape; use /runtime/rule/addOrUpdate to reshape");
-                    return false;
-                }
-                // banyanDB server can not delete or update Tags.
-                opt.recordModRevision(client.update(measure));
-                log.info("update Measure: {} from: {} to: {}", hisMeasure.getMetadata().getName(), hisMeasure, measure);
-            }
         }
-        return true;
+        final String name = nameOf(measure.getMetadata());
+        final Measure live = hisMeasure.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build();
+        if (live.equals(measure.toBuilder().clearMetadata().build())) {
+            opt.recordOutcome("measure", name, StorageManipulationOpt.Outcome.MATCHED, null);
+            return true;
+        }
+        final String diff = new ShapeDiff()
+            .scalar("entity", hisMeasure.getEntity().getTagNamesList(), measure.getEntity().getTagNamesList())
+            .scalar("interval", hisMeasure.getInterval(), measure.getInterval())
+            .scalar("index mode", hisMeasure.getIndexMode(), measure.getIndexMode())
+            .scalar("sharding key", hisMeasure.getShardingKey().getTagNamesList(), measure.getShardingKey().getTagNamesList())
+            .named("tags", tagsOf(hisMeasure.getTagFamiliesList()), tagsOf(measure.getTagFamiliesList()))
+            .named("fields", fieldsOf(hisMeasure.getFieldsList()), fieldsOf(measure.getFieldsList()))
+            .toString();
+        return reconcileShape(opt, "measure", name, isPurelyAdditiveMeasure(measure, hisMeasure), diff,
+            () -> client.update(measure));
     }
 
     /**
-     * Check if the stream exists and update (or record shape mismatch) per mode. See
-     * {@link #checkMeasure} for the create-if-absent vs full-install contract, and
-     * {@link #canBootReshape} for the {@link BanyanDB.Stream.AllowBootReshape} additive opt-in.
-     *
-     * @return {@code true} when the live stream is now aligned with the declared shape
-     *         (already matched or successfully updated); {@code false} when the installer
-     *         recorded {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}. See
-     *         {@link #checkMeasure} for why callers must gate dependent index-rule /
-     *         binding reconciliation on this signal.
+     * Checks a present stream against its declared shape; see {@link #checkMeasure}.
      */
-    private boolean checkStream(Model model, Stream stream, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
+    private boolean checkStream(Stream stream, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
         Stream hisStream = client.findStream(stream.getMetadata().getGroup(), stream.getMetadata().getName());
         if (hisStream == null) {
             throw new IllegalStateException("Stream: " + stream.getMetadata().getName() + " exist but can't find it from BanyanDB server");
-        } else {
-            boolean equals = hisStream.toBuilder()
-                                      .clearUpdatedAt()
-                                      .clearCreatedAt()
-                                      .clearMetadata()
-                                      .build()
-                                      .equals(stream.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build());
-            if (!equals) {
-                if (!opt.getFlags().isUpdateOnMismatch()) {
-                    if (canBootReshape(model, opt) && isPurelyAdditiveStream(stream, hisStream)) {
-                        opt.recordModRevision(client.update(stream));
-                        log.info("boot reshape (additive) Stream: {} — applied @BanyanDB.Stream.AllowBootReshape. backend={}, declared={}",
-                            hisStream.getMetadata().getName(), hisStream, stream);
-                        opt.recordOutcome("stream", hisStream.getMetadata().getName(),
-                            StorageManipulationOpt.Outcome.UPDATED,
-                            "additive boot reshape: new tag added or tag relocated between families");
-                        return true;
-                    }
-                    log.error("BanyanDB stream {} shape mismatch at boot — backend holds a "
-                        + "different shape than the declared rule. SKIPPING; operator must "
-                        + "reshape via POST /runtime/rule/addOrUpdate. backend={}, declared={}",
-                        hisStream.getMetadata().getName(), hisStream, stream);
-                    opt.recordOutcome("stream", hisStream.getMetadata().getName(),
-                        StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
-                        "backend shape differs from declared shape; use /runtime/rule/addOrUpdate to reshape");
-                    return false;
-                }
-                opt.recordModRevision(client.update(stream));
-                log.info("update Stream: {} from: {} to: {}", hisStream.getMetadata().getName(), hisStream, stream);
+        }
+        final String name = nameOf(stream.getMetadata());
+        final Stream live = hisStream.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build();
+        if (live.equals(stream.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build())) {
+            opt.recordOutcome("stream", name, StorageManipulationOpt.Outcome.MATCHED, null);
+            return true;
+        }
+        final String diff = new ShapeDiff()
+            .scalar("entity", hisStream.getEntity().getTagNamesList(), stream.getEntity().getTagNamesList())
+            .named("tags", tagsOf(hisStream.getTagFamiliesList()), tagsOf(stream.getTagFamiliesList()))
+            .toString();
+        return reconcileShape(opt, "stream", name, isPurelyAdditiveStream(stream, hisStream), diff,
+            () -> client.update(stream));
+    }
+
+    /**
+     * Checks a present trace against its declared shape; see {@link #checkMeasure}.
+     */
+    private boolean checkTrace(Trace trace, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
+        Trace hisTrace = client.findTrace(trace.getMetadata().getGroup(), trace.getMetadata().getName());
+        if (hisTrace == null) {
+            throw new IllegalStateException("Trace: " + trace.getMetadata().getName() + " exist but can't find it from BanyanDB server");
+        }
+        final String name = nameOf(trace.getMetadata());
+        final Trace live = hisTrace.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build();
+        if (live.equals(trace.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build())) {
+            opt.recordOutcome("trace", name, StorageManipulationOpt.Outcome.MATCHED, null);
+            return true;
+        }
+        final String diff = new ShapeDiff()
+            .scalar("trace id tag", hisTrace.getTraceIdTagName(), trace.getTraceIdTagName())
+            .scalar("span id tag", hisTrace.getSpanIdTagName(), trace.getSpanIdTagName())
+            .scalar("timestamp tag", hisTrace.getTimestampTagName(), trace.getTimestampTagName())
+            .named("tags", traceTagsOf(hisTrace.getTagsList()), traceTagsOf(trace.getTagsList()))
+            .toString();
+        return reconcileShape(opt, "trace", name, isPurelyAdditiveTrace(trace, hisTrace), diff,
+            () -> client.update(trace));
+    }
+
+    /**
+     * Checks a present property definition against its declared shape. The property engine is schemaless, so
+     * any difference counts as additive: boot updates it too.
+     */
+    private void checkProperty(Property property, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
+        Property hisProperty = client.findPropertyDefinition(property.getMetadata().getGroup(), property.getMetadata().getName());
+        if (hisProperty == null) {
+            throw new IllegalStateException("Property: " + property.getMetadata().getName() + " exist but can't find it from BanyanDB server");
+        }
+        final String name = nameOf(property.getMetadata());
+        final Property live = hisProperty.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build();
+        if (live.equals(property.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build())) {
+            opt.recordOutcome("property", name, StorageManipulationOpt.Outcome.MATCHED, null);
+            return;
+        }
+        final String diff = new ShapeDiff()
+            .named("tags", propertyTagsOf(hisProperty.getTagsList()), propertyTagsOf(property.getTagsList()))
+            .toString();
+        reconcileShape(opt, "property", name, true, diff, () -> client.update(property));
+    }
+
+    /**
+     * A present resource differs from its declared shape. Applies the difference when {@code opt} allows it — any
+     * difference on {@link StorageManipulationOpt.Mode#RUNTIME_APPLY}, an additive one on
+     * {@link StorageManipulationOpt.Mode#BOOT_INSTALL} — and records {@code UPDATED}; otherwise records the outcome
+     * for an unapplied difference ({@link StorageManipulationOpt#unappliedDifference()}).
+     *
+     * <p>When the difference is left unapplied, the caller leaves the resource's index rules and binding alone too:
+     * reconciling them would point the binding at the declared tag list while the live resource still carries the
+     * old one (a tag dropped from the model but kept on the backend loses its rule, and the orphan rule becomes
+     * unqueryable). So either everything on the resource has the declared shape, or nothing on it is touched.
+     *
+     * @return {@code true} when the live resource now has the declared shape
+     */
+    private static boolean reconcileShape(final StorageManipulationOpt opt, final String kind, final String name,
+                                          final boolean additive, final String diff,
+                                          final SchemaUpdate update) throws BanyanDBException {
+        final StorageManipulationOpt.Flags flags = opt.getFlags();
+        if (flags.isUpdateOnMismatch() || additive && flags.isApplyAdditiveOnMismatch()) {
+            log.debug("BanyanDB DDL: update {} {}: {}", kind, name, diff);
+            opt.recordModRevision(update.apply());
+            opt.recordOutcome(kind, name, StorageManipulationOpt.Outcome.UPDATED, diff);
+            return true;
+        }
+        final StorageManipulationOpt.Outcome outcome = opt.unappliedDifference();
+        String detail = "property".equals(kind) ? diff : diff + "; its index rules and binding are left as they are";
+        if (outcome == StorageManipulationOpt.Outcome.BOOT_REFUSED_BREAKING_CHANGE) {
+            detail += ". To store the declared shape, delete the " + kind + " with BanyanDB's own tools before the "
+                + "next start (its data is lost)" + ("measure".equals(kind) ? ", or give the metric a new name" : "");
+        }
+        opt.recordOutcome(kind, name, outcome, detail);
+        return false;
+    }
+
+    /** A BanyanDB schema update returning its {@code mod_revision}. */
+    @FunctionalInterface
+    private interface SchemaUpdate {
+        long apply() throws BanyanDBException;
+    }
+
+    /**
+     * Additive for a stream: declared may add tags or move a tag between families (a {@code storageOnly} toggle on
+     * a {@code @Column} moves it between {@code storage-only} and {@code searchable}). The
+     * {@link BanyandbDatabase.Entity entity} must match exactly, no tag may be dropped, and no tag type may change.
+     */
+    private static boolean isPurelyAdditiveStream(Stream declared, Stream live) {
+        if (!declared.getEntity().equals(live.getEntity())) {
+            return false;
+        }
+        return isPurelyAdditiveTagFamilies(
+            declared.getTagFamiliesList(), live.getTagFamiliesList(), declared.getEntity().getTagNamesList());
+    }
+
+    /**
+     * Additive for a measure: the tag rules of {@link #isPurelyAdditiveStream}, plus fields may be added but no
+     * field's name, type, encoding or compression may change, and the entity, interval, index mode and sharding key
+     * must match exactly.
+     */
+    private static boolean isPurelyAdditiveMeasure(Measure declared, Measure live) {
+        if (!declared.getEntity().equals(live.getEntity())) {
+            return false;
+        }
+        if (!declared.getInterval().equals(live.getInterval())) {
+            return false;
+        }
+        if (declared.getIndexMode() != live.getIndexMode()) {
+            return false;
+        }
+        if (!declared.getShardingKey().equals(live.getShardingKey())) {
+            return false;
+        }
+        if (!isPurelyAdditiveTagFamilies(
+            declared.getTagFamiliesList(), live.getTagFamiliesList(), declared.getEntity().getTagNamesList())) {
+            return false;
+        }
+        final Map<String, BanyandbDatabase.FieldSpec> declaredFields = declared.getFieldsList().stream()
+            .collect(Collectors.toMap(BanyandbDatabase.FieldSpec::getName, f -> f, (a, b) -> a));
+        for (BanyandbDatabase.FieldSpec liveField : live.getFieldsList()) {
+            if (!liveField.equals(declaredFields.get(liveField.getName()))) {
+                return false;
             }
         }
         return true;
     }
 
     /**
-     * Gate for boot-time reshape: three conditions, all required.
-     * <ul>
-     *   <li>The stream opts in via {@link BanyanDB.Stream.AllowBootReshape}.</li>
-     *   <li>The opt is the static-boot policy ({@link StorageManipulationOpt#isSchemaCreateIfAbsent()}).
-     *       Restricting the reshape branch to this single mode keeps the policy boundary
-     *       explicit — {@code verifySchemaOnly()} must stay read-only even if a future
-     *       caller flips {@code updateOnMismatch} off, and {@code withSchemaChange()}
-     *       already takes the existing on-demand reshape path above.</li>
-     *   <li>This OAP must not be in {@code no-init} mode. Non-init OAPs leave DDL to the
-     *       init / standalone OAP and converge via the poll-wait loop in
-     *       {@link org.apache.skywalking.oap.server.core.storage.model.ModelInstaller#whenCreating}.</li>
-     * </ul>
+     * Additive for a trace: the trace-id, span-id and timestamp tag names must match exactly; declared may add
+     * tags, but no tag may be dropped and no tag type may change.
      */
-    private boolean canBootReshape(Model model, StorageManipulationOpt opt) {
-        return model.getBanyanDBModelExtension().isAllowBootReshape()
-            && opt.isSchemaCreateIfAbsent()
-            && !RunningMode.isNoInitMode();
-    }
-
-    /**
-     * Record a parallel {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH} for the
-     * dependent {@code indexRule} + {@code indexRuleBinding} resources of a stream / measure
-     * / trace whose primary {@code check*} just skipped. Calling
-     * {@code checkIndexRules} / {@code checkIndexRuleBinding} unconditionally after a primary
-     * skip would silently update the binding to reference the new declared rule list while
-     * the underlying schema still carries the old shape — operators end up with a binding
-     * pointing at tags / fields that don't agree with the live tag family layout (e.g. a tag
-     * was dropped from the declared model but kept on the backend, the binding loses its
-     * reference, and the orphan IndexRule becomes unqueryable).
-     *
-     * <p>Skipping the dependent reconcile keeps live state coherent: either everything
-     * matches the declared shape, or nothing on this resource is touched until the operator
-     * drops + recreates. The resource-type labels (`indexRule`, `indexRuleBinding`) match the
-     * names {@link StorageManipulationOpt.ResourceOutcome} uses elsewhere so operator-facing
-     * outcome filtering stays consistent.
-     *
-     * <p>{@code TopNAggregation} doesn't need a parallel skip — it's only invoked for
-     * measures, only when the primary {@code checkMeasure} returns {@code true}, and its
-     * own gating cascades through the dispatch in {@link #isExists}.
-     */
-    private void skipDependentReconcile(StorageManipulationOpt opt, String resourceType, String resourceName) {
-        log.warn("BanyanDB {} {} shape mismatch — skipping dependent IndexRule / IndexRuleBinding "
-                + "reconciliation to avoid partial reshape (binding would point at the new tag "
-                + "list while the live tag families still carry the old shape).",
-            resourceType, resourceName);
-        opt.recordOutcome("indexRule", resourceName,
-            StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
-            resourceType + " shape mismatch; index-rule reconcile skipped");
-        opt.recordOutcome("indexRuleBinding", resourceName,
-            StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
-            resourceType + " shape mismatch; binding reconcile skipped");
-    }
-
-    /**
-     * Purely-additive diff for a BanyanDB {@link Stream}: declared may add tags or relocate
-     * existing tags between families (a {@code storageOnly} toggle on a {@code @Column}
-     * moves a tag between {@code storage-only} and {@code searchable}; the tag identity is
-     * preserved, only its on-disk family location changes). The {@link BanyandbDatabase.Entity entity}
-     * column list must still match exactly (reshape can't change shard / series-id semantics),
-     * existing tag types may not change, and no tag may be dropped. Returns false for any
-     * non-additive divergence so the caller falls back to
-     * {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}.
-     */
-    private boolean isPurelyAdditiveStream(Stream declared, Stream live) {
-        if (!declared.getEntity().equals(live.getEntity())) {
+    private static boolean isPurelyAdditiveTrace(Trace declared, Trace live) {
+        if (!declared.getTraceIdTagName().equals(live.getTraceIdTagName())
+            || !declared.getSpanIdTagName().equals(live.getSpanIdTagName())
+            || !declared.getTimestampTagName().equals(live.getTimestampTagName())) {
             return false;
         }
-        return isPurelyAdditiveTagFamilies(declared.getTagFamiliesList(), live.getTagFamiliesList());
+        final Map<String, BanyandbDatabase.TagType> declaredTags = declared.getTagsList().stream()
+            .collect(Collectors.toMap(TraceTagSpec::getName, TraceTagSpec::getType, (a, b) -> a));
+        for (TraceTagSpec liveTag : live.getTagsList()) {
+            if (declaredTags.get(liveTag.getName()) != liveTag.getType()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
-     * Tag-family compatibility check used by {@link #isPurelyAdditiveStream}. The check is name+type oriented, not family-position
-     * oriented — a tag may move between families (e.g. a {@code @Column} flips from
-     * {@code storageOnly = true} → {@code false}, which relocates it from the
-     * {@code storage-only} family to {@code searchable}) and is still considered safe to
-     * apply at boot. Drops (tag missing from declared entirely) and type changes still
-     * return false.
+     * Tag check shared by {@link #isPurelyAdditiveStream} and {@link #isPurelyAdditiveMeasure}, by name and type,
+     * not by family: a tag may move between families, except an entity tag, which BanyanDB refuses to move (the
+     * update would fail). A dropped tag or a changed type is not additive.
      *
      * <p><strong>Operator caveat:</strong> BanyanDB does NOT physically migrate existing
      * rows when a tag's family changes. Pre-existing data for that tag stays in the old
@@ -1177,22 +1262,27 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
      * through a new IndexRule on the relocated tag will only see post-reshape rows.
      * Operators should expect a backfill window after a storageOnly toggle.
      */
-    private boolean isPurelyAdditiveTagFamilies(List<BanyandbDatabase.TagFamilySpec> declared,
-                                                List<BanyandbDatabase.TagFamilySpec> live) {
-        // Collapse declared tags across all families: (name -> TagSpec). A tag is allowed
-        // to move between families, so a per-family lookup would falsely reject the move.
-        final Map<String, BanyandbDatabase.TagSpec> declaredTagsByName = declared.stream()
-            .flatMap(f -> f.getTagsList().stream())
-            .collect(Collectors.toMap(BanyandbDatabase.TagSpec::getName, t -> t, (a, b) -> a));
+    private static boolean isPurelyAdditiveTagFamilies(List<BanyandbDatabase.TagFamilySpec> declared,
+                                                       List<BanyandbDatabase.TagFamilySpec> live,
+                                                       List<String> entityTags) {
+        // Collapse declared tags across all families: (name -> TagSpec, and its family). A tag is
+        // allowed to move between families, so a per-family lookup would falsely reject the move.
+        final Map<String, BanyandbDatabase.TagSpec> declaredTagsByName = new HashMap<>();
+        final Map<String, String> declaredFamilyByName = new HashMap<>();
+        for (BanyandbDatabase.TagFamilySpec family : declared) {
+            for (BanyandbDatabase.TagSpec tag : family.getTagsList()) {
+                declaredTagsByName.putIfAbsent(tag.getName(), tag);
+                declaredFamilyByName.putIfAbsent(tag.getName(), family.getName());
+            }
+        }
         for (BanyandbDatabase.TagFamilySpec liveFamily : live) {
             for (BanyandbDatabase.TagSpec liveTag : liveFamily.getTagsList()) {
                 BanyandbDatabase.TagSpec declaredTag = declaredTagsByName.get(liveTag.getName());
-                if (declaredTag == null) {
-                    // Tag dropped entirely from the declared model — non-additive.
+                if (declaredTag == null || declaredTag.getType() != liveTag.getType()) {
                     return false;
                 }
-                if (declaredTag.getType() != liveTag.getType()) {
-                    // Type changed — non-additive, requires drop+recreate.
+                if (entityTags.contains(liveTag.getName())
+                    && !liveFamily.getName().equals(declaredFamilyByName.get(liveTag.getName()))) {
                     return false;
                 }
             }
@@ -1200,98 +1290,125 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         return true;
     }
 
-    /**
-     * @return {@code true} when the live trace is now aligned with the declared shape;
-     *         {@code false} on {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}.
-     *         See {@link #checkMeasure} for the dependent-resource gating rationale.
-     */
-    private boolean checkTrace(Trace trace, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
-        Trace hisTrace = client.findTrace(trace.getMetadata().getGroup(), trace.getMetadata().getName());
-        if (hisTrace == null) {
-            throw new IllegalStateException("Trace: " + trace.getMetadata().getName() + " exist but can't find it from BanyanDB server");
-        } else {
-            boolean equals = hisTrace.toBuilder()
-                                      .clearUpdatedAt()
-                                      .clearCreatedAt()
-                                      .clearMetadata()
-                                      .build()
-                                      .equals(trace.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build());
-            if (!equals) {
-                if (!opt.getFlags().isUpdateOnMismatch()) {
-                    log.error("BanyanDB trace {} shape mismatch at boot — backend holds a "
-                        + "different shape than the declared rule. SKIPPING; operator must "
-                        + "reshape via POST /runtime/rule/addOrUpdate. backend={}, declared={}",
-                        hisTrace.getMetadata().getName(), hisTrace, trace);
-                    opt.recordOutcome("trace", hisTrace.getMetadata().getName(),
-                        StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
-                        "backend shape differs from declared shape; use /runtime/rule/addOrUpdate to reshape");
-                    return false;
-                }
-                opt.recordModRevision(client.update(trace));
-                log.info("update Trace: {} from: {} to: {}", hisTrace.getMetadata().getName(), hisTrace, trace);
+    private static String nameOf(final BanyandbCommon.Metadata metadata) {
+        return metadata.getGroup() + "/" + metadata.getName();
+    }
+
+    /** Tag name → "family:type", so a family move shows as a change. */
+    private static Map<String, String> tagsOf(final List<BanyandbDatabase.TagFamilySpec> families) {
+        final Map<String, String> tags = new TreeMap<>();
+        for (final BanyandbDatabase.TagFamilySpec family : families) {
+            for (final BanyandbDatabase.TagSpec tag : family.getTagsList()) {
+                tags.put(tag.getName(), family.getName() + ":" + tag.getType());
             }
         }
-        return true;
+        return tags;
+    }
+
+    private static Map<String, String> traceTagsOf(final List<TraceTagSpec> traceTags) {
+        final Map<String, String> tags = new TreeMap<>();
+        for (final TraceTagSpec tag : traceTags) {
+            tags.put(tag.getName(), String.valueOf(tag.getType()));
+        }
+        return tags;
+    }
+
+    private static Map<String, String> propertyTagsOf(final List<BanyandbDatabase.TagSpec> propertyTags) {
+        final Map<String, String> tags = new TreeMap<>();
+        for (final BanyandbDatabase.TagSpec tag : propertyTags) {
+            tags.put(tag.getName(), String.valueOf(tag.getType()));
+        }
+        return tags;
+    }
+
+    private static Map<String, String> fieldsOf(final List<BanyandbDatabase.FieldSpec> fieldSpecs) {
+        final Map<String, String> fields = new TreeMap<>();
+        for (final BanyandbDatabase.FieldSpec field : fieldSpecs) {
+            fields.put(field.getName(),
+                field.getFieldType() + "/" + field.getEncodingMethod() + "/" + field.getCompressionMethod());
+        }
+        return fields;
     }
 
     /**
-     * Check if the property exists and update (or record shape mismatch) per mode.
-     * See {@link #checkMeasure} for the create-if-absent vs full-install contract.
+     * A one-line summary of how a declared BanyanDB schema differs from the live one, for the outcome log: what the
+     * declared shape adds, removes or changes ("live → declared").
      */
-    private void checkProperty(Property property, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
-        Property hisProperty = client.findPropertyDefinition(property.getMetadata().getGroup(), property.getMetadata().getName());
-        if (hisProperty == null) {
-            throw new IllegalStateException("Property: " + property.getMetadata().getName() + " exist but can't find it from BanyanDB server");
-        } else {
-            boolean equals = hisProperty.toBuilder()
-                                        .clearUpdatedAt()
-                                        .clearCreatedAt()
-                                        .clearMetadata()
-                                        .build()
-                                        .equals(property.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build());
-            if (!equals) {
-                if (!opt.getFlags().isUpdateOnMismatch()) {
-                    log.error("BanyanDB property {} shape mismatch at boot — backend holds a "
-                        + "different shape than the declared rule. SKIPPING; operator must "
-                        + "reshape via POST /runtime/rule/addOrUpdate. backend={}, declared={}",
-                        hisProperty.getMetadata().getName(), hisProperty, property);
-                    opt.recordOutcome("property", hisProperty.getMetadata().getName(),
-                        StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
-                        "backend shape differs from declared shape; use /runtime/rule/addOrUpdate to reshape");
-                    return;
-                }
-                opt.recordModRevision(client.update(property));
-                log.info("update Property: {} from: {} to: {}", hisProperty.getMetadata().getName(), hisProperty, property);
+    private static final class ShapeDiff {
+        private final List<String> parts = new ArrayList<>();
+
+        ShapeDiff scalar(final String what, final Object live, final Object declared) {
+            if (!Objects.equals(live, declared)) {
+                parts.add(what + " " + live + " → " + declared);
             }
+            return this;
+        }
+
+        ShapeDiff named(final String what, final Map<String, String> live, final Map<String, String> declared) {
+            final List<String> added = new ArrayList<>();
+            final List<String> removed = new ArrayList<>();
+            final List<String> changed = new ArrayList<>();
+            declared.forEach((name, spec) -> {
+                final String liveSpec = live.get(name);
+                if (liveSpec == null) {
+                    added.add(name + " " + spec);
+                } else if (!liveSpec.equals(spec)) {
+                    changed.add(name + " " + liveSpec + " → " + spec);
+                }
+            });
+            live.keySet().stream().filter(name -> !declared.containsKey(name)).forEach(removed::add);
+            if (!added.isEmpty()) {
+                parts.add("adds " + what + " " + added);
+            }
+            if (!removed.isEmpty()) {
+                parts.add("removes " + what + " " + removed);
+            }
+            if (!changed.isEmpty()) {
+                parts.add("changes " + what + " " + changed);
+            }
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return parts.isEmpty() ? "differs in tag order or another attribute" : String.join("; ", parts);
         }
     }
 
     /**
      * Check if the index rules exist and update them if necessary. In
-     * {@link StorageManipulationOpt#isVerifySchemaOnly() verify} mode the writes are
-     * skipped and a {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH} is
-     * recorded instead — the orchestrator promotes that to a fatal boot error.
+     * {@link StorageManipulationOpt#isRuntimePeerVerify() verify} mode the writes are
+     * skipped and {@link StorageManipulationOpt.Outcome#RUNTIME_PEER_SCHEMA_ABSENT} /
+     * {@link StorageManipulationOpt.Outcome#RUNTIME_PEER_SCHEMA_DIFFERENT} is recorded instead —
+     * {@link ModelInstaller#whenCreating} turns that into a failed startup.
      */
-    private void checkIndexRules(String modelName, List<IndexRule> indexRules, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
+    private void checkIndexRules(String modelName, List<IndexRule> indexRules, boolean primaryUpdated,
+                                 BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
         for (IndexRule indexRule : indexRules) {
-            if (checkIndexRuleProcessed(modelName, indexRule)) {
+            if (isIndexRuleProcessed(modelName, indexRule)) {
+                // Another model of the group already checked this rule. An unchanged resource stops here, as it
+                // always has; one this call just updated may declare new rules after the shared one.
+                if (primaryUpdated) {
+                    continue;
+                }
                 return;
             }
             IndexRule hisIndexRule = client.findIndexRule(
                 indexRule.getMetadata().getGroup(), indexRule.getMetadata().getName());
             if (hisIndexRule == null) {
                 if (!opt.getFlags().isCreateMissing()) {
-                    opt.recordOutcome("indexRule", indexRule.getMetadata().getName(),
-                        StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
+                    opt.recordOutcome("indexRule", nameOf(indexRule.getMetadata()),
+                        StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_ABSENT,
                         "IndexRule absent on backend; createMissing flag is off — refusing to define");
                     continue;
                 }
                 try {
+                    log.debug("BanyanDB DDL: define index rule {}", indexRule);
                     opt.recordModRevision(client.define(indexRule));
-                    log.info("new IndexRule created: {}", indexRule);
+                    opt.recordOutcome("indexRule", nameOf(indexRule.getMetadata()), StorageManipulationOpt.Outcome.CREATED, null);
                 } catch (BanyanDBException ex) {
                     if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                        log.info("IndexRule {} already created by another OAP node", indexRule);
+                        log.debug("BanyanDB index rule {} already created by another OAP node", nameOf(indexRule.getMetadata()));
                     } else {
                         throw ex;
                     }
@@ -1303,27 +1420,31 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                              .clearMetadata()
                                              .build()
                                              .equals(indexRule.toBuilder().clearUpdatedAt().clearCreatedAt().clearMetadata().build());
-                if (!equals) {
+                if (equals) {
+                    opt.recordOutcome("indexRule", nameOf(indexRule.getMetadata()), StorageManipulationOpt.Outcome.MATCHED, null);
+                } else {
                     if (opt.getFlags().isFailOnShapeMismatch()) {
-                        opt.recordOutcome("indexRule", indexRule.getMetadata().getName(),
-                            StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
+                        opt.recordOutcome("indexRule", nameOf(indexRule.getMetadata()),
+                            StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_DIFFERENT,
                             "IndexRule shape mismatch on backend; failOnShapeMismatch flag is on — refusing to update");
                         continue;
                     }
+                    log.debug("BanyanDB DDL: update index rule {} from: {} to: {}", nameOf(indexRule.getMetadata()),
+                        hisIndexRule, indexRule);
                     opt.recordModRevision(client.update(indexRule));
-                    log.info(
-                        "update IndexRule: {} from: {} to: {}", hisIndexRule.getMetadata().getName(), hisIndexRule,
-                        indexRule
-                    );
+                    opt.recordOutcome("indexRule", nameOf(indexRule.getMetadata()), StorageManipulationOpt.Outcome.UPDATED,
+                        "rule definition changed");
                 }
             }
+            markIndexRuleProcessed(indexRule);
         }
     }
 
     /**
      * Check if the index rule binding exists and update it if necessary. In
-     * {@link StorageManipulationOpt#isVerifySchemaOnly() verify} mode skip the write and
-     * record {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}.
+     * {@link StorageManipulationOpt#isRuntimePeerVerify() verify} mode skip the write and
+     * record {@link StorageManipulationOpt.Outcome#RUNTIME_PEER_SCHEMA_ABSENT} /
+     * {@link StorageManipulationOpt.Outcome#RUNTIME_PEER_SCHEMA_DIFFERENT}.
      */
     private void checkIndexRuleBinding(List<IndexRule> indexRules,
                                        String group,
@@ -1350,17 +1471,18 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         IndexRuleBinding hisIndexRuleBinding = client.findIndexRuleBinding(group, name);
         if (hisIndexRuleBinding == null) {
             if (!opt.getFlags().isCreateMissing()) {
-                opt.recordOutcome("indexRuleBinding", name,
-                    StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
+                opt.recordOutcome("indexRuleBinding", group + "/" + name,
+                    StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_ABSENT,
                     "IndexRuleBinding absent on backend; createMissing flag is off — refusing to define");
                 return;
             }
             try {
                 opt.recordModRevision(client.define(indexRuleBinding));
-                log.info("new IndexRuleBinding created: {}", indexRuleBinding);
+                log.debug("BanyanDB DDL: define index rule binding {}", indexRuleBinding);
+                opt.recordOutcome("indexRuleBinding", group + "/" + name, StorageManipulationOpt.Outcome.CREATED, null);
             } catch (BanyanDBException ex) {
                 if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                    log.info("IndexRuleBinding {} already created by another OAP node", indexRuleBinding);
+                    log.debug("BanyanDB index rule binding {}/{} already created by another OAP node", group, name);
                 } else {
                     throw ex;
                 }
@@ -1374,10 +1496,12 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                                 .clearExpireAt()
                                                 .build()
                                                 .equals(indexRuleBinding.toBuilder().clearCreatedAt().clearMetadata().build());
-            if (!equals) {
+            if (equals) {
+                opt.recordOutcome("indexRuleBinding", group + "/" + name, StorageManipulationOpt.Outcome.MATCHED, null);
+            } else {
                 if (opt.getFlags().isFailOnShapeMismatch()) {
-                    opt.recordOutcome("indexRuleBinding", name,
-                        StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
+                    opt.recordOutcome("indexRuleBinding", group + "/" + name,
+                        StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_DIFFERENT,
                         "IndexRuleBinding shape mismatch on backend; failOnShapeMismatch flag is on — refusing to update");
                     return;
                 }
@@ -1386,10 +1510,10 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                               .setBeginAt(hisIndexRuleBinding.getBeginAt())
                                               .setExpireAt(hisIndexRuleBinding.getExpireAt())
                                               .build()));
-                log.info(
-                    "update IndexRuleBinding: {} from: {} to: {}", hisIndexRuleBinding.getMetadata().getName(),
-                    hisIndexRuleBinding, indexRuleBinding
-                );
+                log.debug("BanyanDB DDL: update index rule binding {}/{} from: {} to: {}", group, name,
+                    hisIndexRuleBinding, indexRuleBinding);
+                opt.recordOutcome("indexRuleBinding", group + "/" + name, StorageManipulationOpt.Outcome.UPDATED,
+                    "rules " + hisIndexRuleBinding.getRulesList() + " → " + indexRuleNames);
             }
         }
     }
@@ -1397,8 +1521,9 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
     /**
      * Check if the TopN aggregation exists and update it if necessary.
      * If the TopN rules are not used, will be checked and deleted after install, in the `BanyanDBStorageProvider.notifyAfterCompleted()`.
-     * In {@link StorageManipulationOpt#isVerifySchemaOnly() verify} mode skip the write
-     * and record {@link StorageManipulationOpt.Outcome#SKIPPED_SHAPE_MISMATCH}.
+     * In {@link StorageManipulationOpt#isRuntimePeerVerify() verify} mode skip the write
+     * and record {@link StorageManipulationOpt.Outcome#RUNTIME_PEER_SCHEMA_ABSENT} /
+     * {@link StorageManipulationOpt.Outcome#RUNTIME_PEER_SCHEMA_DIFFERENT}.
      */
     private void checkTopNAggregation(Model model, BanyanDBClient client, StorageManipulationOpt opt) throws BanyanDBException {
         MetadataRegistry.Schema schema = MetadataRegistry.INSTANCE.findMetadata(model);
@@ -1410,17 +1535,18 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
             TopNAggregation hisTopNAggregation = client.findTopNAggregation(schema.getMetadata().getGroup(), topNName);
             if (hisTopNAggregation == null) {
                 if (!opt.getFlags().isCreateMissing()) {
-                    opt.recordOutcome("topN", topNName,
-                        StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
+                    opt.recordOutcome("topN", schema.getMetadata().getGroup() + "/" + topNName,
+                        StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_ABSENT,
                         "TopNAggregation absent on backend; createMissing flag is off — refusing to define");
                     continue;
                 }
                 try {
                     opt.recordModRevision(client.define(topNAggregation));
-                    log.info("new TopNAggregation created: {}", topNAggregation);
+                    log.debug("BanyanDB DDL: define TopN aggregation {}", topNAggregation);
+                    opt.recordOutcome("topN", schema.getMetadata().getGroup() + "/" + topNName, StorageManipulationOpt.Outcome.CREATED, null);
                 } catch (BanyanDBException ex) {
                     if (ex.getStatus().equals(Status.Code.ALREADY_EXISTS)) {
-                        log.info("TopNAggregation {} already created by another OAP node", topNAggregation);
+                        log.debug("BanyanDB TopN aggregation {} already created by another OAP node", topNName);
                     } else {
                         throw ex;
                     }
@@ -1432,18 +1558,20 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                                                    .clearMetadata()
                                                    .build()
                                                    .equals(topNAggregation.toBuilder().clearCreatedAt().clearMetadata().build());
-                if (!equals) {
+                if (equals) {
+                    opt.recordOutcome("topN", schema.getMetadata().getGroup() + "/" + topNName, StorageManipulationOpt.Outcome.MATCHED, null);
+                } else {
                     if (opt.getFlags().isFailOnShapeMismatch()) {
-                        opt.recordOutcome("topN", topNName,
-                            StorageManipulationOpt.Outcome.SKIPPED_SHAPE_MISMATCH,
+                        opt.recordOutcome("topN", schema.getMetadata().getGroup() + "/" + topNName,
+                            StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_DIFFERENT,
                             "TopNAggregation shape mismatch on backend; failOnShapeMismatch flag is on — refusing to update");
                         continue;
                     }
                     opt.recordModRevision(client.update(topNAggregation));
-                    log.info(
-                        "update TopNAggregation: {} from: {} to: {}", hisTopNAggregation.getMetadata().getName(),
-                        hisTopNAggregation, topNAggregation
-                    );
+                    log.debug("BanyanDB DDL: update TopN aggregation {} from: {} to: {}", topNName,
+                        hisTopNAggregation, topNAggregation);
+                    opt.recordOutcome("topN", schema.getMetadata().getGroup() + "/" + topNName, StorageManipulationOpt.Outcome.UPDATED,
+                        "aggregation changed");
                 }
             }
         }
@@ -1503,7 +1631,6 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
         private String tableName;
         private MetadataRegistry.Kind kind;
         private String group;
-        private boolean tableExist;
         private boolean groupExist;
 
         protected InstallInfoBanyanDB(Model model) {
@@ -1523,7 +1650,7 @@ public class BanyanDBIndexInstaller extends ModelInstaller {
                 ", group=" + group +
                 ", allResourcesExist=" + isAllExist() +
                 " [groupExist=" + groupExist +
-                ", tableExist=" + tableExist +
+                ", tableExist=" + isTableExist() +
                 "]}";
         }
     }

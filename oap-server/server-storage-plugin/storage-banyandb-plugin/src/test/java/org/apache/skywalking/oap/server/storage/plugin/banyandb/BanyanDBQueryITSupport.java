@@ -184,9 +184,9 @@ final class BanyanDBQueryITSupport implements Closeable {
     private Model install(Class<?> storageClass, int scopeId, Storage storage) throws StorageException {
         try (MockedStatic<DefaultScopeDefine> ignored = mockStatic(DefaultScopeDefine.class)) {
             final Model model = new StorageModels().add(
-                storageClass, scopeId, storage, StorageManipulationOpt.withSchemaChange());
+                storageClass, scopeId, storage, StorageManipulationOpt.runtimeApply());
             final BanyanDBIndexInstaller installer = new BanyanDBIndexInstaller(client, moduleManager, config);
-            installer.isExists(model, StorageManipulationOpt.withSchemaChange());
+            installer.isExists(model, StorageManipulationOpt.runtimeApply());
             installer.createTable(model);
             return model;
         }

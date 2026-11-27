@@ -74,6 +74,8 @@ public class JDBCTableInstaller extends ModelInstaller {
 
         final var table = TableHelper.getLatestTableForWrite(model);
         installInfo.setTableName(table);
+        installInfo.setResourceType("table");
+        installInfo.setResourceName(table);
         final var jdbcClient = (JDBCClient) client;
         if (!jdbcClient.tableExists(table)) {
             installInfo.setAllExist(false);
@@ -90,22 +92,105 @@ public class JDBCTableInstaller extends ModelInstaller {
         installInfo.setTableExist(true);
         installInfo.setAllColumnsExist(!isAnyColumnNotCreated);
         installInfo.setAllExist(!isAnyColumnNotCreated);
+        if (!isAnyColumnNotCreated) {
+            opt.recordOutcome("table", table, StorageManipulationOpt.Outcome.MATCHED,
+                "every declared column is present (checked by name)");
+        }
         return installInfo;
     }
 
     @Override
     @SneakyThrows
     public void createTable(Model model) {
-        final var dayTimeBucket = TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
-        createTable(model, dayTimeBucket);
+        createTable(model, todayTimeBucket(), null);
+    }
+
+    @Override
+    @SneakyThrows
+    public void createTable(Model model, StorageManipulationOpt opt) {
+        createTable(model, todayTimeBucket(), opt);
     }
 
     @SneakyThrows
     public void createTable(Model model, long timeBucket) {
-        final var table = TableHelper.getTable(model, timeBucket);
-        createOrUpdateTable(table, model.getColumns(), false);
-        createOrUpdateTableIndexes(table, model.getColumns(), false);
-        createAdditionalTable(model, timeBucket);
+        createTable(model, timeBucket, null);
+    }
+
+    /**
+     * Creates the model's table (and its additional tables) for the day of {@code timeBucket}, or adds the columns
+     * they lack. Records each table's outcome on {@code opt}; {@code null} records nothing (the history-delete job
+     * creating the next day's tables runs outside model installation).
+     */
+    private void createTable(final Model model, final long timeBucket,
+                             final StorageManipulationOpt opt) throws SQLException {
+        installTable(TableHelper.getTable(model, timeBucket), model.getColumns(), false, opt);
+        createAdditionalTable(model, timeBucket, opt);
+    }
+
+    public void createAdditionalTable(Model model, long timeBucket) throws SQLException {
+        createAdditionalTable(model, timeBucket, null);
+    }
+
+    private void createAdditionalTable(final Model model, final long timeBucket,
+                                       final StorageManipulationOpt opt) throws SQLException {
+        for (final var table : model.getSqlDBModelExtension().getAdditionalTables().values()) {
+            installTable(TableHelper.getTable(table.getName(), timeBucket), table.getColumns(), true, opt);
+        }
+    }
+
+    /**
+     * Creates or extends one table and its indexes, then records what this call committed — on a failure too, since
+     * a later statement failing doesn't undo an earlier one.
+     */
+    private void installTable(final String table, final List<ModelColumn> columns, final boolean isAdditionalTable,
+                              final StorageManipulationOpt opt) throws SQLException {
+        final TableChanges changes = new TableChanges();
+        boolean completed = false;
+        try {
+            createOrUpdateTable(table, columns, isAdditionalTable, changes);
+            createOrUpdateTableIndexes(table, columns, isAdditionalTable, changes);
+            completed = true;
+        } finally {
+            changes.record(opt, isAdditionalTable ? "additionalTable" : "table", table, completed);
+        }
+    }
+
+    private static long todayTimeBucket() {
+        return TimeBucket.getTimeBucket(System.currentTimeMillis(), DownSampling.Day);
+    }
+
+    /**
+     * What one call did to one table, filled as each statement succeeds.
+     */
+    private static final class TableChanges {
+        private boolean created;
+        private final List<String> addedColumns = new ArrayList<>();
+        private final List<String> addedIndexes = new ArrayList<>();
+
+        private void record(final StorageManipulationOpt opt, final String resourceType, final String table,
+                            final boolean completed) {
+            if (opt == null) {
+                return;
+            }
+            if (created) {
+                opt.recordOutcome(resourceType, table, StorageManipulationOpt.Outcome.CREATED,
+                    completed ? null : "a later statement failed");
+                return;
+            }
+            final List<String> parts = new ArrayList<>();
+            if (!addedColumns.isEmpty()) {
+                parts.add("adds columns " + addedColumns);
+            }
+            if (!addedIndexes.isEmpty()) {
+                parts.add("adds indexes " + addedIndexes);
+            }
+            if (!parts.isEmpty()) {
+                opt.recordOutcome(resourceType, table, StorageManipulationOpt.Outcome.UPDATED,
+                    String.join("; ", parts) + (completed ? "" : "; a later statement failed"));
+            } else if (completed) {
+                opt.recordOutcome(resourceType, table, StorageManipulationOpt.Outcome.MATCHED, "nothing to add");
+            }
+        }
     }
 
     public String getColumnDefinition(ModelColumn column) {
@@ -138,6 +223,11 @@ public class JDBCTableInstaller extends ModelInstaller {
 
     public void createOrUpdateTableIndexes(String table, List<ModelColumn> columns,
                                            boolean isAdditionalTable) throws SQLException {
+        createOrUpdateTableIndexes(table, columns, isAdditionalTable, new TableChanges());
+    }
+
+    private void createOrUpdateTableIndexes(String table, List<ModelColumn> columns,
+                                            boolean isAdditionalTable, TableChanges changes) throws SQLException {
         final var jdbcClient = (JDBCClient) client;
 
         // Additional table's id is a many-to-one relation to the main table's id,
@@ -145,7 +235,7 @@ public class JDBCTableInstaller extends ModelInstaller {
         if (isAdditionalTable) {
             final var index = "idx_" + Math.abs((table + "_" + JDBCTableInstaller.ID_COLUMN).hashCode());
             if (!jdbcClient.indexExists(table, index)) {
-                executeSQL(
+                createIndex(changes, index,
                     new SQLBuilder("CREATE INDEX ")
                         .append(index)
                         .append(" ON ").append(table)
@@ -159,7 +249,7 @@ public class JDBCTableInstaller extends ModelInstaller {
         if (!isAdditionalTable) {
             final var index = "idx_" + Math.abs((table + "_" + JDBCTableInstaller.TABLE_COLUMN).hashCode());
             if (!jdbcClient.indexExists(table, index)) {
-                executeSQL(
+                createIndex(changes, index,
                     new SQLBuilder("CREATE INDEX ")
                         .append(index)
                         .append(" ON ")
@@ -182,7 +272,7 @@ public class JDBCTableInstaller extends ModelInstaller {
         for (var column : columnsMissingIndex) {
             final var index = "idx_" + Math.abs((table + "_" + column).hashCode());
             if (!jdbcClient.indexExists(table, index)) {
-                executeSQL(
+                createIndex(changes, index,
                     new SQLBuilder("CREATE INDEX ")
                         .append(index)
                         .append(" ON ").append(table).append("(")
@@ -209,7 +299,7 @@ public class JDBCTableInstaller extends ModelInstaller {
                 if (jdbcClient.indexExists(table, index)) {
                     continue;
                 }
-                executeSQL(
+                createIndex(changes, index,
                     new SQLBuilder("CREATE INDEX ")
                         .append(index)
                         .append(" ON ")
@@ -225,17 +315,22 @@ public class JDBCTableInstaller extends ModelInstaller {
         c.execute(sql.toString());
     }
 
-    public void createAdditionalTable(Model model, long timeBucket) throws SQLException {
-        final var additionalTables = model.getSqlDBModelExtension().getAdditionalTables();
-        for (final var table : additionalTables.values()) {
-            final var tableName = TableHelper.getTable(table.getName(), timeBucket);
-            createOrUpdateTable(tableName, table.getColumns(), true);
-            createOrUpdateTableIndexes(tableName, table.getColumns(), true);
-        }
+    private void createIndex(final TableChanges changes, final String index, final SQLBuilder sql) throws SQLException {
+        executeSQL(sql);
+        changes.addedIndexes.add(index);
     }
 
     @SneakyThrows
     public void createOrUpdateTable(String table, List<ModelColumn> columns, boolean isAdditionalTable) {
+        createOrUpdateTable(table, columns, isAdditionalTable, new TableChanges());
+    }
+
+    /**
+     * Creates {@code table}, or adds the columns it lacks. JDBC only ever adds: a column of another type or one
+     * the model no longer declares is left as it is.
+     */
+    private void createOrUpdateTable(String table, List<ModelColumn> columns, boolean isAdditionalTable,
+                                     TableChanges changes) throws SQLException {
         // Some SQL implementations don't have the syntax "alter table <table> add column if not exists",
         // we have to query the columns and filter out the existing ones.
         final var columnsToBeAdded = new ArrayList<>(columns);
@@ -245,8 +340,9 @@ public class JDBCTableInstaller extends ModelInstaller {
         final var jdbcClient = (JDBCClient) client;
         if (!jdbcClient.tableExists(table)) {
             createTable(table, columnsToBeAdded, isAdditionalTable);
+            changes.created = true;
         } else {
-            updateTable(table, columnsToBeAdded);
+            updateTable(table, columnsToBeAdded, changes);
         }
     }
 
@@ -255,16 +351,10 @@ public class JDBCTableInstaller extends ModelInstaller {
         return jdbcClient.getTableColumns(table);
     }
 
-    private void updateTable(String table, List<ModelColumn> columns) throws SQLException {
-        final var alterSqls =
-            columns
-                .stream()
-                .map(this::getColumnDefinition)
-                .map(definition -> "ALTER TABLE " + table + " ADD COLUMN " + definition + "; ")
-                .collect(toList());
-
-        for (String alterSql : alterSqls) {
-            executeSQL(new SQLBuilder(alterSql));
+    private void updateTable(String table, List<ModelColumn> columns, TableChanges changes) throws SQLException {
+        for (final ModelColumn column : columns) {
+            executeSQL(new SQLBuilder("ALTER TABLE " + table + " ADD COLUMN " + getColumnDefinition(column) + "; "));
+            changes.addedColumns.add(column.getColumnName().getStorageName());
         }
     }
 
@@ -290,7 +380,6 @@ public class JDBCTableInstaller extends ModelInstaller {
     @Setter
     private static class InstallInfoJDBC extends InstallInfo {
         private String tableName;
-        private boolean tableExist;
         private boolean allColumnsExist;
 
         protected InstallInfoJDBC(Model model) {
@@ -306,7 +395,7 @@ public class JDBCTableInstaller extends ModelInstaller {
                 ", superDataset=" + isSuperDataset() +
                 ", tableName=" + tableName +
                 ", allResourcesExist=" + isAllExist() +
-                " [tableExist=" + tableExist +
+                " [tableExist=" + isTableExist() +
                 ", allColumnsExist=" + allColumnsExist +
                 "]}";
         }

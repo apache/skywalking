@@ -133,7 +133,7 @@ public final class DSLRuntimeUnregister {
         try {
             // Pass the same storage opt the unregister ran under so peer-tick gone-keys
             // doesn't write DDL the main has already applied (tickStorageOpt picks
-            // withoutSchemaChange for peers).
+            // runtimeLocalOnly for peers).
             return engine.installBundled(catalog, name, resetter, moduleManager, storageOpt);
         } catch (final Throwable t) {
             log.warn("runtime-rule dslManager: bundled fall-over reload failed for {}/{}; "

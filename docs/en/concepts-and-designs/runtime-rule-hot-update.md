@@ -95,11 +95,13 @@ disagree a periodic scan is in flight or the node is mid-apply.
 The feature is three cooperating workflows:
 
 1. **Boot** — OAP starts; static rule files on disk are loaded, with persisted
-   runtime-rule entries substituted in or skipped at load time. Backend schema is
-   read-only at boot — never reshaped, never dropped.
+   runtime-rule entries substituted in or skipped at load time. Boot runs in
+   production with no operator watching, so it only extends backend schema: it
+   creates missing resources and applies additive changes, and never drops or
+   breaks one.
 2. **On-demand** — an operator calls `POST /addOrUpdate`, `/inactivate`, or
-   `/delete`. This is the **only** workflow that may change backend schema, because
-   the operator explicitly asked for it.
+   `/delete`. This is the **only** workflow that may make a breaking schema change
+   (with `allowStorageChange=true`), because the operator explicitly asked for it.
 3. **Periodic scan** — every OAP node re-reads every runtime-rule entry every 30 s
    and converges its local state to match. This is what closes the convergence
    bounds above; nothing else does.
@@ -136,75 +138,98 @@ plugin intercepts each file before compilation and decides per-`(catalog, name)`
 - Persisted `ACTIVE` entry → compile the entry's content in place of the disk file.
 - Persisted `INACTIVE` entry → skip the file; the operator has tombstoned the rule.
 
-Compilation registers each rule under **create-if-absent** semantics: missing backend
-resources are created; resources that already exist with a different shape are
-**skipped with an ERROR log**, the affected metric is disabled until the operator
-reconciles via `/addOrUpdate`. Boot is **never** allowed to silently reshape the
-backend — that would mask edits made while OAP was offline.
+Compilation registers each rule with the boot policy: missing backend resources
+are created, and a resource that lacks declared columns, tags or fields is
+**extended** (an additive change). Boot never applies a **breaking** difference — a
+removed or retyped column, tag or field, or a different entity: that would lose data
+or mask edits made while OAP was offline. On BanyanDB it is **refused with an ERROR
+log**, and the resource keeps its shape until an operator drops it with the storage's
+own tools or gives the metric a new name. (A rule edit that changes a metric's
+storage goes through `/addOrUpdate` with `allowStorageChange=true`.)
 
 After every analyzer has loaded, the runtime-rule plugin runs **one synchronous
 scan** so any runtime-only entries (no static disk file) are applied before
 receivers open ingress. From that point on, the periodic-scan workflow takes over.
 
-### Why boot cannot reshape the backend
+### Why boot applies additive changes only
 
-If boot were allowed to update backend storage, a shape mismatch could silently
-rewrite the BanyanDB measure or the Elasticsearch mapping. Before this feature, the
-backends behaved inconsistently:
+An additive change leaves the stored data in place and keeps every writer working
+(OAP writes name their columns, tags and fields, in a layout each OAP keeps stable),
+so it is safe to apply unattended; the one cost, older rows of a BanyanDB tag moved
+between families, is described below. A breaking
+change can lose data or break readers, so it needs an operator decision. Before this
+policy, the backends behaved inconsistently:
 
 - BanyanDB and JDBC silently accepted the mismatch — samples were written against
   the old schema and quietly truncated or rejected later.
 - Elasticsearch hard-failed boot on a strict-mapping type conflict.
 
-Create-if-absent unifies the contract: schema mismatches are always surfaced as an
-explicit ERROR, boot always continues, the affected metric is disabled, and the
-operator reconciles explicitly through the on-demand workflow. The same shape is
-visible across every backend.
+The boot policy unifies the contract: additive changes are applied on every backend;
+a breaking change to a table, an index, a measure, a stream or a trace is left as it is
+(BanyanDB reports each as an ERROR); and boot always continues. A BanyanDB property is
+schemaless and takes any change. An Elasticsearch template is re-put when its mapping,
+shard / replica settings or order differ, and the new definition reaches only the
+indices created after it.
 
-### Code-defined stream opt-in (narrow exception)
+### What boot does on each storage
 
-The "boot never reshapes" rule above applies to **runtime-rule (MAL / LAL)**
-registration — those rules ride the `/addOrUpdate` REST workflow when their
-backing schema needs to change.
+Only an init or default-mode OAP changes the schema at boot; a `no-init` OAP waits
+until the init OAP has created the resources.
 
-BanyanDB streams whose schema lives in OAP source code (e.g. `AlarmRecord`) can
-opt in to **additive** boot-time reshape via
-`@BanyanDB.Stream.AllowBootReshape`. When the stream opts in and the diff is
-purely additive, the installer calls `client.update` at boot to extend the
-live stream; non-additive divergences still record
-`SKIPPED_SHAPE_MISMATCH` and require an operator drop+recreate. Only the
-init / standalone OAP performs the reshape; non-init peers continue through
-the existing poll-and-wait loop so a single node drives DDL during a rolling
-restart.
+| Storage / resource | Additive change at boot | Breaking change at boot |
+|---|---|---|
+| JDBC table | `ALTER TABLE ... ADD COLUMN` | left as it is (JDBC only checks that columns exist) |
+| Elasticsearch index / template | mapping fields appended | the current index keeps its fields and settings (a settings difference on the `management` index, which is never re-created, is logged as a WARN); a re-put template applies to indices created later |
+| BanyanDB measure, stream, trace | updated in place | refused, with an ERROR log |
+| BanyanDB property | updated in place (schemaless: any change) | — |
+| BanyanDB index rule, binding, TopN | reconciled to the declared rule | reconciled to the declared rule |
 
-"Additive" includes two cases:
+"Additive" for a BanyanDB measure, stream or trace covers two cases:
 
-1. **New tag** — a brand-new `@Column` is appended to the live tag family.
+1. **New tag or field** — a brand-new `@Column` is added to the live schema.
 2. **Tag relocation between families** — a `@Column`'s `storageOnly` flag
    flips, moving the tag between the `storage-only` and `searchable`
    families. The tag identity and type are preserved; only its on-disk
-   family location changes.
+   family location changes. An entity tag cannot move: BanyanDB refuses it.
 
-Drops, tag-type changes and entity changes are still rejected with
-`SKIPPED_SHAPE_MISMATCH`.
+A dropped or retyped tag or field, and a change to the entity, the sharding key,
+the interval, or a trace's trace-id / span-id / timestamp tag, are breaking and
+refused with `BOOT_REFUSED_BREAKING_CHANGE`.
 
-When the primary `check*` records `SKIPPED_SHAPE_MISMATCH`, the dependent
-`IndexRule` and `IndexRuleBinding` reconciliation is **also skipped**. This
-preserves coherence between the stream / measure tag layout and the binding
-that points into it — without the gate, the binding would silently update to
-reference the new declared tag list while the live tag families still carry
-the old shape, leaving operators with a binding routing to tags that don't
-exist in the live family layout.
-
-This opt-in is **BanyanDB-only**. JDBC and Elasticsearch are append-only on
-the data path and already accept additive column / mapping additions at boot
-without operator intervention, so the flag is unread on those backends.
+When a measure, stream or trace is refused, its `IndexRule` and `IndexRuleBinding`
+are **also left as they are** (the refusal's log line says so). This preserves
+coherence between the tag layout and the binding that points into it — without
+the gate, the binding would silently update to reference the new declared tag list
+while the live tag families still carry the old shape, leaving operators with a
+binding routing to tags that don't exist in the live family layout.
 
 > **Operator caveat:** BanyanDB does not physically migrate existing rows
 > when a tag's family changes. Pre-existing data for the relocated tag stays
 > in its original on-disk family location; new writes go to the declared
 > family. Queries that route through a new IndexRule on the relocated tag
 > will only see post-reshape rows until historical data ages out via TTL.
+
+### The schema log
+
+Every OAP logs what it found and did for each storage resource — a table, an index
+or template, a BanyanDB group, measure, stream, trace, property, index rule, binding
+or TopN aggregation — one line for each outcome the installer records, with the mode it ran in: DEBUG when
+nothing changed, INFO when it was created, updated or dropped, ERROR when an
+incompatible difference was left unapplied. The storage plugins log the DDL they
+execute at DEBUG.
+For example:
+
+```
+storage schema [BOOT_INSTALL] model [service_cpm]: measure(sw_metricsMinute/service_cpm_minute)=UPDATED[adds tags [layer searchable:TAG_TYPE_STRING]]
+storage schema [BOOT_INSTALL] model [service_resp_time]: measure(sw_metricsMinute/service_resp_time_minute)=BOOT_REFUSED_BREAKING_CHANGE[changes fields [value FIELD_TYPE_INT/... → FIELD_TYPE_FLOAT/...]; its index rules and binding are left as they are. To store the declared shape, delete the measure with BanyanDB's own tools before the next start (its data is lost), or give the metric a new name] — left as it is: boot applies additive changes only.
+```
+
+The modes are `BOOT_INSTALL` (an OAP registering models at startup),
+`RUNTIME_APPLY` (the main OAP applying a runtime-rule change),
+`RUNTIME_PEER_VERIFY` (a not-main OAP checking at startup that the main OAP has
+applied the persisted rules; a rule that fails the check is loaded by a later scan)
+and `RUNTIME_LOCAL_ONLY` (no backend call: a not-main OAP's periodic scan, or the
+main OAP's `/inactivate`).
 
 ## On-demand workflow
 
@@ -293,7 +318,7 @@ never destroys data they might want back:
   row (returns `HTTP 409 requires_inactivate_first`), so destruction always goes
   through the explicit two-step `/inactivate → /delete` workflow. On an absent
   row it is an idempotent `200 not_found`. The `/inactivate` step has already
-  torn down OAP-internal state under `withoutSchemaChange` (handlers, prototypes,
+  torn down OAP-internal state under `RUNTIME_LOCAL_ONLY` (handlers, prototypes,
   Models cleared; backend measure preserved). What `/delete` does next depends on
   whether a bundled YAML twin exists on disk:
   - **No bundled twin (default mode)** — drops the row only; the backend measure
@@ -308,9 +333,9 @@ never destroys data they might want back:
   - **Bundled twin exists, `?mode=revertToBundled`** — schema-change path.
     Bundled may have a different shape than runtime, so the apply pipeline runs
     a unified flow: re-install the prior runtime DSL locally under
-    `withoutSchemaChange` (no backend touch), apply the bundled YAML through
+    `RUNTIME_LOCAL_ONLY` (no backend touch), apply the bundled YAML through
     the standard `compile → fireSchemaChanges → verify → commit` pipeline with
-    `withSchemaChange`. The commit's delta drops runtime-only metrics through
+    `RUNTIME_APPLY`. The commit's delta drops runtime-only metrics through
     the listener chain, registers bundled-only metrics, and reuses bundled-shared
     metrics at matching shape. The runtime row is then removed and the bundled
     rule is the active loader on this node. Peers converge via the periodic

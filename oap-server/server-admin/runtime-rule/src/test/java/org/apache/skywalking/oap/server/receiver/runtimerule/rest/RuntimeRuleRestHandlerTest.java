@@ -319,10 +319,10 @@ class RuntimeRuleRestHandlerTest {
     void inactivateUsesLocalCacheOnlySoBackendSchemaIsPreserved() throws Exception {
         // Soft-pause contract: /inactivate must drive the local teardown via the
         // applyNowForRuleFile overload that takes a StorageManipulationOpt — and that opt
-        // must be withoutSchemaChange(). The withoutSchemaChange path makes per-backend
-        // whenRemoving record SKIPPED_NOT_ALLOWED instead of firing dropTable, so the
+        // must be runtimeLocalOnly(). The runtimeLocalOnly path makes per-backend
+        // whenRemoving record RUNTIME_BACKEND_UNTOUCHED instead of firing dropTable, so the
         // BanyanDB measure / JDBC table / ES index plus stored data survive the pause.
-        // /delete is the only path that drops backend schema (still uses withSchemaChange()).
+        // /delete is the only path that drops backend schema (still uses runtimeApply()).
         final String yaml = minimalMalYaml();
         whenDaoHasRow("otel-rules", "vm", yaml, RuntimeRule.STATUS_ACTIVE);
         whenReconcilerApplySucceeds("otel-rules", "vm");
@@ -336,10 +336,10 @@ class RuntimeRuleRestHandlerTest {
 
         assertHttpStatus(resp, HttpStatus.OK);
         // Verify the soft-pause path was taken: 3-arg overload with deferCommit=false and
-        // a withoutSchemaChange opt. The destructive 2-arg overload (which would mean
-        // withSchemaChange and a dropTable cascade) must NOT have fired.
+        // a runtimeLocalOnly opt. The destructive 2-arg overload (which would mean
+        // runtimeApply and a dropTable cascade) must NOT have fired.
         verify(dslManager).applyNowForRuleFile(any(), Mockito.eq(false),
-            Mockito.argThat(opt -> opt != null && opt.isWithoutSchemaChange()));
+            Mockito.argThat(opt -> opt != null && opt.isRuntimeLocalOnly()));
         verify(dslManager, never()).applyNowForRuleFile(any());
         verify(dslManager, never()).applyNowForRuleFile(any(), Mockito.anyBoolean());
     }
