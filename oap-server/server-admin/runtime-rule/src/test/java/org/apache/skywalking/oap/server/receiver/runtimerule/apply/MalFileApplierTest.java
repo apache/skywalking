@@ -149,7 +149,7 @@ class MalFileApplierTest {
                 + "    exp: node_cpu_seconds_total.sum(['host']).rate('PT1M')\n"
                 + "  - name: mem_total_used_percentage\n"
                 + "    exp: node_memory_MemTotal_bytes.sum(['host'])\n";
-        final StorageManipulationOpt opt = StorageManipulationOpt.withSchemaChangeDeferredFence();
+        final StorageManipulationOpt opt = StorageManipulationOpt.runtimeApplyDeferredFence();
         opt.setDeferredFence(() -> {
             throw new StorageException("barrier transport down");
         });
@@ -171,7 +171,7 @@ class MalFileApplierTest {
         // The inverse side of the contract: on unregister every metric name the prior apply
         // recorded must flow to MeterSystem.removeMetric. The dslManager relies on this to
         // drain L1/L2 handlers + drop the BanyanDB measure. The applier's no-opt overload
-        // delegates to the opt-aware removeMetric with withSchemaChange(), which is what we
+        // delegates to the opt-aware removeMetric with runtimeApply(), which is what we
         // verify here.
         final Set<String> names = setOf("meter_a", "meter_b", "meter_c");
         applier.remove(names);

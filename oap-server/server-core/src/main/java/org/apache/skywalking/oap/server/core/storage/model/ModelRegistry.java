@@ -53,9 +53,9 @@ public interface ModelRegistry extends Service {
      * each. Used by runtime rule hot-update (MAL/LAL hot-remove); not intended to be called during
      * the startup path.
      *
-     * <p>Peer-node callers pass {@link StorageManipulationOpt#withoutSchemaChange()} so installers
-     * skip the server-side drop and record {@link StorageManipulationOpt.Outcome#SKIPPED_NOT_ALLOWED}
-     * against the affected resources.
+     * <p>OAP (not-main) callers, and OAP (main) {@code /inactivate}, pass
+     * {@link StorageManipulationOpt#runtimeLocalOnly()}: installers keep the backend as it is and record
+     * {@link StorageManipulationOpt.Outcome#RUNTIME_BACKEND_UNTOUCHED}.
      *
      * @return the list of models that were removed, empty if none matched
      */
@@ -67,7 +67,7 @@ public interface ModelRegistry extends Service {
         /**
          * Invoked when a model is registered via {@link ModelRegistry#add}. Listeners receive
          * the {@link StorageManipulationOpt} the caller threaded through the registry — skip
-         * server-side DDL when {@link StorageManipulationOpt#isWithoutSchemaChange()}, and record
+         * server-side DDL when {@link StorageManipulationOpt#isRuntimeLocalOnly()}, and record
          * per-resource outcomes on the opt for the caller to inspect.
          */
         void whenCreating(Model model, StorageManipulationOpt opt) throws StorageException;
@@ -77,7 +77,7 @@ public interface ModelRegistry extends Service {
          * so listeners that don't own server-side resources (e.g., pure schema caches) compile
          * without boilerplate. Storage installers that own physical schema (BanyanDB measures)
          * override this and skip the server-side drop when
-         * {@link StorageManipulationOpt#isWithoutSchemaChange()}.
+         * {@link StorageManipulationOpt#isRuntimeLocalOnly()}.
          */
         default void whenRemoving(Model model, StorageManipulationOpt opt) throws StorageException {
         }

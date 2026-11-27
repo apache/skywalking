@@ -282,10 +282,10 @@ public final class ElasticSearchQueryITSupport implements Closeable {
                           final Storage storage) throws StorageException {
         final Model model;
         try (MockedStatic<DefaultScopeDefine> ignored = mockStatic(DefaultScopeDefine.class)) {
-            model = models.add(storageClass, scopeId, storage, StorageManipulationOpt.schemaCreateIfAbsent());
+            model = models.add(storageClass, scopeId, storage, StorageManipulationOpt.bootInstall());
         }
         final ModelInstaller.InstallInfo installed =
-            installers.get().isExists(model, StorageManipulationOpt.schemaCreateIfAbsent());
+            installers.get().isExists(model, StorageManipulationOpt.bootInstall());
         if (!installed.isAllExist()) {
             throw new IllegalStateException(
                 "the installer does not find what it installed: " + installed.buildInstallInfoMsg());

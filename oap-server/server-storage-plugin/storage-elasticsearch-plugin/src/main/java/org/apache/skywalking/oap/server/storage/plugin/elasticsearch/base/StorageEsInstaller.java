@@ -89,6 +89,8 @@ public class StorageEsInstaller extends ModelInstaller {
         String tableName = IndexController.INSTANCE.getTableName(model);
         IndexController.LogicIndicesRegister.registerRelation(model, tableName);
         installInfo.setTableName(esClient.formatIndexName(tableName));
+        installInfo.setResourceType(model.isTimeSeries() ? "template" : "index");
+        installInfo.setResourceName(esClient.formatIndexName(tableName));
         if (!model.isTimeSeries()) {
             boolean exist = esClient.isExistsIndex(tableName);
             installInfo.setTableExist(exist);
@@ -112,6 +114,11 @@ public class StorageEsInstaller extends ModelInstaller {
                 }
             }
             installInfo.setAllExist(exist);
+            if (exist) {
+                opt.recordOutcome("index", esClient.formatIndexName(tableName), StorageManipulationOpt.Outcome.MATCHED,
+                    RunningMode.isNoInitMode() ? "every declared field name is present"
+                        : "mapping fields and shard / replica settings match");
+            }
             return installInfo;
         }
 
@@ -145,6 +152,11 @@ public class StorageEsInstaller extends ModelInstaller {
             }
         }
         installInfo.setAllExist(exist);
+        if (exist) {
+            opt.recordOutcome("template", esClient.formatIndexName(tableName), StorageManipulationOpt.Outcome.MATCHED,
+                RunningMode.isNoInitMode() ? "every declared field name is present"
+                    : "mapping fields, shard / replica settings and order match");
+        }
         return installInfo;
     }
 
@@ -169,24 +181,30 @@ public class StorageEsInstaller extends ModelInstaller {
 
     @Override
     public void createTable(Model model) throws StorageException {
+        createTable(model, StorageManipulationOpt.runtimeApply());
+    }
+
+    @Override
+    public void createTable(Model model, StorageManipulationOpt opt) throws StorageException {
         if (model.isTimeSeries()) {
-            createTimeSeriesTable(model);
+            createTimeSeriesTable(model, opt);
         } else {
-            createNormalTable(model);
+            createNormalTable(model, opt);
         }
     }
 
-    private void createNormalTable(Model model) throws StorageException {
+    private void createNormalTable(Model model, StorageManipulationOpt opt) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);
         Mappings mapping = createMapping(model);
         Map<String, Object> settings = createSetting(model);
         if (!esClient.isExistsIndex(tableName)) {
             boolean isAcknowledged = esClient.createIndex(tableName, mapping, settings);
-            log.info("create {} index finished, isAcknowledged: {}", tableName, isAcknowledged);
+            log.debug("create {} index finished, isAcknowledged: {}", tableName, isAcknowledged);
             if (!isAcknowledged) {
                 throw new StorageException("create " + tableName + " index failure");
             }
+            opt.recordOutcome("index", esClient.formatIndexName(tableName), StorageManipulationOpt.Outcome.CREATED, null);
         } else {
             Mappings historyMapping = esClient.getIndex(tableName)
                                               .map(Index::getMappings)
@@ -196,12 +214,14 @@ public class StorageEsInstaller extends ModelInstaller {
             //update mapping
             if (appendMapping.getProperties() != null && !appendMapping.getProperties().isEmpty()) {
                 boolean isAcknowledged = esClient.updateIndexMapping(tableName, appendMapping);
-                log.info("update {} index mapping finished, isAcknowledged: {}, append mapping: {}", tableName,
+                log.debug("update {} index mapping finished, isAcknowledged: {}, append mapping: {}", tableName,
                          isAcknowledged, appendMapping
                 );
                 if (!isAcknowledged) {
                     throw new StorageException("update " + tableName + " index mapping failure");
                 }
+                opt.recordOutcome("index", esClient.formatIndexName(tableName), StorageManipulationOpt.Outcome.UPDATED,
+                    "adds fields " + appendMapping.getProperties().keySet());
             }
             //needs to update settings
             if (!structures.compareIndexSetting(tableName, settings)) {
@@ -213,14 +233,15 @@ public class StorageEsInstaller extends ModelInstaller {
         }
     }
 
-    private void createTimeSeriesTable(Model model) throws StorageException {
+    private void createTimeSeriesTable(Model model, StorageManipulationOpt opt) throws StorageException {
         ElasticSearchClient esClient = (ElasticSearchClient) client;
         String tableName = IndexController.INSTANCE.getTableName(model);
         Map<String, Object> settings = createSetting(model);
         Mappings mapping = createMapping(model);
         String indexName = IndexNames.latestIndex(IndexFamily.of(model), System.currentTimeMillis());
         try {
-            boolean shouldUpdateTemplate = !esClient.isExistsTemplate(tableName);
+            final boolean templateExists = esClient.isExistsTemplate(tableName);
+            boolean shouldUpdateTemplate = !templateExists;
             shouldUpdateTemplate = shouldUpdateTemplate
                 || !structures.containsMapping(tableName, mapping)
                 || !structures.compareIndexSetting(tableName, settings)
@@ -231,10 +252,13 @@ public class StorageEsInstaller extends ModelInstaller {
                 structures.putStructure(tableName, mapping, settings);
                 boolean isAcknowledged = esClient.createOrUpdateTemplate(
                     tableName, settings, structures.getMapping(tableName), config.getIndexTemplateOrder());
-                log.info("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
+                log.debug("create {} index template finished, isAcknowledged: {}", tableName, isAcknowledged);
                 if (!isAcknowledged) {
                     throw new IOException("create " + tableName + " index template failure");
                 }
+                opt.recordOutcome("template", esClient.formatIndexName(tableName),
+                    templateExists ? StorageManipulationOpt.Outcome.UPDATED : StorageManipulationOpt.Outcome.CREATED,
+                    templateExists ? "mapping, settings or order re-put" : null);
             }
 
             if (esClient.isExistsIndex(indexName)) {
@@ -245,27 +269,30 @@ public class StorageEsInstaller extends ModelInstaller {
                 //update mapping
                 if (appendMapping.getProperties() != null && !appendMapping.getProperties().isEmpty()) {
                     boolean isAcknowledged = esClient.updateIndexMapping(indexName, appendMapping);
-                    log.info("update {} index finished, isAcknowledged: {}, append mappings: {}", indexName,
+                    log.debug("update {} index finished, isAcknowledged: {}, append mappings: {}", indexName,
                              isAcknowledged, appendMapping
                     );
                     if (!isAcknowledged) {
                         throw new StorageException("update " + indexName + " time series index failure");
                     }
+                    opt.recordOutcome("index", esClient.formatIndexName(indexName), StorageManipulationOpt.Outcome.UPDATED,
+                        "adds fields " + appendMapping.getProperties().keySet());
                 }
 
                 //needs to update settings
                 if (!structures.compareIndexSetting(tableName, settings)) {
-                    log.info(
+                    log.debug(
                         "index template {} settings configuration has been updated to {}, it will applied on new index",
                         tableName, settings
                     );
                 }
             } else {
                 boolean isAcknowledged = esClient.createIndex(indexName);
-                log.info("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
+                log.debug("create {} index finished, isAcknowledged: {}", indexName, isAcknowledged);
                 if (!isAcknowledged) {
                     throw new StorageException("create " + indexName + " time series index failure");
                 }
+                opt.recordOutcome("index", esClient.formatIndexName(indexName), StorageManipulationOpt.Outcome.CREATED, null);
             }
         } catch (IOException e) {
             throw new StorageException("cannot create " + tableName + " index template", e);
@@ -417,7 +444,6 @@ public class StorageEsInstaller extends ModelInstaller {
     @Setter
     public static class InstallInfoES extends InstallInfo {
         private String tableName;
-        private boolean tableExist;
         private boolean allFieldsExist;
         private boolean allIndexSettingsExist;
         private StorageModuleElasticsearchConfig config;
@@ -430,7 +456,7 @@ public class StorageEsInstaller extends ModelInstaller {
         @Override
         public String buildInstallInfoMsg() {
             String tableNameMsg = isTimeSeries() ? "indexTemplateName=" + tableName : "indexName=" + tableName;
-            String tableExistMsg = isTimeSeries() ? "indexTemplateExists=" + tableExist : "indexExists=" + tableExist;
+            String tableExistMsg = isTimeSeries() ? "indexTemplateExists=" + isTableExist() : "indexExists=" + isTableExist();
             return "InstallInfoES:{" +
                 "modelName=" + getModelName() +
                 ", modelType=" + getModelType() +

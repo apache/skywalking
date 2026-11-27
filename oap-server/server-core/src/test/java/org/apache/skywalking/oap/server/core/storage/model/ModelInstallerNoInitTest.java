@@ -36,8 +36,8 @@ import static org.mockito.Mockito.when;
  * Regression guard for the runtime-rule (DSL) schema-change path on a {@code no-init} OAP —
  * every production cluster node runs no-init. The base {@link ModelInstaller#whenCreating}
  * poll loop must defer to the init OAP only for the static boot-time opt
- * ({@link StorageManipulationOpt#schemaCreateIfAbsent()}); a runtime-rule
- * {@link StorageManipulationOpt#withSchemaChange()} apply must fall through to
+ * ({@link StorageManipulationOpt#bootInstall()}); a runtime-rule
+ * {@link StorageManipulationOpt#runtimeApply()} apply must fall through to
  * {@code createTable} and create the resource itself, because no init OAP knows about a
  * metric created at runtime. Before the {@code deferDDLToInitNode} flag, a no-init OAP
  * routed the runtime create into the poll loop and blocked forever.
@@ -53,16 +53,16 @@ class ModelInstallerNoInitTest {
 
     @Test
     void deferFlagSetOnlyOnStaticBootOpt() {
-        assertTrue(StorageManipulationOpt.schemaCreateIfAbsent().getFlags().isDeferDDLToInitNode(),
+        assertTrue(StorageManipulationOpt.bootInstall().getFlags().isDeferDDLToInitNode(),
             "static boot opt must defer DDL to the init node");
-        assertFalse(StorageManipulationOpt.withSchemaChange().getFlags().isDeferDDLToInitNode(),
-            "runtime-rule withSchemaChange must NOT defer — it is the DDL authority");
-        assertFalse(StorageManipulationOpt.verifySchemaOnly().getFlags().isDeferDDLToInitNode());
-        assertFalse(StorageManipulationOpt.withoutSchemaChange().getFlags().isDeferDDLToInitNode());
+        assertFalse(StorageManipulationOpt.runtimeApply().getFlags().isDeferDDLToInitNode(),
+            "runtime-rule runtimeApply must NOT defer — it is the DDL authority");
+        assertFalse(StorageManipulationOpt.runtimePeerVerify().getFlags().isDeferDDLToInitNode());
+        assertFalse(StorageManipulationOpt.runtimeLocalOnly().getFlags().isDeferDDLToInitNode());
     }
 
     @Test
-    void noInitMainCreatesNewMetricUnderWithSchemaChange() {
+    void noInitMainCreatesNewMetricUnderRuntimeApply() {
         RunningMode.setMode("no-init");
         final RecordingInstaller installer = new RecordingInstaller(false /* resource absent */);
         final Model model = mock(Model.class);
@@ -72,9 +72,9 @@ class ModelInstallerNoInitTest {
         // preemptive timeout turns a regression — the historical infinite wait — into a fast
         // failure instead of a hung build.
         assertTimeoutPreemptively(Duration.ofSeconds(10), () ->
-            installer.whenCreating(model, StorageManipulationOpt.withSchemaChange()));
+            installer.whenCreating(model, StorageManipulationOpt.runtimeApply()));
         assertEquals(1, installer.createTableCalls,
-            "runtime withSchemaChange on a no-init OAP must create the new resource");
+            "runtime runtimeApply on a no-init OAP must create the new resource");
     }
 
     @Test
@@ -86,21 +86,21 @@ class ModelInstallerNoInitTest {
         final Model model = mock(Model.class);
         when(model.getName()).thenReturn("static_metric");
 
-        installer.whenCreating(model, StorageManipulationOpt.schemaCreateIfAbsent());
+        installer.whenCreating(model, StorageManipulationOpt.bootInstall());
         assertEquals(0, installer.createTableCalls,
             "static boot on a no-init OAP must defer to the init node, never create");
     }
 
     @Test
-    void withSchemaChangeSkipsCreateWhenResourceAlreadyExists() throws StorageException {
+    void runtimeApplySkipsCreateWhenResourceAlreadyExists() throws StorageException {
         RunningMode.setMode("no-init");
         final RecordingInstaller installer = new RecordingInstaller(true /* resource present */);
         final Model model = mock(Model.class);
         when(model.getName()).thenReturn("existing_metric");
 
-        installer.whenCreating(model, StorageManipulationOpt.withSchemaChange());
+        installer.whenCreating(model, StorageManipulationOpt.runtimeApply());
         assertEquals(0, installer.createTableCalls,
-            "withSchemaChange must not re-create a resource that already exists");
+            "runtimeApply must not re-create a resource that already exists");
     }
 
     @Test
@@ -116,7 +116,7 @@ class ModelInstallerNoInitTest {
         // Must NOT propagate the transient (which would escape whenCreating and crash-loop the pod);
         // must retry in-loop, then return on the defer path without creating. 10s covers the 3s sleep.
         assertTimeoutPreemptively(Duration.ofSeconds(10), () ->
-            installer.whenCreating(model, StorageManipulationOpt.schemaCreateIfAbsent()));
+            installer.whenCreating(model, StorageManipulationOpt.bootInstall()));
         assertEquals(0, installer.createTableCalls,
             "a transient probe error must be retried, then defer to the init node without creating");
         assertTrue(installer.probeCalls >= 2,
@@ -132,7 +132,7 @@ class ModelInstallerNoInitTest {
         when(model.getName()).thenReturn("static_metric_bad_model");
 
         assertThrows(StorageException.class,
-            () -> installer.whenCreating(model, StorageManipulationOpt.schemaCreateIfAbsent()),
+            () -> installer.whenCreating(model, StorageManipulationOpt.bootInstall()),
             "permanent model/config probe failures must not be converted into an infinite no-init wait");
         assertEquals(1, installer.probeCalls,
             "a non-retryable failure must escape without sleeping and probing again");
@@ -149,7 +149,7 @@ class ModelInstallerNoInitTest {
         Thread.currentThread().interrupt();
         try {
             assertThrows(StorageException.class,
-                () -> installer.whenCreating(model, StorageManipulationOpt.schemaCreateIfAbsent()),
+                () -> installer.whenCreating(model, StorageManipulationOpt.bootInstall()),
                 "an interrupted no-init wait must fail fast so shutdown can proceed");
             assertTrue(Thread.currentThread().isInterrupted(),
                 "the interrupt flag must be restored for upstream shutdown handling");
@@ -159,7 +159,7 @@ class ModelInstallerNoInitTest {
     }
 
     @Test
-    void withoutSchemaChangePopulatesLocalCacheAndIssuesNoBackendRpc() throws StorageException {
+    void runtimeLocalOnlyPopulatesLocalCacheAndIssuesNoBackendRpc() throws StorageException {
         // Peer reconciler tick (inspectBackend=false): the installer must refresh the local
         // schema cache (so a reshape re-add overwrites a now-stale entry) WITHOUT any backend
         // existence probe or create. This is the C-1 fix for the worker-without-cache /
@@ -168,14 +168,14 @@ class ModelInstallerNoInitTest {
         final Model model = mock(Model.class);
         when(model.getName()).thenReturn("runtime_metric_peer");
 
-        installer.whenCreating(model, StorageManipulationOpt.withoutSchemaChange());
+        installer.whenCreating(model, StorageManipulationOpt.runtimeLocalOnly());
 
         assertEquals(1, installer.populateLocalCacheCalls,
-            "a withoutSchemaChange (peer) apply must refresh the local schema cache");
+            "a runtimeLocalOnly (peer) apply must refresh the local schema cache");
         assertEquals(0, installer.probeCalls,
-            "a withoutSchemaChange (peer) apply must issue zero backend existence probes");
+            "a runtimeLocalOnly (peer) apply must issue zero backend existence probes");
         assertEquals(0, installer.createTableCalls,
-            "a withoutSchemaChange (peer) apply must never create backend resources");
+            "a runtimeLocalOnly (peer) apply must never create backend resources");
     }
 
     @Test
@@ -186,7 +186,7 @@ class ModelInstallerNoInitTest {
         final Model model = mock(Model.class);
         when(model.getName()).thenReturn("runtime_metric_remove_peer");
 
-        installer.whenRemoving(model, StorageManipulationOpt.withoutSchemaChange());
+        installer.whenRemoving(model, StorageManipulationOpt.runtimeLocalOnly());
 
         assertEquals(1, installer.evictLocalCacheCalls,
             "a peer remove must evict the local schema cache entry");
@@ -196,13 +196,13 @@ class ModelInstallerNoInitTest {
 
     @Test
     void whenRemovingMainDropsBackendThenEvictsLocalCache() throws StorageException {
-        // Main remove (withSchemaChange, dropOnRemoval=true): drop the backend AND evict the
+        // Main remove (runtimeApply, dropOnRemoval=true): drop the backend AND evict the
         // local cache so the insert-only registry does not keep a tombstoned model's entry.
         final RecordingInstaller installer = new RecordingInstaller(true /* unused */);
         final Model model = mock(Model.class);
         when(model.getName()).thenReturn("runtime_metric_remove_main");
 
-        installer.whenRemoving(model, StorageManipulationOpt.withSchemaChange());
+        installer.whenRemoving(model, StorageManipulationOpt.runtimeApply());
 
         assertEquals(1, installer.dropTableCalls,
             "a main remove must drop the backend resource");

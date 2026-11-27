@@ -572,7 +572,7 @@ public final class TALClassGenerator {
 
     /**
      * Install the storage model for every metric the rule declared. Runs before the rule sees a span; on the
-     * boot path {@code create} is create-if-absent, as it is for MAL.
+     * boot path {@code create} creates what is absent and applies additive changes only, as it does for MAL.
      *
      * @param meterSystem the meter system to register with
      */

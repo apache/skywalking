@@ -187,17 +187,6 @@ public @interface BanyanDB {
         }
 
         /**
-         * Opt-in to additive boot-time reshape of this stream. Default (absent): boot follows the standard
-         * create-if-absent policy and records a shape mismatch on any shape divergence, leaving reconciliation to the
-         * operator. When present, the installer may apply purely additive changes (new tag) during boot; type
-         * changes, drops and entity changes are still refused. Only the init / standalone OAP reshapes.
-         */
-        @Target({ElementType.TYPE})
-        @Retention(RetentionPolicy.RUNTIME)
-        @interface AllowBootReshape {
-        }
-
-        /**
          * Series key, see {@link Measure.SeriesID}.
          */
         @Target({ElementType.FIELD})

@@ -57,7 +57,7 @@ import org.apache.skywalking.oap.server.telemetry.api.HistogramMetrics;
  *       DSLManager#applyOneRuleFile} (which delegates to {@link DSLRuntimeApply} or {@link
  *       DSLRuntimeUnregister} via the per-DSL drivers). Honours the per-tick
  *       {@link StorageManipulationOpt} and the marker-debt promotion (peer that was
- *       withoutSchemaChange is now main → re-fire under withSchemaChange).</li>
+ *       runtimeLocalOnly is now main → re-fire under runtimeApply).</li>
  *   <li><b>Gone-keys cleanup</b> — an operator override in the snapshot whose DB row is gone
  *       gets {@link DSLRuntimeUnregister}'d and falls over to its bundled twin. An entry that
  *       runs its bundled file as shipped never had a row and is left alone. Snapshot removal
@@ -109,7 +109,7 @@ public final class RuleSync {
     /**
      * Run the full tick body once. {@code atBoot=true} on the synchronous first tick from
      * {@code RuntimeRuleModuleProvider.notifyAfterCompleted}; the storage-opt picker uses this
-     * to choose {@code verifySchemaOnly} on no-init OAPs (fail boot if backend is not in shape).
+     * to choose {@code runtimePeerVerify} on a not-main OAP (a rule whose backend is not in shape fails its apply).
      */
     public void runOnce(final boolean atBoot) {
         final RuntimeRuleManagementDAO dao;
@@ -251,7 +251,7 @@ public final class RuleSync {
                     // it as a bundled-served entry, equivalent to a boot-seeded one).
                     // Otherwise the entry is fully gone and we remove it.
                     //
-                    // Storage opt: ALWAYS withoutSchemaChange for the unregister leg. The
+                    // Storage opt: ALWAYS runtimeLocalOnly for the unregister leg. The
                     // new /delete contract says default-mode (no bundled twin) leaves the
                     // backend as inert artefact, and the only schema-changing /delete path
                     // (revertToBundled) drives the schema mutation through the apply
@@ -259,7 +259,7 @@ public final class RuleSync {
                     // peer-promoted-to-main node drop the backend during gone-keys cleanup,
                     // contradicting the operator-facing contract.
                     final boolean bundledReloaded = unregister.unregisterBundle(
-                        parts[0], parts[1], true, StorageManipulationOpt.withoutSchemaChange(), true);
+                        parts[0], parts[1], true, StorageManipulationOpt.runtimeLocalOnly(), true);
                     if (!bundledReloaded) {
                         rules.remove(gone);
                     }

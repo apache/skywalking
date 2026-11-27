@@ -186,7 +186,7 @@ public class BanyanDBDropTableIT {
         final Map<String, Message> hourSchema = measureSchema(hourGroup);
         assertTrue(minuteSchema.containsKey("topN testMetric-service of " + name(topNSibling)), minuteSchema.keySet().toString());
 
-        SUPPORT.installer().dropTable(cpmMinute, StorageManipulationOpt.withSchemaChange());
+        SUPPORT.installer().dropTable(cpmMinute, StorageManipulationOpt.runtimeApply());
 
         assertThrows(IOException.class, () -> endpointCpm(minutes(0, 1)));
         assertEquals(without(minuteSchema, name(cpmMinute)), whole(measureSchema(minuteGroup)));
@@ -265,7 +265,7 @@ public class BanyanDBDropTableIT {
         final String group = group(statements);
         final Map<String, Message> schema = streamSchema(group);
 
-        SUPPORT.installer().dropTable(statements, StorageManipulationOpt.withSchemaChange());
+        SUPPORT.installer().dropTable(statements, StorageManipulationOpt.runtimeApply());
 
         assertThrows(IOException.class, () -> slowest(TopNDatabaseStatement.INDEX_NAME, DATABASE));
         assertEquals(without(schema, name(statements)), whole(streamSchema(group)));
@@ -354,7 +354,7 @@ public class BanyanDBDropTableIT {
         final String group = group(policies);
         final Map<String, Message> schema = propertySchema(group);
 
-        SUPPORT.installer().dropTable(policies, StorageManipulationOpt.withSchemaChange());
+        SUPPORT.installer().dropTable(policies, StorageManipulationOpt.runtimeApply());
 
         assertThrows(IOException.class,
                      () -> SUPPORT.getClient().queryProperty(ContinuousProfilingPolicy.INDEX_NAME, dropped.getServiceId()));
@@ -397,7 +397,7 @@ public class BanyanDBDropTableIT {
 
     /** What the installer finds of the model, as the runtime-rule apply verifies it: its whole install info. */
     private static String exists(Model model) throws Exception {
-        return SUPPORT.installer().isExists(model, StorageManipulationOpt.schemaCreateIfAbsent()).buildInstallInfoMsg();
+        return SUPPORT.installer().isExists(model, StorageManipulationOpt.bootInstall()).buildInstallInfoMsg();
     }
 
     /** The install info of a model whose group is there, and whose resource is there or not. */

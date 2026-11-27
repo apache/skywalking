@@ -87,7 +87,7 @@ public class BanyanDBIndexInstallerDropTableTest {
             model = new StorageModels().add(
                 ServiceRelationServerSideMetrics.class, DefaultScopeDefine.SERVICE_RELATION,
                 new Storage(ServiceRelationServerSideMetrics.INDEX_NAME, false, DownSampling.Minute),
-                StorageManipulationOpt.withSchemaChange());
+                StorageManipulationOpt.runtimeApply());
         }
         final MetadataRegistry.SchemaMetadata metadata = MetadataRegistry.INSTANCE.parseMetadata(model, config, downSampling);
         group = metadata.getGroup();

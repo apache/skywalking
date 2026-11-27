@@ -18,6 +18,7 @@
 
 package org.apache.skywalking.oap.server.core.storage.model;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -48,6 +49,15 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
 
     @Override
     public void whenCreating(Model model, StorageManipulationOpt opt) throws StorageException {
+        final int from = opt.getOutcomes().size();
+        try {
+            install(model, opt);
+        } finally {
+            logOutcomes(model, opt, from);
+        }
+    }
+
+    private void install(final Model model, final StorageManipulationOpt opt) throws StorageException {
         final StorageManipulationOpt.Flags flags = opt.getFlags();
 
         // Zero server RPCs — peer-side ticks. The earlier order called isExists first
@@ -64,44 +74,40 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
             // would keep translating writes with the old shape. RPC-free; no-op for backends
             // without a local schema cache (ES, JDBC).
             populateLocalCacheOnly(model, opt);
-            opt.recordOutcome("table", model.getName(),
-                StorageManipulationOpt.Outcome.SKIPPED_NOT_ALLOWED,
-                "local-cache-only mode; main-node is expected to have installed this resource");
-            log.debug(
-                "install: model [{}] not installed; local-cache-only mode — local schema cache refreshed, no isExists probe",
-                model.getName()
-            );
+            opt.recordOutcome("model", model.getName(),
+                StorageManipulationOpt.Outcome.RUNTIME_BACKEND_UNTOUCHED, "backend left untouched");
             return;
         }
 
-        // Strict verify path — run the read-only existence/shape inspection and surface
-        // missing or mismatched resources as fatal so module bootstrap exits (k8s pod
-        // backloop). Operator must align with the init OAP first. Distinct from the
-        // legacy non-init poll loop further down: that loop waits forever; this path
-        // fails fast.
+        // OAP (not-main, starting up): read-only check that the main OAP has already applied the
+        // persisted runtime rules' schema. An absent or different resource fails this rule's apply on
+        // this OAP; a later reconcile tick loads it locally. Distinct from the no-init wait loop below,
+        // which waits instead.
         if (flags.isFailOnAbsence() || flags.isFailOnShapeMismatch()) {
-            InstallInfo info = isExists(model, opt);
-            if (flags.isFailOnShapeMismatch() && opt.hasShapeMismatch()) {
-                final StorageManipulationOpt.ResourceOutcome o = opt.firstShapeMismatch();
-                throw new StorageException(
-                    "local-cache-verify boot: backend resource '" + (o == null ? model.getName() : o.getResourceName())
-                        + "' shape diverges from declared model — refusing to start. "
-                        + "Reconcile via the init OAP's /runtime/rule/addOrUpdate first. diff: "
-                        + (o == null ? "n/a" : o.getDiff()));
-            }
+            final int from = opt.getOutcomes().size();
+            final InstallInfo info = isExists(model, opt);
             if (flags.isFailOnAbsence() && !info.isAllExist()) {
+                // The resource is there but lacks part of the declared shape (a column, a field, the template
+                // order), or it is not there at all.
+                opt.recordOutcome(info.getResourceType(), info.getResourceName(),
+                    info.isTableExist()
+                        ? StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_DIFFERENT
+                        : StorageManipulationOpt.Outcome.RUNTIME_PEER_SCHEMA_ABSENT,
+                    info.buildInstallInfoMsg());
+            }
+            final StorageManipulationOpt.ResourceOutcome failed = opt.firstPeerVerifyFailureSince(from);
+            if (failed != null) {
                 throw new StorageException(
-                    "local-cache-verify boot: backend resources for model '" + model.getName()
-                        + "' are not all present — refusing to start. Wait for the init OAP to "
-                        + "create them or push the runtime rule. " + info.buildInstallInfoMsg());
+                    "not-main OAP startup check: the main OAP has not applied the runtime-rule schema of model ["
+                        + model.getName() + "] yet, so this OAP does not apply it now. " + failed);
             }
             return;
         }
 
         // Poll loop for the STATIC boot-time path on a non-init OAP: the init OAP owns
         // schema creation, so this node waits until the resource appears rather than
-        // creating it. Gated on deferDDLToInitNode (set only on SCHEMA_CREATE_IF_ABSENT),
-        // NOT on RunningMode alone — a runtime-rule DSL apply (withSchemaChange) is the
+        // creating it. Gated on deferDDLToInitNode (set only on BOOT_INSTALL),
+        // NOT on RunningMode alone — a runtime-rule DSL apply (runtimeApply) is the
         // operator/main-driven authority and must fall through to createTable below
         // regardless of no-init, because no init OAP knows about a metric created at
         // runtime. Without this, a no-init OAP would block here forever waiting for a
@@ -150,43 +156,73 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
             return;
         }
         if (!flags.isCreateMissing()) {
-            // Inspect-but-don't-create: caller wants existence reported as outcome but
-            // explicitly forbids DDL. Today no canonical mode hits this branch, but the
-            // flag combination is valid (e.g. dry-run reporting) and falling through to
-            // createTable would silently violate the contract.
-            opt.recordOutcome("table", model.getName(),
-                StorageManipulationOpt.Outcome.MISSING,
-                "missing on backend; createMissing flag is off — skipping DDL");
-            return;
+            throw new IllegalStateException(
+                opt.getMode() + " inspects the backend but neither creates nor verifies: model [" + model.getName() + "]");
         }
-        log.info(
+        log.debug(
             "install info: {}. table for model: [{}] not all required resources exist, creating or updating...",
             info.buildInstallInfoMsg(), model.getName()
         );
         createTable(model, opt);
-        opt.recordOutcome("table", model.getName(),
-            StorageManipulationOpt.Outcome.CREATED, null);
     }
 
     @Override
     public void whenRemoving(Model model, StorageManipulationOpt opt) throws StorageException {
-        if (!opt.getFlags().isDropOnRemoval()) {
-            // Peer (or boot path that never drops): the backend drop is the main node's job,
-            // but this node must still evict its own local schema-cache entry so a removed
-            // model leaves no stale translation behind in an otherwise insert-only cache.
-            // RPC-free; no-op for backends without a local cache.
+        final int from = opt.getOutcomes().size();
+        try {
+            if (!opt.getFlags().isDropOnRemoval()) {
+                // OAP (main, /inactivate or another local-only step) keeps storage; OAP (not-main) leaves
+                // the drop to the main OAP; a boot never drops (it only rolls back a partial registration).
+                // Either way this node evicts its own local schema-cache entry, so a removed model leaves
+                // no stale translation in an otherwise insert-only cache. RPC-free; no-op for backends
+                // without a local cache.
+                evictLocalCache(model);
+                if (opt.getMode().getStage() == StorageManipulationOpt.Stage.RUNTIME) {
+                    opt.recordOutcome("model", model.getName(),
+                        StorageManipulationOpt.Outcome.RUNTIME_BACKEND_UNTOUCHED, "backend kept as it is");
+                }
+                return;
+            }
+            dropTable(model, opt);
+            // Evict only after a successful drop — a thrown dropTable leaves the model in the
+            // registry for retry (see StorageModels.remove), so its cache entry must stay too.
             evictLocalCache(model);
-            opt.recordOutcome("table", model.getName(),
-                StorageManipulationOpt.Outcome.SKIPPED_NOT_ALLOWED,
-                "dropOnRemoval flag is off; server drop is main-node responsibility (or boot path that never drops)");
-            return;
+        } finally {
+            logOutcomes(model, opt, from);
         }
-        dropTable(model, opt);
-        // Evict only after a successful drop — a thrown dropTable leaves the model in the
-        // registry for retry (see StorageModels.remove), so its cache entry must stay too.
-        evictLocalCache(model);
-        opt.recordOutcome("table", model.getName(),
-            StorageManipulationOpt.Outcome.DROPPED, null);
+    }
+
+    /**
+     * Logs the outcomes recorded since index {@code from}, one line per resource: DEBUG when nothing changed, INFO
+     * when the backend changed, ERROR when an incompatible difference was left unapplied. This is the one place that
+     * reports what storage installation found and did, for every backend and mode; the storage plugins log the DDL
+     * they execute at DEBUG.
+     */
+    private static void logOutcomes(final Model model, final StorageManipulationOpt opt, final int from) {
+        final List<StorageManipulationOpt.ResourceOutcome> outcomes = opt.getOutcomes();
+        for (int i = from; i < outcomes.size(); i++) {
+            final StorageManipulationOpt.ResourceOutcome o = outcomes.get(i);
+            switch (o.getStatus()) {
+                case CREATED:
+                case UPDATED:
+                case DROPPED:
+                    log.info("storage schema [{}] model [{}]: {}", opt.getMode(), model.getName(), o);
+                    break;
+                case BOOT_REFUSED_BREAKING_CHANGE:
+                    // The installer's detail says how to reach the declared shape: the remedy depends on the resource.
+                    log.error("storage schema [{}] model [{}]: {} — left as it is: boot applies additive changes only.",
+                        opt.getMode(), model.getName(), o);
+                    break;
+                case RUNTIME_PEER_SCHEMA_ABSENT:
+                case RUNTIME_PEER_SCHEMA_DIFFERENT:
+                    log.error("storage schema [{}] model [{}]: {} — the main OAP has not applied it yet.",
+                        opt.getMode(), model.getName(), o);
+                    break;
+                default:
+                    log.debug("storage schema [{}] model [{}]: {}", opt.getMode(), model.getName(), o);
+                    break;
+            }
+        }
     }
 
     /**
@@ -196,7 +232,7 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
      * base installer and every backend subclass — call it instead of re-checking
      * {@link RunningMode#isNoInitMode()} inline, so the rule stays one decision.
      *
-     * <p>True only for the static boot-time {@link StorageManipulationOpt#schemaCreateIfAbsent()}
+     * <p>True only for the static boot-time {@link StorageManipulationOpt#bootInstall()}
      * opt on a {@code no-init} OAP. The runtime-rule (DSL) opts leave
      * {@link StorageManipulationOpt.Flags#isDeferDDLToInitNode() deferDDLToInitNode} unset, so
      * an operator-driven apply is governed by the opt's own create / update / drop flags and
@@ -234,7 +270,7 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
      * Check whether the storage entity exists, reporting per-resource outcomes on
      * {@code opt}. Backends with in-isExists side effects (BanyanDB's auto-update of
      * {@code Measure}/{@code IndexRule}/{@code IndexRuleBinding}) honour
-     * {@link StorageManipulationOpt#isWithoutSchemaChange()} to suppress server writes when the
+     * {@link StorageManipulationOpt#isRuntimeLocalOnly()} to suppress server writes when the
      * caller is a peer node.
      */
     public abstract InstallInfo isExists(Model model, StorageManipulationOpt opt) throws StorageException;
@@ -281,13 +317,15 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
      */
     public void dropTable(Model model, StorageManipulationOpt opt) throws StorageException {
         dropTable(model);
+        opt.recordOutcome("model", model.getName(), StorageManipulationOpt.Outcome.RUNTIME_BACKEND_UNTOUCHED,
+            "kept: this storage never drops its tables or indices");
     }
 
     /**
      * Refresh THIS node's local schema cache for {@code model} from the declared model, with
      * no server RPC. Called on the local-cache-only path
      * ({@link StorageManipulationOpt.Flags#isInspectBackend() inspectBackend == false}, i.e.
-     * {@link StorageManipulationOpt#withoutSchemaChange()}), where the cluster main owns
+     * {@link StorageManipulationOpt#runtimeLocalOnly()}), where the cluster main owns
      * backend DDL and this node only needs an up-to-date entry to translate its own
      * reads/writes. Backends with a local schema cache (BanyanDB) override to (re)derive and
      * <strong>overwrite</strong> the entry — overwrite, not fill-if-absent, so a reshape that
@@ -315,9 +353,22 @@ public abstract class ModelInstaller implements ModelRegistry.CreatingListener, 
         private final boolean superDataset;
         private final String modelType;
         private boolean allExist;
+        /**
+         * The model's primary resource exists (a table, an index or template, a BanyanDB measure / stream / trace /
+         * property), whether or not it has the whole declared shape.
+         */
+        private boolean tableExist;
+        /**
+         * The primary resource as outcomes name it: its kind and physical name. The model, until the backend sets
+         * them.
+         */
+        private String resourceType;
+        private String resourceName;
 
         protected InstallInfo(Model model) {
             this.modelName = model.getName();
+            this.resourceType = "model";
+            this.resourceName = model.getName();
             this.timeSeries = model.isTimeSeries();
             this.superDataset = model.isSuperDataset();
             if (model.isMetric()) {

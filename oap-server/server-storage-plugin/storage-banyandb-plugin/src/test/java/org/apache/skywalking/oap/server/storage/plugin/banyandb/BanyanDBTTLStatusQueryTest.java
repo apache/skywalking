@@ -128,7 +128,7 @@ public class BanyanDBTTLStatusQueryTest {
         throws StorageException {
         try (MockedStatic<DefaultScopeDefine> ignored = mockStatic(DefaultScopeDefine.class)) {
             return new StorageModels().add(metricsClass, scopeId, new Storage(name, false, downSampling),
-                                           StorageManipulationOpt.withSchemaChange());
+                                           StorageManipulationOpt.runtimeApply());
         }
     }
 }

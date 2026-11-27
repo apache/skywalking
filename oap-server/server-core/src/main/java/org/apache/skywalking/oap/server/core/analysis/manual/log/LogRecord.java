@@ -34,7 +34,6 @@ import static org.apache.skywalking.oap.server.core.storage.StorageData.TIME_BUC
 
 @SuperDataset
 @Stream(name = LogRecord.INDEX_NAME, scopeId = DefaultScopeDefine.LOG, builder = LogRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.Stream.AllowBootReshape
 @SQLDatabase.ExtraColumn4AdditionalEntity(additionalTable = AbstractLogRecord.ADDITIONAL_TAG_TABLE, parentColumn = TIME_BUCKET)
 @BanyanDB.Stream.TimestampColumn(AbstractLogRecord.TIMESTAMP)
 @BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS_LOG)
