@@ -22,6 +22,7 @@ import org.apache.skywalking.oap.server.core.UnexpectedException;
 import org.apache.skywalking.oap.server.core.analysis.meter.Meter;
 import org.apache.skywalking.oap.server.core.analysis.meter.MeterEntity;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.AcceptableValue;
+import org.apache.skywalking.oap.server.core.analysis.meter.function.HistogramBucketKey;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.MeterFunction;
 import org.apache.skywalking.oap.server.core.analysis.meter.function.PercentileArgument;
 import org.apache.skywalking.oap.server.core.analysis.metrics.DataLabel;
@@ -40,7 +41,6 @@ import org.apache.skywalking.oap.server.core.storage.type.Convert2Storage;
 import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -249,8 +249,8 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
                     }
 
                     long count = 0;
-                    final List<String> sortedKeys = subDataset.sortedKeys(Comparator.comparingLong(Long::parseLong));
-
+                    final List<String> sortedKeys = subDataset.sortedKeys(HistogramBucketKey.ASC);
+                    Long highestFiniteBound = null;
                     int loopIndex = 0;
 
                     for (String key : sortedKeys) {
@@ -262,12 +262,13 @@ public abstract class AvgHistogramPercentileFunction extends Meter implements Ac
 
                             if (count >= roof) {
                                 labels.put(PERCENTILE_LABEL_NAME, String.valueOf(ranks.get(rankIdx)));
-                                percentileValues.put(labels, Long.parseLong(key));
+                                percentileValues.put(labels, HistogramBucketKey.percentileBound(key, highestFiniteBound));
                                 loopIndex++;
                             } else {
                                 break;
                             }
                         }
+                        highestFiniteBound = HistogramBucketKey.advanceHighestFinite(key, highestFiniteBound);
                     }
                 });
         }

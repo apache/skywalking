@@ -256,6 +256,42 @@ public class AvgHistogramPercentileFunctionTest {
     }
 
     @Test
+    public void testOverflowBucketUsesHighestFiniteBound() {
+        // P99 falls in +Inf (Long.MAX_VALUE); report the last finite upper bound, not MAX_VALUE.
+        PercentileFunctionInst inst = new PercentileFunctionInst();
+        inst.accept(
+            MeterEntity.newService("service-test", Layer.GENERAL),
+            new PercentileArgument(
+                new BucketedValues(
+                    new long[] {10, 100, Long.MAX_VALUE},
+                    new long[] {50, 45, 5}
+                ),
+                new int[] {50, 99}
+            )
+        );
+        inst.calculate();
+        // P50 lands in the first finite bucket; P99 lands in +Inf and must not leak Long.MAX_VALUE.
+        Assertions.assertEquals(new DataTable("{p=50},10|{p=99},100"), inst.getValue());
+    }
+
+    @Test
+    public void testNegativeInfiniteBucketSortsWithoutThrowing() {
+        PercentileFunctionInst inst = new PercentileFunctionInst();
+        inst.accept(
+            MeterEntity.newService("service-test", Layer.GENERAL),
+            new PercentileArgument(
+                new BucketedValues(
+                    new long[] {Long.MIN_VALUE, 25, Long.MAX_VALUE},
+                    new long[] {1, 49, 50}
+                ),
+                new int[] {50, 99}
+            )
+        );
+        inst.calculate();
+        Assertions.assertEquals(new DataTable("{p=50},25|{p=99},25"), inst.getValue());
+    }
+
+    @Test
     public void testFunctionWithNoData() {
         PercentileFunctionInst inst = new PercentileFunctionInst();
         inst.accept(

@@ -88,6 +88,52 @@ public class FunctionTest {
                 false,
             },
             {
+                // Prometheus/OpenMetrics last bucket uses le="+Inf"; MAL used to throw NumberFormatException.
+                "histogram-prometheus-inf",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "0.025")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1.25")).value(36).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "+Inf")).value(40).name("http_success_request").build()).build()
+                ),
+                "http_success_request.histogram()",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "25")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1250")).value(36).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", String.valueOf(Long.MAX_VALUE))).value(40).name("http_success_request").build()).build()
+                ),
+                false,
+            },
+            {
+                // Java Double.toString(POSITIVE_INFINITY) must also survive histogram().
+                // Keep a single Inf alias per group so bucket keys stay unique after mapping.
+                "histogram-java-infinity",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "0.025")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "Infinity")).value(40).name("http_success_request").build()).build()
+                ),
+                "http_success_request.histogram()",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "25")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", String.valueOf(Long.MAX_VALUE))).value(40).name("http_success_request").build()).build()
+                ),
+                false,
+            },
+            {
+                "histogram-prometheus-neg-inf",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "-Inf")).value(1).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "0.025")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "+Inf")).value(120).name("http_success_request").build()).build()
+                ),
+                "http_success_request.histogram()",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", String.valueOf(Long.MIN_VALUE))).value(1).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "25")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", String.valueOf(Long.MAX_VALUE))).value(120).name("http_success_request").build()).build()
+                ),
+                false,
+            },
+            {
                 "histogram_percentile",
                 of("http_success_request", SampleFamilyBuilder.newBuilder(
                     Sample.builder().labels(of("le", "0.025")).value(100).name("http_success_request").build(),
@@ -99,6 +145,25 @@ public class FunctionTest {
                     Sample.builder().labels(of("le", "25")).value(100).name("http_success_request").build(),
                     Sample.builder().labels(of("le", "750")).value(22).name("http_success_request").build(),
                     Sample.builder().labels(of("le", "1250")).value(30).name("http_success_request").build()).build()
+                ),
+                false,
+            },
+            {
+                // Expression-level: +Inf must not fail histogram()+histogram_percentile().
+                // Analyzer bucket assembly with +Inf is covered by AnalyzerHistogramInfTest.
+                "histogram_percentile-prometheus-inf",
+                of("http_success_request", SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "0.025")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "0.75")).value(22).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1.25")).value(30).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "+Inf")).value(40).name("http_success_request").build()).build()
+                ),
+                "http_success_request.histogram().histogram_percentile([75,99])",
+                Result.success(SampleFamilyBuilder.newBuilder(
+                    Sample.builder().labels(of("le", "25")).value(100).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "750")).value(22).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", "1250")).value(30).name("http_success_request").build(),
+                    Sample.builder().labels(of("le", String.valueOf(Long.MAX_VALUE))).value(40).name("http_success_request").build()).build()
                 ),
                 false,
             },

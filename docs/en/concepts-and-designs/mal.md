@@ -249,8 +249,17 @@ Examples:
 histogram buckets in the meter system. (If the metrics from the Prometheus are based on the `seconds-based` histogram
 buckets, will multiply the bucket value by 1000.)
 
+`le` accepts Prometheus/OpenMetrics (`+Inf` / `-Inf` / `Inf`) and Java (`Infinity` / `-Infinity`) spellings for the
+overflow and underflow bounds, mapped to `Long.MAX_VALUE` and `Long.MIN_VALUE`. `NaN` is rejected.
+
 #### histogram_percentile
 `histogram_percentile([<p scalar>])`: Represents the meter-system to calculate the p-percentile (0 ≤ p ≤ 100) from the buckets.
+
+A rank reads as the bound of the bucket it falls in. A rank that falls in the overflow bucket (`le` is `+Inf`, which
+`histogram()` turns into `Long.MAX_VALUE`) reads the highest finite bound instead, as Prometheus `histogram_quantile`
+does. So a percentile that reads the highest finite bound may be above it, and no percentile reads above it: an alarm
+condition that needs a value above it, such as `p99 > 10000` on buckets that end at 10000, never fires. A histogram
+whose only bucket is the overflow bucket reads `Long.MAX_VALUE`.
 
 #### time
 `time()`: Returns the number of seconds since January 1, 1970 UTC.
