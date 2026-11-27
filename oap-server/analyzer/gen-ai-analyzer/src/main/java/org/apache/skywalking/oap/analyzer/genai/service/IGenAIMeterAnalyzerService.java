@@ -38,7 +38,8 @@ public interface IGenAIMeterAnalyzerService extends Service {
      * The counterpart of {@link #extractMetricsFromZipkinSpan} for OTLP spans stored natively, which never become
      * Zipkin spans. Reads the same attributes; status comes from the span status instead of the {@code error} tag.
      *
-     * @return null when the span carries no {@code gen_ai.response.model}
+     * @return null when the span names no model, neither {@code gen_ai.response.model} nor
+     *         {@code gen_ai.request.model}, or when its {@code gen_ai.operation.name} is not a model call
      */
     GenAIMetrics extractMetricsFromOTLPSpan(OTLPSpanReader span);
 

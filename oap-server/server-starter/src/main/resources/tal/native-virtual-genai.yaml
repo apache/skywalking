@@ -67,7 +67,16 @@ rules:
             }
           }
           // The Java also builds the provider's service id here, which nothing reads
-          def timeToFirstToken = parseIntOrZero(genAITags.get("gen_ai.server.time_to_first_token") as String)
+          // timeToFirstTokenMillis. gen_ai.response.time_to_first_chunk: seconds, the span attribute of the
+          // OpenTelemetry GenAI conventions, reported by SkyWalking Java Agent 9.9.0 and later
+          def timeToFirstChunk = genAITags.get("gen_ai.response.time_to_first_chunk") as String
+          def timeToFirstToken = 0
+          if (!isBlank(timeToFirstChunk)) {
+            timeToFirstToken = parseSecondsAsMillisOrZero(timeToFirstChunk)
+          } else {
+            // SkyWalking Java Agent 9.7 and 9.8 report gen_ai.server.time_to_first_token instead, in milliseconds
+            timeToFirstToken = parseIntOrZero(genAITags.get("gen_ai.server.time_to_first_token") as String)
+          }
           def latency = span.endTime - span.startTime
           def ok = true
           if (span.isError) {

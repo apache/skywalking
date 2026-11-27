@@ -263,6 +263,24 @@ class TALLanguageAdditionsTest {
     }
 
     @Test
+    void parseSecondsAsMillisOrZeroIsTheNearestWholeMillis() throws Exception {
+        final List<LogEvent> events = capture(Level.WARN);
+        assertEquals("457|250|0|0|0|0", run("filter { extractor {\n"
+            + "  def rounded = parseSecondsAsMillisOrZero(\"0.4567\")\n"
+            + "  def whole = parseSecondsAsMillisOrZero(\"0.25\")\n"
+            + "  def none = parseSecondsAsMillisOrZero(\"\")\n"
+            + "  def text = parseSecondsAsMillisOrZero(\"soon\")\n"
+            + "  def negative = parseSecondsAsMillisOrZero(\"-0.5\")\n"
+            + "  def tooLong = parseSecondsAsMillisOrZero(\"3000000\")\n"
+            + "  service \"\" + rounded + \"|\" + whole + \"|\" + none + \"|\" + text + \"|\" + negative\n"
+            + "    + \"|\" + tooLong\n"
+            + "} }", input("x")));
+        assertEquals(3, events.size());
+        assertEquals("Failed to parse value to seconds: {}", events.get(0).getMessage().getFormat());
+        assertEquals(SCRIPT_LOGGER, events.get(0).getLoggerName());
+    }
+
+    @Test
     void murmur3HashIsGuavasMurmur3OfTheUtf8Bytes() throws Exception {
         assertEquals(String.valueOf(Hashing.murmur3_128().hashString("trace-1", StandardCharsets.UTF_8).asLong()),
             run("filter { extractor { service \"\" + murmur3Hash(\"trace-1\") } }", input("x")));

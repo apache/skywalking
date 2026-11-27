@@ -141,6 +141,31 @@ public class TalGeneralFunctions implements TALFunctionProvider {
     }
 
     /**
+     * {@code parseSecondsAsMillisOrZero(text)}, {@code GenAIMeterAnalyzer.parseSecondsAsMillis}: a number of seconds
+     * as the whole milliseconds nearest it; 0 for no value, or 0 after a warning under the script's logger for text
+     * that does not parse, is negative or is more milliseconds than an int holds.
+     *
+     * @param h    the run
+     * @param text the seconds to parse
+     * @return the milliseconds, or 0
+     */
+    public int parseSecondsAsMillisOrZero(final TalRuntimeHelper h, final String text) {
+        if (StringUtil.isEmpty(text)) {
+            return 0;
+        }
+        try {
+            final double millis = Double.parseDouble(text) * 1000;
+            if (millis >= 0 && millis <= Integer.MAX_VALUE) {
+                return (int) Math.round(millis);
+            }
+        } catch (NumberFormatException ignored) {
+            // warned below, with the values that parse and are out of range
+        }
+        h.scriptLogger().warn("Failed to parse value to seconds: {}", text);
+        return 0;
+    }
+
+    /**
      * {@code parseStatusCode(text)}, as {@code RPCAnalysisListener.setPublicAttrs} reads a status code: the text as
      * an integer, or null after the warning {@code span {} has illegal status code {}} under the script's logger,
      * with the span as the input renders it.

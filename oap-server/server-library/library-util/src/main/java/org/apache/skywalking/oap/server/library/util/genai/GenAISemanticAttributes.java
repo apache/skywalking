@@ -23,7 +23,17 @@ public final class GenAISemanticAttributes {
     public static final String OPERATION_NAME = "gen_ai.operation.name";
     public static final String OUTPUT_MESSAGES = "gen_ai.output.messages";
     public static final String PROVIDER_NAME = "gen_ai.provider.name";
+    public static final String REQUEST_MODEL = "gen_ai.request.model";
     public static final String RESPONSE_MODEL = "gen_ai.response.model";
+    /**
+     * Seconds, as a double: the time to the first chunk of a streaming response.
+     */
+    public static final String RESPONSE_TIME_TO_FIRST_CHUNK = "gen_ai.response.time_to_first_chunk";
+    /**
+     * Milliseconds, as an int. SkyWalking Java Agent 9.7 and 9.8 report the time to first token under this tag; later
+     * agents report {@link #RESPONSE_TIME_TO_FIRST_CHUNK}. Read only when a span has no time to first chunk. The
+     * OpenTelemetry GenAI conventions give this name to a metric, not to a span attribute.
+     */
     public static final String SERVER_TIME_TO_FIRST_TOKEN = "gen_ai.server.time_to_first_token";
     public static final String SYSTEM_NAME = "gen_ai.system";
     public static final String USAGE_INPUT_TOKENS = "gen_ai.usage.input_tokens";
