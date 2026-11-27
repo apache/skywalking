@@ -66,7 +66,7 @@ public class EBPFProfilingScheduleRecord extends Metrics {
     @Column(name = PROCESS_ID, length = 600)
     private String processId;
     @ElasticSearch.EnableDocValues
-    @BanyanDB.EnableSort
+    @BanyanDB.IndexMode.EnableSort
     @Column(name = START_TIME)
     private long startTime;
     @Column(name = END_TIME)

@@ -29,141 +29,267 @@ import org.apache.skywalking.oap.server.core.analysis.manual.log.LogRecord;
 import org.apache.skywalking.oap.server.core.analysis.metrics.Metrics;
 import org.apache.skywalking.oap.server.core.analysis.record.Record;
 import org.apache.skywalking.oap.server.core.storage.StorageID;
+import org.apache.skywalking.oap.server.core.storage.model.BanyanDBTrace;
 
 /**
- * BanyanDB annotation is a holder including all annotations for BanyanDB storage
+ * BanyanDB annotation is a holder including all annotations for BanyanDB storage, grouped by the BanyanDB engine a
+ * model is stored in: {@link Measure} (metrics), {@link IndexMode} (metrics in index mode), {@link Stream} (records)
+ * and {@link Trace} (trace records).
  *
  * @since 9.1.0
  */
 public @interface BanyanDB {
+
     /**
-     * Series key is used to group time series data per metric of one entity in one place.
-     * <p>
-     * For example,
-     * ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it should be sharded
-     * by service ID
-     * [ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, 01-28 18:32 values-3, 01-28 18:32 values-4]
-     * <p>
-     * BanyanDB is the 1st storage implementation supporting this. It would make continuous time series metrics stored
-     * closely and compressed better.
-     * <p>
-     * 1. One entity could have multiple sharding keys
-     * 2. If no column is appointed for this, {@link org.apache.skywalking.oap.server.core.storage.StorageData#id}
-     * would be used by the storage implementation accordingly.
-     * <p>
-     * NOTICE, this sharding concept is NOT just for splitting data into different database instances or physical
-     * files.
-     * <p>
-     * Only work with {@link Column}
-     *
-     * @since 9.3.0 Rename as SeriesID.
-     * @since 9.1.0 created as a new annotation.
-     * @since 9.0.0 added in {@link Column}
+     * Annotations of metrics stored as BanyanDB measures, except the ones in {@link IndexMode}.
      */
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface SeriesID {
+    @interface Measure {
         /**
-         * Relative entity tag
+         * Series key is used to group time series data per metric of one entity in one place.
          * <p>
-         * The index number determines the order of the column placed in the SeriesID.
-         * BanyanDB SeriesID searching procedure uses a prefix-scanning strategy.
-         * Searching series against a prefix could improve the performance.
+         * For example, ServiceA's traffic gauge, service call per minute, includes following timestamp values, then it
+         * should be sharded by service ID: [ServiceA(encoded ID): 01-28 18:30 values-1, 01-28 18:31 values-2, ...]
          * <p>
-         * For example, the ServiceTraffic composite "layer" and "name" as the SeriesID,
-         * considering OAP finds services by "layer", the "layer" 's index should be 0 to
-         * trigger a prefix-scanning.
+         * 1. One entity could have multiple series keys. 2. If no column is appointed for this,
+         * {@link org.apache.skywalking.oap.server.core.storage.StorageData#id} is used.
+         * <p>
+         * Only work with {@link Column}
          *
-         * @return non-negative if this column be used for sharding. -1 means not as a sharding key
+         * @since 9.3.0 Rename as SeriesID.
+         * @since 9.1.0 created as a new annotation.
+         * @since 9.0.0 added in {@link Column}
          */
-        int index() default -1;
-    }
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface SeriesID {
+            /**
+             * The index number determines the order of the column placed in the SeriesID. BanyanDB searches series
+             * by prefix, so the column most often used as a condition goes first.
+             *
+             * @return non-negative if this column is a part of the SeriesID. -1 means not.
+             */
+            int index() default -1;
+        }
 
-    /**
-     * ShardingKey is used to group time series data per metric in one place. Optional. Only support Measure Tag.
-     * If ShardingKey is not set, the default ShardingKey is based on the combination of 'name' and 'entity' according to the {@link SeriesID}.
-     * <p>
-     * The typical scenario to specify the ShardingKey to the Group tag when the metric generate a TopNAggregation:
-     * If not set, the default data distribution based on the combination of 'name' and 'entity', can lead to performance issues when calculating the 'TopNAggregation'.
-     * This is because each shard only has a subset of the top-n list, and the query process has to be responsible for aggregating those lists to obtain the final result.
-     * This introduces overhead in terms of querying performance and disk usage.
-     *
-     * @since 10.3.0
-     */
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface ShardingKey {
         /**
-         * Relative sharding tag
+         * ShardingKey is used to group time series data per metric in one place. Optional, a measure tag only. Without
+         * it, data is distributed by the combination of 'name' and 'entity' (see {@link SeriesID}).
          * <p>
-         * The index number determines the order of the column placed in the ShardingKey.
+         * The typical use is the group tag of a metric that generates a TopNAggregation: distributed by entity, each
+         * shard holds only part of the top-n list, and the query has to merge the lists.
          *
-         * @return non-negative if this column be used for sharding. -1 means not as a sharding key
+         * @since 10.3.0
          */
-        int index() default -1;
-    }
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface ShardingKey {
+            /**
+             * @return non-negative if this column is a part of the sharding key, in this order. -1 means not.
+             */
+            int index() default -1;
+        }
 
-    /**
-     * Force disabling indexing declare through {@link Column}.
-     * In BanyanDB, some additional conditions could be done in server memory, no indexing required in this case.
-     * In the Trace model, no indexing means no tag would be created in BanyanDB.
-     * In the Stream model, no indexing means no index rule would be created in BanyanDB.
-     * @since 9.1.0
-     */
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface NoIndexing {
-
-    }
-
-    /**
-     * Additional information for constructing Index in BanyanDB.
-     *
-     * @since 9.3.0
-     */
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface IndexRule {
         /**
-         * IndexRule supports selecting two distinct kinds of index structures.
+         * The column is a measure field. Fields are stored apart from the tags.
+         * <p>
+         * Annotated: the column is a measure field. Unannotated: the column is a measure tag, indexed unless
+         * {@link Column#storageOnly()} is true.
+         *
+         * @since 9.4.0
          */
-        IndexType indexType() default IndexType.INVERTED;
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface Field {
+        }
 
-        enum IndexType {
-            /**
-             * The `INVERTED` index is the primary option when users set up an index rule.
-             * It's suitable for most tag indexing due to a better memory usage ratio and query performance.
-             */
-            INVERTED,
-            /**
-             * The `SKIPPING` index is optimized for the majority of stream tags, which prioritizes efficient space utilization.
-             * Such as the `trace_id` in the {@link LogRecord}.
-             */
-            SKIPPING,
-            /**
-             * The `TREE` index is designed for storing hierarchical data.
-             * Such as Trace Span.
-             */
-            TREE
+        /**
+         * The index rule of this tag supports sorting.
+         *
+         * @since 10.2.0
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface EnableSort {
+        }
+
+        /**
+         * Match query with the given analyzer, a fuzzy query powered by the analyzer.
+         *
+         * @since 10.1.0
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface MatchQuery {
+            AnalyzerType analyzer();
         }
     }
 
     /**
-     * timestampColumn is to identify which column in {@link Record} is providing the timestamp(millisecond) for BanyanDB.
-     * BanyanDB stream requires a timestamp in milliseconds.
-     * Notice, the timestamp column would not create an index rule in BanyanDB.
+     * IndexMode marks a metric stored as a BanyanDB measure in index mode, and holds the annotations of such
+     * metrics.
+     * <p>
+     * An IndexMode metric is a half-time series metric: it is time relative and still affected by the metric TTL, but
+     * its ID doesn't include the time bucket. The entity has a unique name to represent the entity, e.g.
+     * ServiceTraffic. The installer creates a virtual String tag 'id' for the SeriesID, valued by {@link Metrics#id()},
+     * whose {@link StorageID} must not include any time relative column:
+     * <pre>
+     *     return new StorageID().append(id);
+     * </pre>
+     * All columns are stored in the index exclusively. When a column is not used as a query condition, only
+     * {@link Column#storageOnly()} is allowed. No measure field is allowed.
      *
-     * @since 9.3.0
+     * @since 10.2.0
      */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
-    @interface TimestampColumn {
-        String value();
+    @interface IndexMode {
+        /**
+         * The index rule of this tag supports sorting.
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface EnableSort {
+        }
+
+        /**
+         * Match query with the given analyzer, a fuzzy query powered by the analyzer.
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface MatchQuery {
+            AnalyzerType analyzer();
+        }
     }
 
+    /**
+     * Annotations of records stored as BanyanDB streams.
+     */
+    @interface Stream {
+        /**
+         * The group of the stream.
+         */
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface Group {
+            StreamGroup value();
+        }
+
+        /**
+         * The column of the {@link Record} that provides the timestamp (millisecond) BanyanDB streams require. The
+         * timestamp column gets no index rule.
+         *
+         * @since 9.3.0
+         */
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface TimestampColumn {
+            String value();
+        }
+
+        /**
+         * Opt-in to additive boot-time reshape of this stream. Default (absent): boot follows the standard
+         * create-if-absent policy and records a shape mismatch on any shape divergence, leaving reconciliation to the
+         * operator. When present, the installer may apply purely additive changes (new tag) during boot; type
+         * changes, drops and entity changes are still refused. Only the init / standalone OAP reshapes.
+         */
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface AllowBootReshape {
+        }
+
+        /**
+         * Series key, see {@link Measure.SeriesID}.
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface SeriesID {
+            int index() default -1;
+        }
+
+        /**
+         * The index structure of this tag's index rule.
+         *
+         * @since 9.3.0
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface IndexRule {
+            IndexType indexType() default IndexType.INVERTED;
+
+            enum IndexType {
+                /**
+                 * The primary option, suitable for most tags thanks to its memory usage and query performance.
+                 */
+                INVERTED,
+                /**
+                 * Optimized for space, such as the `trace_id` in the {@link LogRecord}.
+                 */
+                SKIPPING,
+                /**
+                 * Designed for hierarchical data. Every {@link BanyanDB.Trace.IndexRule} is implicitly a tree index;
+                 * on a stream tag, BanyanDB creates the rule but never populates it.
+                 */
+                TREE
+            }
+        }
+
+        /**
+         * The index rule of this tag supports sorting.
+         *
+         * @since 10.2.0
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface EnableSort {
+        }
+
+        /**
+         * Match query with the given analyzer, a fuzzy query powered by the analyzer.
+         *
+         * @since 10.1.0
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface MatchQuery {
+            AnalyzerType analyzer();
+        }
+
+        /**
+         * No index rule for this tag, although {@link Column} would create one. BanyanDB filters on it in server
+         * memory instead.
+         *
+         * @since 9.1.0
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface NoIndexing {
+        }
+    }
+
+    /**
+     * Annotations of records stored as BanyanDB traces.
+     */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
     @interface Trace {
+        /**
+         * The group of the trace. A model with {@link StoreAsAttachmentOf} takes the group of its target instead.
+         */
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface Group {
+            TraceGroup value();
+        }
+
+        /**
+         * The column that provides the timestamp (millisecond) of the trace.
+         */
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface TimestampColumn {
+            String value();
+        }
+
         @Target({ElementType.TYPE})
         @Retention(RetentionPolicy.RUNTIME)
         @interface TraceIdColumn {
@@ -177,7 +303,9 @@ public @interface BanyanDB {
         }
 
         /**
-         * IndexRule is used to define a composite index in BanyanDB.
+         * IndexRule is used to define a composite index in BanyanDB. Its index type is implicit: the installer
+         * always builds it as a tree index ({@link Stream.IndexRule.IndexType#TREE}), with {@link #orderByColumn()}
+         * as its last tag.
          * Notice, the order of columns is significant, the columns in front have a higher priority
          * and more efficient in searching.
          */
@@ -194,118 +322,54 @@ public @interface BanyanDB {
                 IndexRule[] value();
             }
         }
-    }
 
-    /**
-     * MeasureField defines a column as a measure's field.
-     * The measure field has a significant difference from no-indexing tag.
-     * The measure fields are stored in another file, but no-indexing tag is stored in the same file with the indexing
-     * tags.
-     * <p>
-     * Annotated: the column is a measure field.
-     * Unannotated: the column is a measure tag.
-     * storageOnly=true: the column is a measure tag that is not indexed.
-     * storageOnly=false: the column is a measure tag that is indexed.
-     * indexOnly=true: the column is a measure tag that is indexed, but not stored.
-     * indexOnly=false: the column is a measure tag that is indexed and stored.
-     *
-     * @since 9.4.0
-     */
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface MeasureField {
-    }
+        /**
+         * No trace tag for this column: BanyanDB holds its value only inside the span payload, which queries decode
+         * to rebuild the span. Use it only for a value the record's {@link BanyanDBTrace#getSpanWrapper()} encodes.
+         */
+        @Target({ElementType.FIELD})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface InSpanPayloadOnly {
+        }
 
-    /**
-     * Match query is designed for BanyanDB match query with specific analyzer. It is a fuzzy query implementation
-     * powered by analyzer.
-     *
-     * @since 10.1.0
-     */
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface MatchQuery {
-        AnalyzerType analyzer();
-
-        enum AnalyzerType {
+        /**
+         * The rows of this model are stored as an attachment of another model's trace: they are written into that
+         * trace, and its query returns them with its own spans. The target supplies the trace name, its group, and
+         * its trace ID, timestamp and span ID columns; this model's {@link TraceIdColumn}, {@link TimestampColumn}
+         * and {@link SpanIdColumn} name the columns whose values go into them.
+         */
+        @Target({ElementType.TYPE})
+        @Retention(RetentionPolicy.RUNTIME)
+        @interface StoreAsAttachmentOf {
             /**
-             * Keyword analyzer is a “noop” analyzer which returns the entire input string as a single token.
+             * @return the model class of the target trace.
              */
-            KEYWORD,
-            /**
-             * Standard analyzer provides grammar based tokenization
-             */
-            STANDARD,
-            /**
-             * Simple analyzer breaks text into tokens at any non-letter character,
-             * such as numbers, spaces, hyphens and apostrophes, discards non-letter characters,
-             * and changes uppercase to lowercase.
-             */
-            SIMPLE,
-            /**
-             * URL analyzer breaks test into tokens at any non-letter and non-digit character
-             */
-            URL
+            Class<?> value();
         }
     }
 
     /**
-     * EnableSort is used to indicate the IndexRule supports sorting.
-     *
-     * @since 10.2.0
+     * The analyzer of a match query.
      */
-    @Target({ElementType.FIELD})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface EnableSort {
-    }
-
-    /**
-     * IndexMode is used to indicate the index mode of the metric.
-     * IndexMode metric is a half-time series metric, which means the metric is time relative, and still affected by
-     * metric TTL, but its ID doesn't include time bucket. The entity has a unique name to represent the entity.
-     * <p>
-     * If a metric is annotated with IndexMode, the installer will automatically create a virtual String tag 'id' for the SeriesID.
-     * We don't need to declare other columns as SeriesID.
-     * The value of 'id' is generated by the {@link Metrics#id()} method.
-     * <p>
-     * The entity should be a kind of metadata entity, e.g. ServiceTraffic.
-     * The return({@link StorageID} of {@link Metrics#id()} should not include any time relative column and column name.
-     * <pre>
-     * <code>
-     *         return new StorageID().append(id);
-     * </code>
-     * </pre>
-     * <p>
-     * A metric with complete(not IndexMode) time series data includes the TIME_BUCKET column in the ID.
-     * <pre>
-     * <code>
-     *          return new StorageID()
-     *             .append(TIME_BUCKET, getTimeBucket())
-     *             .append(ENTITY_ID, getEntityId());
-     * </code>
-     * </pre>
-     *
-     * <p>
-     * All columns in the metric will be stored in the index exclusively.
-     * When an entity column is not used in query condition, only {@link Column#storageOnly()} is allowed.
-     * No {@link MeasureField} is allowed for those columns in IndexMode entity.
-     *
-     * @since 10.2.0
-     */
-    @Target({ElementType.TYPE})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface IndexMode {
-    }
-
-    @Target({ElementType.TYPE})
-    @Retention(RetentionPolicy.RUNTIME)
-    @interface Group {
+    enum AnalyzerType {
         /**
-         * Specify the group name for the Stream (Record). The default value is "NONE".
+         * Keyword analyzer is a “noop” analyzer which returns the entire input string as a single token.
          */
-        StreamGroup streamGroup() default StreamGroup.NONE;
-
-        TraceGroup traceGroup() default TraceGroup.NONE;
+        KEYWORD,
+        /**
+         * Standard analyzer provides grammar based tokenization
+         */
+        STANDARD,
+        /**
+         * Simple analyzer breaks text into tokens at any non-letter character,
+         * such as numbers, spaces, hyphens and apostrophes, discards non-letter characters,
+         * and changes uppercase to lowercase.
+         */
+        SIMPLE,
+        /**
+         * URL analyzer breaks test into tokens at any non-letter and non-digit character
+         */
+        URL
     }
 
     enum StreamGroup {

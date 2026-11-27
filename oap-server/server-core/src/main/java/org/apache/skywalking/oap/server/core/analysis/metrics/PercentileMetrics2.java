@@ -57,17 +57,17 @@ public abstract class PercentileMetrics2 extends Metrics implements LabeledValue
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     @ElasticSearch.Column(legacyName = "value")
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private DataTable percentileValues;
     @Getter
     @Setter
     @Column(name = PRECISION, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private int precision;
     @Getter
     @Setter
     @Column(name = DATASET, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private DataTable dataset;
 
     private boolean isCalculated;

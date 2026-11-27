@@ -50,7 +50,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Measure.SeriesID(index = 0)
     private String entityId;
 
     @Setter
@@ -62,7 +62,7 @@ public abstract class SumFunction extends Meter implements AcceptableValue<Long>
     @Setter
     @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private long value;
 
     @Override

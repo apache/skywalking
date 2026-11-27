@@ -67,7 +67,7 @@ public class ServiceRelationServerSideMetrics extends Metrics {
     @Getter
     @ElasticSearch.EnableDocValues
     @Column(name = ENTITY_ID, length = 512)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Measure.SeriesID(index = 0)
     private String entityId;
 
     @Override

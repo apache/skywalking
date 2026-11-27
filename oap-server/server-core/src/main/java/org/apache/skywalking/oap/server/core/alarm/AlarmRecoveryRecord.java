@@ -39,8 +39,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.AL
 @Setter
 @ScopeDeclaration(id = ALARM_RECOVERY, name = "AlarmRecovery")
 @Stream(name = AlarmRecoveryRecord.INDEX_NAME, scopeId = DefaultScopeDefine.ALARM_RECOVERY, builder = AlarmRecoveryRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(AlarmRecoveryRecord.RECOVERY_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(AlarmRecoveryRecord.RECOVERY_TIME)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class AlarmRecoveryRecord extends Record {
     public static final String INDEX_NAME = "alarm_recovery_record";
     public static final String UUID = "uuid";
@@ -54,7 +54,7 @@ public class AlarmRecoveryRecord extends Record {
     @ElasticSearch.EnableDocValues
     @Column(name = RECOVERY_TIME)
     private long recoveryTime;
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     @Column(name = UUID)
     private String uuid;
 

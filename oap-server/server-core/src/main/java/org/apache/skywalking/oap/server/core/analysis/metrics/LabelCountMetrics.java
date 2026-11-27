@@ -39,14 +39,14 @@ public abstract class LabelCountMetrics extends Metrics implements LabeledValueH
     @Getter
     @Setter
     @Column(name = DATASET, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private DataTable dataset;
 
     @Getter
     @Setter
     @Column(name = VALUE, dataType = Column.ValueDataType.LABELED_VALUE, storageOnly = true)
     @ElasticSearch.Column(legacyName = "value")
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private DataTable value;
 
     private boolean isCalculated;

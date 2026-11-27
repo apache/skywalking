@@ -31,15 +31,10 @@ public class ModelColumn {
     private final Class<?> type;
     private final Type genericType;
     /**
-     * Storage this column for query result, but can't be as a condition . Conflict with {@link #indexOnly}
+     * Storage this column for query result, but can't be as a condition. Conflict with
+     * {@link ElasticSearchExtension#isIndexOnly()}.
      */
     private final boolean storageOnly;
-    /**
-     * Index this column for query condition only. Conflict with {@link #storageOnly}
-     *
-     * @since 9.0.0
-     */
-    private final boolean indexOnly;
     /**
      * The max length of column value for length sensitive database.
      */
@@ -68,7 +63,6 @@ public class ModelColumn {
                        Class<?> type,
                        Type genericType,
                        boolean storageOnly,
-                       boolean indexOnly,
                        boolean isValue,
                        int length,
                        SQLDatabaseExtension sqlDatabaseExtension,
@@ -93,11 +87,10 @@ public class ModelColumn {
             this.storageOnly = storageOnly;
         }
 
-        if (storageOnly && indexOnly) {
+        if (storageOnly && elasticSearchExtension != null && elasticSearchExtension.isIndexOnly()) {
             throw new IllegalArgumentException(
                 "The column " + columnName + " can't be defined as both indexOnly and storageOnly.");
         }
-        this.indexOnly = indexOnly;
         this.banyanDBExtension = banyanDBExtension;
 
         if (!this.banyanDBExtension.shouldIndex() && this.banyanDBExtension.getAnalyzer() != null) {

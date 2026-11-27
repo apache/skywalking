@@ -38,8 +38,8 @@ import static org.apache.skywalking.oap.server.core.source.DefaultScopeDefine.EV
 @Setter
 @ScopeDeclaration(id = EVENT, name = "Event")
 @Stream(name = Event.INDEX_NAME, scopeId = EVENT, builder = Event.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(Event.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(Event.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class Event extends Record {
 
     public static final String INDEX_NAME = "event";
@@ -71,7 +71,7 @@ public class Event extends Record {
     public static final String TIMESTAMP = "timestamp";
 
     @Column(name = UUID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String uuid;
 
     @Column(name = SERVICE)

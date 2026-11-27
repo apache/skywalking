@@ -100,6 +100,15 @@ public @interface ElasticSearch {
     }
 
     /**
+     * The column is indexed only, never stored: it is left out of the document `_source`, so it is not available in
+     * a query projection. It cannot be combined with {@link org.apache.skywalking.oap.server.core.storage.annotation.Column#storageOnly()}.
+     */
+    @Target({ElementType.FIELD})
+    @Retention(RetentionPolicy.RUNTIME)
+    @interface IndexOnly {
+    }
+
+    /**
      * Routing defines a field of {@link Record} to control the sharding policy.
      */
     @Target(ElementType.FIELD)

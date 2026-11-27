@@ -38,12 +38,12 @@ public abstract class CPMMetrics extends Metrics implements LongValueHolder {
     @Setter
     @ElasticSearch.EnableDocValues
     @Column(name = VALUE, dataType = Column.ValueDataType.COMMON_VALUE)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private long value;
     @Getter
     @Setter
     @Column(name = TOTAL, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private long total;
 
     @Entrance

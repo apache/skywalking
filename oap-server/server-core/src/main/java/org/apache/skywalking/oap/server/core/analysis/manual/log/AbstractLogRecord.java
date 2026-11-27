@@ -54,13 +54,13 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(name = SERVICE_ID)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE}, reserveOriginalColumns = true)
     private String serviceId;
     @Setter
     @Getter
     @Column(name = SERVICE_INSTANCE_ID, length = 512)
-    @BanyanDB.SeriesID(index = 1)
+    @BanyanDB.Stream.SeriesID(index = 1)
     private String serviceInstanceId;
     @Setter
     @Getter
@@ -69,7 +69,7 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(name = TRACE_ID, length = 150)
-    @BanyanDB.IndexRule(indexType = BanyanDB.IndexRule.IndexType.SKIPPING)
+    @BanyanDB.Stream.IndexRule(indexType = BanyanDB.Stream.IndexRule.IndexType.SKIPPING)
     private String traceId;
     @Setter
     @Getter
@@ -78,7 +78,7 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(name = SPAN_ID)
-    @BanyanDB.NoIndexing
+    @BanyanDB.Stream.NoIndexing
     private int spanId;
     /**
      * The span that wrote the log when it is an OTLP or Zipkin span: its 16 lowercase hex characters.
@@ -88,7 +88,7 @@ public abstract class AbstractLogRecord extends Record {
     @Setter
     @Getter
     @Column(name = OTLP_SPAN_ID, length = 64)
-    @BanyanDB.NoIndexing
+    @BanyanDB.Stream.NoIndexing
     private String otlpSpanId;
     @Setter
     @Getter
@@ -114,7 +114,8 @@ public abstract class AbstractLogRecord extends Record {
     private byte[] tagsRawData;
     @Setter
     @Getter
-    @Column(name = TAGS, indexOnly = true, length = Tag.TAG_LENGTH)
+    @Column(name = TAGS, length = Tag.TAG_LENGTH)
+    @ElasticSearch.IndexOnly
     @SQLDatabase.AdditionalEntity(additionalTables = {ADDITIONAL_TAG_TABLE})
     private List<String> tagsInString;
 

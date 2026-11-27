@@ -31,7 +31,7 @@ import org.apache.skywalking.oap.server.core.storage.annotation.BanyanDB;
 public class BanyanDBExtension {
     /**
      * SeriesID is used to group time series data per metric of one entity. See {@link
-     * BanyanDB.SeriesID#index()}.
+     * BanyanDB.Measure.SeriesID#index()}.
      *
      * @since 9.1.0 moved into BanyanDBExtension
      * @since 9.0.0 added into {@link ModelColumn}
@@ -43,8 +43,8 @@ public class BanyanDBExtension {
     private final int shardingKeyIdx;
 
     /**
-     * {@link BanyanDB.NoIndexing} exists to override {@link ModelColumn#shouldIndex()}, or be the same as {@link
-     * ModelColumn#shouldIndex()}.
+     * {@link BanyanDB.Stream.NoIndexing} and {@link BanyanDB.Trace.InSpanPayloadOnly} exist to override
+     * {@link ModelColumn#shouldIndex()}, or be the same as {@link ModelColumn#shouldIndex()}.
      *
      * @since 9.1.0
      */
@@ -56,7 +56,7 @@ public class BanyanDBExtension {
      * @since 9.3.0
      */
     @Getter
-    private final BanyanDB.IndexRule.IndexType indexType;
+    private final BanyanDB.Stream.IndexRule.IndexType indexType;
 
     /**
      * A column belong to a measure's field.
@@ -66,13 +66,13 @@ public class BanyanDBExtension {
 
     /**
      * The analyzer policy appointed to fuzzy query, especially for BanyanDB.
-     * See {@link BanyanDB.MatchQuery}.
+     * See {@link BanyanDB.Measure.MatchQuery}.
      */
     @Getter
-    private final BanyanDB.MatchQuery.AnalyzerType analyzer;
+    private final BanyanDB.AnalyzerType analyzer;
 
     /**
-     * Enable sort for this column. See {@link BanyanDB.EnableSort}.
+     * Enable sort for this column. See {@link BanyanDB.Measure.EnableSort}.
      */
     @Getter
     private final boolean enableSort;

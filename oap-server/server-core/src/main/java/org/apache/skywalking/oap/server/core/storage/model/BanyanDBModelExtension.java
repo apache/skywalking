@@ -87,6 +87,36 @@ public class BanyanDBModelExtension {
     @Getter
     private BanyanDB.TraceGroup traceGroup = BanyanDB.TraceGroup.NONE;
 
+    /**
+     * The installer may apply purely additive shape changes to this stream at boot. See
+     * {@link BanyanDB.Stream.AllowBootReshape}.
+     */
+    @Setter
+    @Getter
+    private boolean allowBootReshape;
+
+    /**
+     * Not null when the rows of this model are stored as an attachment of another model's trace. See
+     * {@link BanyanDB.Trace.StoreAsAttachmentOf}.
+     */
+    @Setter
+    @Getter
+    private AttachmentTarget attachmentTarget;
+
+    /**
+     * The trace an attached model's rows are written into, with the target's own trace ID, timestamp and span ID
+     * columns. The attached model's {@link #getTraceIdColumn()}, {@link #getTimestampColumn()} and
+     * {@link #getSpanIdColumn()} name the columns whose values go into them.
+     */
+    @Getter
+    @RequiredArgsConstructor
+    public static class AttachmentTarget {
+        private final String targetName;
+        private final String targetTraceIdColumn;
+        private final String targetTimestampColumn;
+        private final String targetSpanIdColumn;
+    }
+
     @RequiredArgsConstructor
     public static class TraceIndexRule {
         @Getter

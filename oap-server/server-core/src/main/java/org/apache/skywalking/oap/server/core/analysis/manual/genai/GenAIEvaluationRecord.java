@@ -51,8 +51,8 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
 @ScopeDeclaration(id = DefaultScopeDefine.GEN_AI_EVALUATION_RECORD, name = "GenAIEvaluationRecord")
 @Stream(name = GenAIEvaluationRecord.INDEX_NAME, scopeId = DefaultScopeDefine.GEN_AI_EVALUATION_RECORD,
         builder = GenAIEvaluationRecord.Builder.class, processor = RecordStreamProcessor.class)
-@BanyanDB.TimestampColumn(GenAIEvaluationRecord.EVALUATION_TIME)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(GenAIEvaluationRecord.EVALUATION_TIME)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class GenAIEvaluationRecord extends Record {
 
     public static final String INDEX_NAME = "gen_ai_evaluation_record";
@@ -84,7 +84,7 @@ public class GenAIEvaluationRecord extends Record {
     private String uniqueId;
 
     @Column(name = TRACE_ID, length = 150)
-    @BanyanDB.IndexRule(indexType = BanyanDB.IndexRule.IndexType.SKIPPING)
+    @BanyanDB.Stream.IndexRule(indexType = BanyanDB.Stream.IndexRule.IndexType.SKIPPING)
     private String traceId;
 
     @ElasticSearch.EnableDocValues
@@ -93,12 +93,12 @@ public class GenAIEvaluationRecord extends Record {
 
     @ElasticSearch.EnableDocValues
     @Column(name = PROVIDER_ID, length = 150)
-    @BanyanDB.SeriesID(index = 0)
+    @BanyanDB.Stream.SeriesID(index = 0)
     private String providerId;
 
     @ElasticSearch.EnableDocValues
     @Column(name = MODEL_ID, length = 250)
-    @BanyanDB.SeriesID(index = 1)
+    @BanyanDB.Stream.SeriesID(index = 1)
     private String modelId;
 
     @ElasticSearch.EnableDocValues
@@ -106,7 +106,7 @@ public class GenAIEvaluationRecord extends Record {
     private String operationName;
 
     @ElasticSearch.EnableDocValues
-    @BanyanDB.EnableSort
+    @BanyanDB.Stream.EnableSort
     @Column(name = EVAL_NUMBER_VALUE)
     private Long evalNumberValue;
 
@@ -129,7 +129,7 @@ public class GenAIEvaluationRecord extends Record {
 
     @Getter(AccessLevel.NONE)
     @Column(name = VALUE_TYPE, length = 64)
-    @BanyanDB.IndexRule(indexType = BanyanDB.IndexRule.IndexType.SKIPPING)
+    @BanyanDB.Stream.IndexRule(indexType = BanyanDB.Stream.IndexRule.IndexType.SKIPPING)
     private String valueType;
 
     @Column(name = EVAL_STRING_VALUE, length = EVAL_STRING_VALUE_MAX_LENGTH, storageOnly = true)
@@ -137,7 +137,7 @@ public class GenAIEvaluationRecord extends Record {
 
     @ElasticSearch.EnableDocValues
     @Column(name = EVALUATION_LEVEL, length = 64)
-    @BanyanDB.IndexRule(indexType = BanyanDB.IndexRule.IndexType.SKIPPING)
+    @BanyanDB.Stream.IndexRule(indexType = BanyanDB.Stream.IndexRule.IndexType.SKIPPING)
     private String evaluationLevel;
 
     @Column(name = REASON, length = REASON_MAX_LENGTH, storageOnly = true)

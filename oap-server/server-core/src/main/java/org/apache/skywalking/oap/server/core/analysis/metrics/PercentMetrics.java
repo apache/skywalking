@@ -37,18 +37,18 @@ public abstract class PercentMetrics extends Metrics implements IntValueHolder {
     @Getter
     @Setter
     @Column(name = TOTAL, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private long total;
     @Getter
     @Setter
     @ElasticSearch.EnableDocValues
     @Column(name = PERCENTAGE, dataType = Column.ValueDataType.COMMON_VALUE)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private int percentage;
     @Getter
     @Setter
     @Column(name = MATCH, storageOnly = true)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private long match;
 
     @Entrance

@@ -37,8 +37,8 @@ import java.util.Objects;
  * Service Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
  */
 @Stream(name = TopNServiceDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.SERVICE_DATABASE_SLOW_STATEMENT, builder = TopNServiceDatabaseStatement.Builder.class, processor = TopNStreamProcessor.class)
-@BanyanDB.TimestampColumn(TopN.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(TopN.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class TopNServiceDatabaseStatement extends TopN {
 
     public static final String INDEX_NAME = "top_n_service_database_statement";

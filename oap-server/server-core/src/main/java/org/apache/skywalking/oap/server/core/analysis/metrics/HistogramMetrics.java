@@ -43,7 +43,7 @@ public abstract class HistogramMetrics extends Metrics {
     @Getter
     @Setter
     @Column(name = DATASET, dataType = Column.ValueDataType.HISTOGRAM, storageOnly = true, defaultValue = 0)
-    @BanyanDB.MeasureField
+    @BanyanDB.Measure.Field
     private DataTable dataset = new DataTable(30);
 
     /**

@@ -36,8 +36,8 @@ import org.apache.skywalking.oap.server.core.storage.type.StorageBuilder;
  * Database TopN statement, including Database SQL statement, mongoDB and Redis commands.
  */
 @Stream(name = TopNDatabaseStatement.INDEX_NAME, scopeId = DefaultScopeDefine.DATABASE_SLOW_STATEMENT, builder = TopNDatabaseStatement.Builder.class, processor = TopNStreamProcessor.class)
-@BanyanDB.TimestampColumn(TopN.TIMESTAMP)
-@BanyanDB.Group(streamGroup = BanyanDB.StreamGroup.RECORDS)
+@BanyanDB.Stream.TimestampColumn(TopN.TIMESTAMP)
+@BanyanDB.Stream.Group(BanyanDB.StreamGroup.RECORDS)
 public class TopNDatabaseStatement extends TopN {
     public static final String INDEX_NAME = "top_n_database_statement";
     /**
